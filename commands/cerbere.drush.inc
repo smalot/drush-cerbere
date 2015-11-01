@@ -15,7 +15,7 @@ use Cerbere\Parser\Make;
  * Implements hook_drush_command().
  */
 function cerbere_drush_command() {
-  $items['cerbere-check-update'] = array(
+  $items['cerbere-update'] = array(
     'description' => 'Check updates using make file, info file or scanning folder to discover info files.',
     //'aliases' => array('cdc'),
     'arguments' => array(
@@ -39,7 +39,7 @@ function cerbere_drush_command() {
 /**
  * Callback for the drush-demo-command command
  */
-function drush_cerbere_check_update() {
+function drush_cerbere_update() {
   $patterns = func_get_args();
 
   foreach ($patterns as $pattern) {
@@ -59,12 +59,12 @@ function drush_cerbere_check_update() {
         if (preg_match('/\.info$/', $file)) {
           $info = new Info($file);
           $project = $info->getProject();
-          _drush_cerbere_check_update_log($project);
+          _drush_cerbere_update_log($project);
         }
         elseif (preg_match('/\.make$/', $file)) {
           $make = new Make($file);
           foreach ($make->getProjects() as $project) {
-            _drush_cerbere_check_update_log($project);
+            _drush_cerbere_update_log($project);
           }
         }
       }
@@ -78,7 +78,7 @@ function drush_cerbere_check_update() {
 /**
  * @param Project $project
  */
-function _drush_cerbere_check_update_log(Project $project) {
+function _drush_cerbere_update_log(Project $project) {
   $release_history = new ReleaseHistory($project);
   $update = new Update();
   $update->compare($project, $release_history);
