@@ -1,0 +1,4 @@
+name = Cerbere
+description = Drush command line to check module updates (git, svn, folder).
+core = 7.x
+package = Drush
