@@ -8,7 +8,6 @@ php:
   - 5.5
   - 5.6
   - 7
-  - hhvm
 
 matrix:
   allow_failures:
@@ -17,7 +16,6 @@ matrix:
     - php: 5.3
       env: DRUSH_VERSION=dev-master
     - php: 7
-    - php: hhvm
 
 env:
   - DRUSH_VERSION=6.*
