@@ -81,7 +81,7 @@ abstract class Ini
             foreach ($matches as $match) {
                 // Fetch the key and value string.
                 $i = 0;
-                $key = $value1 = $value2 = $value3 ='';
+                $key = $value1 = $value2 = $value3 = '';
                 foreach (array('key', 'value1', 'value2', 'value3') as $var) {
                     $$var = isset($match[++$i]) ? $match[$i] : '';
                 }

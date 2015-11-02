@@ -28,7 +28,9 @@ abstract class Test extends atoum\test
 
             register_shutdown_function(
               function() use ($filename) {
-                  @unlink($filename);
+                  if (!unlink($filename)) {
+                      ; // Nothing to do.
+                  }
               }
             );
 
