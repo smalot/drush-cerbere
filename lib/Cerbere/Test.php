@@ -16,7 +16,7 @@ abstract class Test extends atoum\test
     protected $files = array();
 
     /**
-     * @param array $data
+     * @param string $data
      * @return bool|string
      */
     protected function createFile($data)
