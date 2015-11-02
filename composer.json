@@ -8,7 +8,7 @@
     { "name": "Sebastien Malot", "email": "sebastien@malot.fr" }
   ],
   "require": {
-    "drush/drush": "7.*"
+    "drush/drush": "*"
   },
   "autoload": {
     "psr-0": {
