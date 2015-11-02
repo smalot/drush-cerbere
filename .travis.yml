@@ -13,10 +13,6 @@ matrix:
 
 before_script:
   - composer self-update || true
-  - composer update
   - composer --prefer-source install
-  - pwd
-  - ls -al vendor
-  - ls -al *
 
-script: ./vendor/bin/atoum -d lib/Cerbere/Tests/Units/ -ncc
+script: ./vendor/atoum/atoum/bin/atoum -d lib/Cerbere/Tests/Units/ -ncc
