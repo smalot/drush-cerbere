@@ -3,6 +3,7 @@
 namespace Cerbere\Action;
 
 use Cerbere\Model\Project;
+use Cerbere\Model\Release;
 use Cerbere\Model\ReleaseHistory;
 
 /**
@@ -247,7 +248,9 @@ class Update
                 }
                 if (!$release->getVersionExtra() && $patch == $release->getVersionPatch()) {
                     $project->setRecommended($release_patch_changed->getVersion());
-                    $project->setRelease($release_patch_changed->getVersion(), $release_patch_changed);
+                    if ($release_patch_changed instanceof Release) {
+                        $project->setRelease($release_patch_changed->getVersion(), $release_patch_changed);
+                    }
                 }
             }
 
