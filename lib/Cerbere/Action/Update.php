@@ -100,12 +100,6 @@ class Update
      */
     public function compare(Project $project, ReleaseHistory $releaseHistory)
     {
-        /*foreach (array('title', 'link') as $attribute) {
-          if (!isset($project_data[$attribute]) && isset($available[$attribute])) {
-            $project_data[$attribute] = $available[$attribute];
-          }
-        }*/
-
         // If the project status is marked as something bad, there's nothing else
         // to consider.
         if ($releaseHistory->getProjectStatus()) {
@@ -225,31 +219,6 @@ class Update
                 continue;
             }
 
-            // See if this is a higher major version than our target and yet still
-            // supported. If so, record it as an "Also available" release.
-            // Note: some projects have a HEAD release from CVS days, which could
-            // be one of those being compared. They would not have version_major
-            // set, so we must call isset first.
-//      if (isset($release['version_major']) && $release['version_major'] > $target_major) {
-//        if (in_array($release['version_major'], $supported_majors)) {
-//          if (!isset($project_data['also'])) {
-//            $project_data['also'] = array();
-//          }
-//          if (!isset($project_data['also'][$release['version_major']])) {
-//            $project_data['also'][$release['version_major']] = $version;
-//            $project_data['releases'][$version] = $release;
-//          }
-//        }
-//        // Otherwise, this release can't matter to us, since it's neither
-//        // from the release series we're currently using nor the recommended
-//        // release. We don't even care about security updates for this
-//        // branch, since if a project maintainer puts out a security release
-//        // at a higher major version and not at the lower major version,
-//        // they must remove the lower version from the supported major
-//        // versions at the same time, in which case we won't hit this code.
-//        continue;
-//      }
-
             // Look for the 'latest version' if we haven't found it yet. Latest is
             // defined as the most recent version for the target major version.
             if (!$project->getLatestVersion() && $release->getVersionMajor() == $target_major) {
@@ -315,10 +284,7 @@ class Update
             $project->setRecommended($project->getLatestVersion());
         }
 
-        //
         // Check to see if we need an update or not.
-        //
-
         if ($project->hasSecurityUpdates()) {
             // If we found security updates, that always trumps any other status.
             $project->setStatus(self::UPDATE_NOT_SECURE);
