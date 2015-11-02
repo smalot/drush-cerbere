@@ -196,7 +196,7 @@ class Update
 
         foreach ($releaseHistory->getReleases() as $version => $release) {
             // First, if this is the existing release, check a few conditions.
-            if ($project->getExistingVersion() === $version) {
+            if ($project->getExistingVersion() == $version) {
                 if ($release->hasTerm('Release type') &&
                   in_array('Insecure', $release->getTerm('Release type'))
                 ) {
@@ -252,7 +252,7 @@ class Update
             }
 
             // Stop searching once we hit the currently installed version.
-            if ($project->getExistingVersion() === $version) {
+            if ($project->getExistingVersion() == $version) {
                 break;
             }
 
@@ -321,8 +321,8 @@ class Update
         // Figure out the status, based on what we've seen and the install type.
         switch ($project->getInstallType()) {
             case Project::INSTALL_TYPE_OFFICIAL:
-                if ($project->getExistingVersion() === $project->getRecommended() || $project->getExistingVersion(
-                  ) === $project->getLatestVersion()
+                if ($project->getExistingVersion() == $project->getRecommended() ||
+                  $project->getExistingVersion() == $project->getLatestVersion()
                 ) {
                     $project->setStatus(self::UPDATE_CURRENT);
                 } else {
