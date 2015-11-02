@@ -4,9 +4,27 @@ namespace Cerbere\Tests\Units\Parser;
 
 use Cerbere\Test;
 
-class Info extends Test {
-  protected function createInfoFile() {
-    $data = 'name = Views
+class Info extends Test
+{
+    public function testGetProject()
+    {
+        $filename = $this->createInfoFile();
+        $this->string($filename)->contains('atoum');
+
+        $info = new \Cerbere\Parser\Info($filename);
+        $this->class($info);
+
+        $project = $info->getProject();
+        $this->string(get_class($project))->isEqualTo('Cerbere\Model\Project');
+        $this->string($project->getCore())->isEqualTo('7.x');
+        $this->string($project->getVersion())->isEqualTo('7.x-3.11');
+        $this->string($project->getName())->isEqualTo('Views');
+        $this->string($project->getDatestamp())->isEqualTo('1430321048');
+    }
+
+    protected function createInfoFile()
+    {
+        $data = 'name = Views
 description = Create customized lists and queries from your database.
 package = Views
 core = 7.x
@@ -26,21 +44,6 @@ project = "views"
 datestamp = "1430321048"
 ';
 
-    return $this->createFile($data);
-  }
-
-  public function testGetProject() {
-    $filename = $this->createInfoFile();
-    $this->string($filename)->contains('atoum');
-
-    $info = new \Cerbere\Parser\Info($filename);
-    $this->class($info);
-
-    $project = $info->getProject();
-    $this->string(get_class($project))->isEqualTo('Cerbere\Model\Project');
-    $this->string($project->getCore())->isEqualTo('7.x');
-    $this->string($project->getVersion())->isEqualTo('7.x-3.11');
-    $this->string($project->getName())->isEqualTo('Views');
-    $this->string($project->getDatestamp())->isEqualTo('1430321048');
-  }
+        return $this->createFile($data);
+    }
 }

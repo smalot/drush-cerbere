@@ -4,9 +4,22 @@ namespace Cerbere\Tests\Units\Parser;
 
 use Cerbere\Test;
 
-class Make extends Test {
-  protected function createMakeFile() {
-    $data = 'core = 7.x
+class Make extends Test
+{
+    public function testGetCore()
+    {
+        $filename = $this->createMakeFile();
+        $this->string($filename)->contains('atoum');
+
+        $make = new \Cerbere\Parser\Make($filename);
+        $this->class($make);
+
+        $this->string($make->getCore())->isEqualTo('7.x');
+    }
+
+    protected function createMakeFile()
+    {
+        $data = 'core = 7.x
 api = 2
 projects[drupal][version] = "7.38"
 
@@ -46,75 +59,68 @@ libraries[bgrins-spectrum][download][type] = "get"
 libraries[bgrins-spectrum][download][url] = https://github.com/bgrins/spectrum/archive/1.6.0.zip
 ';
 
-    return $this->createFile($data);
-  }
+        return $this->createFile($data);
+    }
 
-  public function testGetCore() {
-    $filename = $this->createMakeFile();
-    $this->string($filename)->contains('atoum');
+    public function testGetVersion()
+    {
+        $filename = $this->createMakeFile();
+        $this->string($filename)->contains('atoum');
 
-    $make = new \Cerbere\Parser\Make($filename);
-    $this->class($make);
+        $make = new \Cerbere\Parser\Make($filename);
+        $this->class($make);
 
-    $this->string($make->getCore())->isEqualTo('7.x');
-  }
+        $this->string($make->getApi())->isEqualTo('2');
+    }
 
-  public function testGetVersion() {
-    $filename = $this->createMakeFile();
-    $this->string($filename)->contains('atoum');
+    public function testGetProjects()
+    {
+        $filename = $this->createMakeFile();
+        $this->string($filename)->contains('atoum');
 
-    $make = new \Cerbere\Parser\Make($filename);
-    $this->class($make);
+        $make = new \Cerbere\Parser\Make($filename);
+        $this->class($make);
 
-    $this->string($make->getApi())->isEqualTo('2');
-  }
+        $projects = $make->getProjects();
+        $project_names = array(
+          0  => 'drupal',
+          1  => 'admin_menu',
+          2  => 'module_filter',
+          3  => 'addressfield',
+          4  => 'addressfield_sub_premise',
+          5  => 'addressfield_phone',
+          6  => 'auto_nodetitle',
+          7  => 'ctools',
+          8  => 'color_field',
+          9  => 'custom_breadcrumbs',
+          10 => 'entity',
+        );
 
-  public function testGetProjects() {
-    $filename = $this->createMakeFile();
-    $this->string($filename)->contains('atoum');
+        $this->array($projects)->hasSize(11)->keys->isEqualTo($project_names);
 
-    $make = new \Cerbere\Parser\Make($filename);
-    $this->class($make);
+        $this->boolean($make->hasProject('ctools'))->isTrue();
+        $this->boolean($make->hasProject('views'))->isFalse();
 
-    $projects = $make->getProjects();
-    $project_names = array (
-      0 => 'drupal',
-      1 => 'admin_menu',
-      2 => 'module_filter',
-      3 => 'addressfield',
-      4 => 'addressfield_sub_premise',
-      5 => 'addressfield_phone',
-      6 => 'auto_nodetitle',
-      7 => 'ctools',
-      8 => 'color_field',
-      9 => 'custom_breadcrumbs',
-      10 => 'entity',
-    );
+        $project = $make->getProject('ctools');
+        $this->string($project->getProject())->isEqualTo('ctools');
+        $this->string($project->getCore())->isEqualTo('7.x');
+        $this->string($project->getVersion())->isEqualTo('7.x-1.7');
+    }
 
-    $this->array($projects)->hasSize(11)->keys->isEqualTo($project_names);
+    public function testGetLibraries()
+    {
+        $filename = $this->createMakeFile();
+        $this->string($filename)->contains('atoum');
 
-    $this->boolean($make->hasProject('ctools'))->isTrue();
-    $this->boolean($make->hasProject('views'))->isFalse();
+        $make = new \Cerbere\Parser\Make($filename);
+        $this->class($make);
 
-    $project = $make->getProject('ctools');
-    $this->string($project->getProject())->isEqualTo('ctools');
-    $this->string($project->getCore())->isEqualTo('7.x');
-    $this->string($project->getVersion())->isEqualTo('7.x-1.7');
-  }
+        $libraries = $make->getLibraries();
+        $project_names = array(
+          0 => 'predis',
+          1 => 'bgrins-spectrum',
+        );
 
-  public function testGetLibraries() {
-    $filename = $this->createMakeFile();
-    $this->string($filename)->contains('atoum');
-
-    $make = new \Cerbere\Parser\Make($filename);
-    $this->class($make);
-
-    $libraries = $make->getLibraries();
-    $project_names = array (
-      0 => 'predis',
-      1 => 'bgrins-spectrum',
-    );
-
-    $this->array($libraries)->hasSize(2)->keys->isEqualTo($project_names);
-  }
+        $this->array($libraries)->hasSize(2)->keys->isEqualTo($project_names);
+    }
 }
