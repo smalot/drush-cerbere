@@ -17,7 +17,7 @@ abstract class Test extends atoum\test
 
     /**
      * @param string $data
-     * @return bool|string
+     * @return string|false
      */
     protected function createFile($data)
     {
@@ -27,7 +27,7 @@ abstract class Test extends atoum\test
             $this->files[] = $filename;
 
             register_shutdown_function(
-              function () use ($filename) {
+              function() use ($filename) {
                   @unlink($filename);
               }
             );

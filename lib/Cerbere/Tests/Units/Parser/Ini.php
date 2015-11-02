@@ -4,8 +4,15 @@ namespace Cerbere\Tests\Units\Parser;
 
 use Cerbere\Test;
 
+/**
+ * Class Ini
+ * @package Cerbere\Tests\Units\Parser
+ */
 class Ini extends Test
 {
+    /**
+     *
+     */
     public function testParseData()
     {
         $filename = $this->createInfoFile();
@@ -25,6 +32,9 @@ class Ini extends Test
         $this->string($details['styles'][0][0])->isEqualTo(PHP_VERSION);
     }
 
+    /**
+     * @return string|false
+     */
     protected function createInfoFile()
     {
         $data = 'name = Views

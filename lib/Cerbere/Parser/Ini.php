@@ -48,10 +48,10 @@ abstract class Ini
      * PHP constants are substituted in, but only when used as the entire value.
      * Comments should start with a semi-colon at the beginning of a line.
      *
-     * @param $data
+     * @param string $data
      *   A string to parse.
      *
-     * @return
+     * @return array
      *   The info array.
      *
      * @see drupal_parse_info_file()
