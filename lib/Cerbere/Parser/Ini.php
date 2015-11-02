@@ -84,7 +84,7 @@ abstract class Ini
                 foreach (array('key', 'value1', 'value2', 'value3') as $var) {
                     $$var = isset($match[++$i]) ? $match[$i] : '';
                 }
-                $value = stripslashes(substr($value1, 1, -1)).stripslashes(substr($value2, 1, -1)).$value3;
+                $value = stripslashes(substr($value1, 1, -1)) . stripslashes(substr($value2, 1, -1)) . $value3;
 
                 // Parse array syntax.
                 $keys = preg_split('/\]?\[/', rtrim($key, ']'));

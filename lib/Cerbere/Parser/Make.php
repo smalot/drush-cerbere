@@ -42,7 +42,7 @@ class Make extends Ini
 
         // Wrap project into objects.
         foreach ($this->data['projects'] as $project_name => $project_details) {
-            $project_details['version'] = $this->getCore().'-'.$project_details['version'];
+            $project_details['version'] = $this->getCore() . '-' . $project_details['version'];
             $project = new Project($project_name, $this->getCore(), $project_details['version']);
             $project->setDetails($project_details);
 

@@ -122,7 +122,7 @@ class Release
      */
     public function getDate()
     {
-        return new \DateTime('@'.$this->data['date']);
+        return new \DateTime('@' . $this->data['date']);
     }
 
     /**
