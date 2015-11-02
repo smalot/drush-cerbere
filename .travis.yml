@@ -14,9 +14,9 @@ matrix:
 before_script:
   - composer self-update || true
   - composer update
-  - composer require "drush/drush:*"
   - composer --prefer-source install
   - pwd
-  - ls -al vendor/bin
+  - ls -al vendor
+  - ls -al *
 
 script: ./vendor/bin/atoum -d lib/Cerbere/Tests/Units/ -ncc
