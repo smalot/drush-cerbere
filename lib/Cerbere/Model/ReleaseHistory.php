@@ -85,11 +85,12 @@ class ReleaseHistory
           $this->project->getCore();
 
         $content = file_get_contents($url);
-        $data = $this->parseUpdateXml($content);
 
-        foreach ($data['releases'] as $key => $value) {
-            $release = new Release($value);
-            $data['releases'][$key] = $release;
+        if ($data = $this->parseUpdateXml($content)) {
+            foreach ($data['releases'] as $key => $value) {
+                $release = new Release($value);
+                $data['releases'][$key] = $release;
+            }
         }
 
         $this->data = $data;
@@ -113,20 +114,20 @@ class ReleaseHistory
             // SimpleXMLElement::__construct produces an E_WARNING error message for
             // each error found in the XML data and throws an exception if errors
             // were detected. Catch any exception and return failure (NULL).
-            return null;
+            return array();
         }
 
         // If there is no valid project data, the XML is invalid, so return failure.
         if (!isset($xml->short_name)) {
-            return null;
+            return array();
         }
 
-        //$short_name = (string) $xml->short_name;
         $data = array();
         foreach ($xml as $k => $v) {
             $data[$k] = (string) $v;
         }
         $data['releases'] = array();
+
         if (isset($xml->releases)) {
             foreach ($xml->releases->children() as $release) {
                 $version = (string) $release->version;
