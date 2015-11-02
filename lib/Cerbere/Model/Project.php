@@ -30,7 +30,12 @@ class Project {
   /**
    * @var
    */
-  protected $short_name;
+  protected $project;
+
+  /**
+   * @var
+   */
+  protected $name;
 
   /**
    * @var
@@ -125,12 +130,13 @@ class Project {
   protected $security_updates;
 
   /**
-   * @param $short_name
-   * @param $core
-   * @param $version
+   * @param string $project
+   * @param string $core
+   * @param string $version
    */
-  public function __construct($short_name, $core, $version) {
-    $this->short_name = $short_name;
+  public function __construct($project, $core, $version) {
+    $this->project = $project;
+    $this->name = $project;
     $this->core = $core;
     $this->version = $version;
 
@@ -145,6 +151,12 @@ class Project {
    */
   public function setDetails($data) {
     $this->data = $data;
+
+    foreach (array('name', 'core', 'version', 'datestamp') as $property) {
+      if (isset($data[$property])) {
+        $this->$property = $data[$property];
+      }
+    }
 
     $this->init();
   }
@@ -161,12 +173,6 @@ class Project {
    */
   protected function init() {
     $this->status_url = self::UPDATE_DEFAULT_URL;
-
-    foreach (array('datestamp') as $property) {
-      if (isset($this->data[$property])) {
-        $this->$property = $this->data[$property];
-      }
-    }
 
     // Assume an official release until we see otherwise.
     $this->install_type = self::INSTALL_TYPE_OFFICIAL;
@@ -201,10 +207,17 @@ class Project {
   }
 
   /**
-   * @return mixed
+   * @return string
    */
-  public function getShortName() {
-    return $this->short_name;
+  public function getProject() {
+    return $this->project;
+  }
+
+  /**
+   * @return string
+   */
+  public function getName() {
+    return $this->name;
   }
 
   /**
@@ -299,6 +312,13 @@ class Project {
   }
 
   /**
+   * @return integer
+   */
+  public function getFetchStatus() {
+    return $this->fetch_status;
+  }
+
+  /**
    * @param $fetch_status
    */
   public function setFetchStatus($fetch_status) {
@@ -362,28 +382,28 @@ class Project {
   }
 
   /**
-   * @return array
+   * @return Release[]
    */
   public function getReleases() {
     return $this->releases;
   }
 
   /**
-   * @param array $releases
+   * @param Release[] $releases
    */
   public function setReleases($releases) {
     $this->releases = $releases;
   }
 
   /**
-   * @return array
+   * @return Release[]
    */
   public function getSecurityUpdates() {
     return $this->security_updates;
   }
 
   /**
-   * @param array $security_updates
+   * @param Release[] $security_updates
    */
   public function setSecurityUpdates($security_updates) {
     $this->security_updates = $security_updates;
@@ -397,15 +417,15 @@ class Project {
   }
 
   /**
-   * @param $version
-   * @param $release
+   * @param string $version
+   * @param Release $release
    */
-  public function setRelease($version, $release) {
+  public function setRelease($version, Release $release) {
     $this->releases[$version] = $release;
   }
 
   /**
-   * @param $release
+   * @param Release $release
    */
   public function addSecurityUpdate($version, $release) {
     $this->security_updates[$version] = $release;

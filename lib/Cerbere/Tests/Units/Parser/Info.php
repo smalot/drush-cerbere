@@ -40,7 +40,7 @@ datestamp = "1430321048"
     $this->string(get_class($project))->isEqualTo('Cerbere\Model\Project');
     $this->string($project->getCore())->isEqualTo('7.x');
     $this->string($project->getVersion())->isEqualTo('7.x-3.11');
-    $this->string($project->getShortName())->isEqualTo('views');
-    $this->string($project->getDatestamp())->isEqualTo(1430321048);
+    $this->string($project->getName())->isEqualTo('Views');
+    $this->string($project->getDatestamp())->isEqualTo('1430321048');
   }
 }

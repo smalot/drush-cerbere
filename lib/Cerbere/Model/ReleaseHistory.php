@@ -78,7 +78,7 @@ class ReleaseHistory {
    */
   protected function init() {
     $url = $this->project->getStatusUrl() . '/' .
-      $this->project->getShortName() . '/' .
+      $this->project->getProject() . '/' .
       $this->project->getCore();
 
     $content = file_get_contents($url);
