@@ -18,8 +18,8 @@ matrix:
 env:
   - DRUSH_VERSION=6.*
   - DRUSH_VERSION=7.*
-  - DRUSH_VERSION=8.*
-  - DRUSH_VERSION=*
+  - DRUSH_VERSION=8.*@dev
+  - DRUSH_VERSION=dev-master
 
 before_script:
   - composer self-update || true
