@@ -62,7 +62,13 @@ class Project {
    */
   protected $existing_major;
 
+  /**
+   * @var array
+   */
+  protected $data;
+
   // Calculated properties.
+
   /**
    * @var
    */
@@ -135,10 +141,32 @@ class Project {
   }
 
   /**
+   * @param array $data
+   */
+  public function setDetails($data) {
+    $this->data = $data;
+
+    $this->init();
+  }
+
+  /**
+   * @return array
+   */
+  public function getDetails() {
+    return $this->data;
+  }
+
+  /**
    *
    */
   protected function init() {
     $this->status_url = self::UPDATE_DEFAULT_URL;
+
+    foreach (array('datestamp') as $property) {
+      if (isset($this->data[$property])) {
+        $this->$property = $this->data[$property];
+      }
+    }
 
     // Assume an official release until we see otherwise.
     $this->install_type = self::INSTALL_TYPE_OFFICIAL;

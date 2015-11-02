@@ -6,6 +6,7 @@ use Cerbere\Model\Project;
 
 /**
  * Class Make
+ *
  * @package Cerbere\Parser
  */
 class Make extends Ini {
@@ -33,17 +34,18 @@ class Make extends Ini {
   protected function init() {
     $this->data = $this->parseFile($this->filename);
 
-    $this->data += array(
-      'core'      => '7.x',
-      'api'       => '',
-      'projects'  => array(),
-      'libraries' => array(),
-    );
+    // Core attribute is mandatory since Drupal 7.x.
+    $this->data += array('core' => '6.x', 'api' => '', 'projects' => array(), 'libraries' => array());
 
+    // Wrap project into objects.
     foreach ($this->data['projects'] as $project_name => $project_details) {
-      $project = new Project($project_name, $this->data['core'], $this->data['core'] . '-' . $project_details['version']);
+      $project = new Project($project_name, $this->getCore(), $this->getCore() . '-' . $project_details['version']);
+      $project->setDetails($project_details);
+
       $this->data['projects'][$project_name] = $project;
     }
+
+    // Todo: wrap libraries into objects.
   }
 
   /**

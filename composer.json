@@ -11,6 +11,12 @@
   "require": {
     "drush/drush": "*"
   },
+  "require-dev": {
+    "atoum/atoum": "*"
+  },
+  "config": {
+    "bin-dir": "bin/"
+  },
   "autoload": {
     "psr-0": {
       "Cerbere": "lib/"

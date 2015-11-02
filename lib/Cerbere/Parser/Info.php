@@ -44,13 +44,11 @@ class Info extends Ini {
    */
   protected function init() {
     $data = $this->parseFile($this->filename);
+    $data += array('project' => basename($this->filename, '.info'));
 
-    $data += array(
-      'project' => basename($this->filename, '.info'),
-    );
-
-    $project = new Project($data['project'], $data['core'], $data['version']);
     // Todo: add properties to project.
+    $project = new Project($data['project'], $data['core'], $data['version']);
+    $project->setDetails($data);
 
     $this->project = $project;
   }
