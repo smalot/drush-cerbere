@@ -1,5 +1,3 @@
 filter:
-    paths:
-        - lib/
     excluded_paths:
         - lib/Cerbere/Tests
