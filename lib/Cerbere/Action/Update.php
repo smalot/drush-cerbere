@@ -171,7 +171,7 @@ class Update
         // what they have is unsupported and let them figure it out.
         $target_major = max($existing_major, $target_major);
 
-        $release_patch_changed = '';
+        $release_patch_changed = null;
         $patch = '';
 
         // If the project is marked as UPDATE_FETCH_PENDING, it means that the
