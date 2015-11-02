@@ -39,7 +39,8 @@ class Make extends Ini {
 
     // Wrap project into objects.
     foreach ($this->data['projects'] as $project_name => $project_details) {
-      $project = new Project($project_name, $this->getCore(), $this->getCore() . '-' . $project_details['version']);
+      $project_details['version'] = $this->getCore() . '-' . $project_details['version'];
+      $project = new Project($project_name, $this->getCore(), $project_details['version']);
       $project->setDetails($project_details);
 
       $this->data['projects'][$project_name] = $project;
@@ -67,6 +68,24 @@ class Make extends Ini {
    */
   public function getProjects() {
     return $this->data['projects'];
+  }
+
+  /**
+   * @param string $project
+   *
+   * @return bool
+   */
+  public function hasProject($project) {
+    return isset($this->data['projects'][$project]);
+  }
+
+  /**
+   * @param string $project
+   *
+   * @return Project
+   */
+  public function getProject($project) {
+    return $this->data['projects'][$project];
   }
 
   /**

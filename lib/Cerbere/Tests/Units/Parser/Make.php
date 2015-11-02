@@ -92,6 +92,14 @@ libraries[bgrins-spectrum][download][url] = https://github.com/bgrins/spectrum/a
     );
 
     $this->array($projects)->hasSize(11)->keys->isEqualTo($project_names);
+
+    $this->boolean($make->hasProject('ctools'))->isTrue();
+    $this->boolean($make->hasProject('views'))->isFalse();
+
+    $project = $make->getProject('ctools');
+    $this->string($project->getProject())->isEqualTo('ctools');
+    $this->string($project->getCore())->isEqualTo('7.x');
+    $this->string($project->getVersion())->isEqualTo('7.x-1.7');
   }
 
   public function testGetLibraries() {
