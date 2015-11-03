@@ -2,7 +2,8 @@
 
 namespace Cerbere\Model;
 
-use Cerbere\Versioning;
+use Cerbere\Service\Versioning;
+use Cerbere\Versioning\AbstractVersioning;
 use Symfony\Component\Yaml\Parser;
 
 /**
@@ -17,7 +18,7 @@ class Config
     protected $data;
 
     /**
-     * @var Versioning\AbstractVersioning
+     * @var AbstractVersioning
      */
     protected $versioning;
 
@@ -60,7 +61,7 @@ class Config
     }
 
     /**
-     * @return Versioning\AbstractVersioning
+     * @return AbstractVersioning
      * @throws \Exception
      */
     public function getVersioning()
