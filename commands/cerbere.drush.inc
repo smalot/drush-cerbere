@@ -42,36 +42,12 @@ function cerbere_drush_command() {
 function drush_cerbere_update() {
   $patterns = func_get_args();
 
-  foreach ($patterns as $pattern) {
-    $files = glob($pattern);
+  $application = new \Cerbere\Application();
+  $application->loadConfigFilename(drush_get_option('config', '.cerbere.yml'));
+  $projects = $application->getProjects($patterns);
 
-    if (!$files) {
-      $message = 'file not found';
-      drush_print("\033[" . 31 . "m" . $message . "\033[0m");
-      //drush_print(dt("\033[31'@file': file not found", array('@file' => $pattern)));
-      continue;
-    }
-
-    foreach ($files as $file) {
-      if (file_exists($file)) {
-        drush_print(dt('Analysing "@file":', array('@file' => $file)));
-
-        if (preg_match('/\.info$/', $file)) {
-          $info = new Info($file);
-          $project = $info->getProject();
-          _drush_cerbere_update_log($project);
-        }
-        elseif (preg_match('/\.make$/', $file)) {
-          $make = new Make($file);
-          foreach ($make->getProjects() as $project) {
-            _drush_cerbere_update_log($project);
-          }
-        }
-      }
-      else {
-        drush_print(dt('\033[31"@file": file not found', array('@file' => $file)));
-      }
-    }
+  foreach ($projects as $project) {
+    _drush_cerbere_update_log($project);
   }
 }
 

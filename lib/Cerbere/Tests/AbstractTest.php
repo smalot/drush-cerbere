@@ -1,14 +1,14 @@
 <?php
 
-namespace Cerbere;
+namespace Cerbere\Tests;
 
 use mageekguy\atoum;
 
 /**
- * Class Test
+ * Class AbstractTest
  * @package Cerbere
  */
-abstract class Test extends atoum\test
+abstract class AbstractTest extends atoum\test
 {
     /**
      * @var array

@@ -2,14 +2,14 @@
 
 namespace Cerbere\Tests\Units\Parser;
 
-use Cerbere\Test;
+use Cerbere\Tests\AbstractTest;
 
-class Info extends Test
+class Info extends AbstractTest
 {
     public function testGetProject()
     {
         $filename = $this->createInfoFile();
-        $this->string($filename)->contains('atoum');
+        $this->string($filename)->contains('ato');
 
         $info = new \Cerbere\Parser\Info($filename);
         $this->class($info);

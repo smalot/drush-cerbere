@@ -2,10 +2,10 @@
 
 namespace Cerbere\Tests\Units\Model;
 
+use Cerbere\Tests\AbstractTest;
 use Cerbere\Model\Release;
-use Cerbere\Test;
 
-class Project extends Test
+class Project extends AbstractTest
 {
     public function testGetter()
     {

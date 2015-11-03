@@ -2,14 +2,14 @@
 
 namespace Cerbere\Tests\Units\Parser;
 
-use Cerbere\Test;
+use Cerbere\Tests\AbstractTest;
 
-class Make extends Test
+class Make extends AbstractTest
 {
     public function testGetCore()
     {
         $filename = $this->createMakeFile();
-        $this->string($filename)->contains('atoum');
+        $this->string($filename)->contains('ato');
 
         $make = new \Cerbere\Parser\Make($filename);
         $this->class($make);
@@ -65,7 +65,7 @@ libraries[bgrins-spectrum][download][url] = https://github.com/bgrins/spectrum/a
     public function testGetVersion()
     {
         $filename = $this->createMakeFile();
-        $this->string($filename)->contains('atoum');
+        $this->string($filename)->contains('ato');
 
         $make = new \Cerbere\Parser\Make($filename);
         $this->class($make);
@@ -76,7 +76,7 @@ libraries[bgrins-spectrum][download][url] = https://github.com/bgrins/spectrum/a
     public function testGetProjects()
     {
         $filename = $this->createMakeFile();
-        $this->string($filename)->contains('atoum');
+        $this->string($filename)->contains('ato');
 
         $make = new \Cerbere\Parser\Make($filename);
         $this->class($make);
@@ -110,7 +110,7 @@ libraries[bgrins-spectrum][download][url] = https://github.com/bgrins/spectrum/a
     public function testGetLibraries()
     {
         $filename = $this->createMakeFile();
-        $this->string($filename)->contains('atoum');
+        $this->string($filename)->contains('ato');
 
         $make = new \Cerbere\Parser\Make($filename);
         $this->class($make);

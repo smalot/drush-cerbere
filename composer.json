@@ -9,7 +9,8 @@
     { "name": "Sebastien Malot", "email": "sebastien@malot.fr" }
   ],
   "require": {
-    "drush/drush": "*"
+    "drush/drush": "*",
+    "symfony/yaml": "*"
   },
   "require-dev": {
     "atoum/atoum": "*"

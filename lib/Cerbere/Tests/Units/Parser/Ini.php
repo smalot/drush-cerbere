@@ -2,13 +2,13 @@
 
 namespace Cerbere\Tests\Units\Parser;
 
-use Cerbere\Test;
+use Cerbere\Tests\AbstractTest;
 
 /**
  * Class Ini
  * @package Cerbere\Tests\Units\Parser
  */
-class Ini extends Test
+class Ini extends AbstractTest
 {
     /**
      *
@@ -16,7 +16,7 @@ class Ini extends Test
     public function testParseData()
     {
         $filename = $this->createInfoFile();
-        $this->string($filename)->contains('atoum');
+        $this->string($filename)->contains('ato');
 
         $info = new \Cerbere\Parser\Info($filename);
         $this->class($info);

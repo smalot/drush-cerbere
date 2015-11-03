@@ -95,6 +95,11 @@ class Update
         }
     }
 
+    public function prepare($config)
+    {
+
+    }
+
     /**
      * @param Project $project
      * @param ReleaseHistory $releaseHistory
