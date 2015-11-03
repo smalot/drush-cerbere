@@ -7,6 +7,10 @@ use Cerbere\Model\Project;
 use Cerbere\Parser\Info;
 use Cerbere\Parser\Make;
 
+/**
+ * Class Application
+ * @package Cerbere
+ */
 class Application {
     /**
      * @var Config

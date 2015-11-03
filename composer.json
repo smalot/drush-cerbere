@@ -10,7 +10,8 @@
   ],
   "require": {
     "drush/drush": "*",
-    "symfony/yaml": "*"
+    "symfony/yaml": "*",
+    "swiftmailer/swiftmailer": "*"
   },
   "require-dev": {
     "atoum/atoum": "*"
