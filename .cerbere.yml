@@ -9,6 +9,12 @@ notification:
           host:     localhost
           port:     25
           security: ~
+          login:    ~
+          password: ~
+      message:
+          from:     ~
+          to:       sebastien@malot.fr
+          subject:  Cerbere Notification System
       level: security
 
     - type:  console
