@@ -2,6 +2,9 @@
 
 namespace Cerbere\Model;
 
+use Doctrine\Common\Cache\CacheProvider;
+use Doctrine\Common\Cache\FilesystemCache;
+
 /**
  * Class ReleaseHistory
  * @package Cerbere\Action
@@ -64,33 +67,61 @@ class ReleaseHistory
     protected $data;
 
     /**
+     * @var CacheProvider
+     */
+    protected $cache;
+
+    /**
      * @param Project $project
+     * @param CacheProvider $cache
      * @param string $url
      */
-    public function __construct(Project $project, $url = null)
+    public function __construct(Project $project, CacheProvider $cache = null, $url = null)
     {
         $this->project = $project;
+        $this->cache = $cache;
         $this->url = $url;
-
-        $this->init();
     }
 
     /**
-     *
+     * @param bool|false $reset
      */
-    protected function init()
+    public function prepare($reset = false)
     {
-        $url = $this->project->getStatusUrl() . '/' .
-          $this->project->getProject() . '/' .
-          $this->project->getCore();
+        $cid_parts = array(
+          'cerbere',
+          'release_history',
+          $this->project->getProject(),
+          $this->project->getCore(),
+          md5($this->project->getStatusUrl()),
+        );
 
-        $content = file_get_contents($url);
+        $cid = implode(':', $cid_parts);
+        $data = false;
 
-        if ($data = $this->parseUpdateXml($content)) {
-            foreach ($data['releases'] as $key => $value) {
-                $release = new Release($value);
-                $data['releases'][$key] = $release;
+        if ($this->cache && !$reset) {
+            $data = $this->cache->fetch($cid);
+        }
+
+        // If not in cache, load from remote.
+        if ($data === false) {
+            $url = $this->project->getStatusUrl() . '/' .
+              $this->project->getProject() . '/' .
+              $this->project->getCore();
+
+            // Todo: prefer guzzle library.
+            $content = file_get_contents($url);
+
+            // If data, store into cache.
+            if ($this->cache && ($data = $this->parseUpdateXml($content))) {
+                $this->cache->save($cid, $data, 1800);
             }
+        }
+
+        // Hydrate release objects.
+        foreach ($data['releases'] as $key => $value) {
+            $release = new Release($value);
+            $data['releases'][$key] = $release;
         }
 
         $this->data = $data;

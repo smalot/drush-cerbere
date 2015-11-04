@@ -1,8 +1,10 @@
 project: Projet Test
+
 vcs:
     type:       git
     url:        git@gitlab.actualys.com:international-transport-forum/itf-2013.git
     extra_args: ~
+
 notification:
     - type: mail
       transport:
@@ -19,6 +21,7 @@ notification:
 
     - type:  console
       level: all
+
 drupal:
     path:
         - sites/all/modules/contrib

@@ -10,7 +10,7 @@ use Symfony\Component\Yaml\Parser;
  * Class Config
  * @package Cerbere\Model
  */
-class Config
+class Config implements \ArrayAccess
 {
     /**
      * @var array
@@ -23,9 +23,9 @@ class Config
     protected $versioning;
 
     /**
-     * @param $data
+     * @param array $data
      */
-    private function __construct($data)
+    public function __construct($data = array())
     {
         $this->data = $data;
         $this->versioning = null;
@@ -36,7 +36,7 @@ class Config
      * @return \Cerbere\Model\Config
      * @throws \Exception
      */
-    public static function loadFromFile($filename)
+    public function loadFromFile($filename)
     {
         if (!file_exists($filename)) {
             throw new \Exception('Missing config file.');
@@ -47,9 +47,7 @@ class Config
         }
 
         $parser = new Parser();
-        $data = $parser->parse($content);
-
-        return new self($data);
+        $this->data = $parser->parse($content);
     }
 
     /**
@@ -74,5 +72,40 @@ class Config
         }
 
         return $this->versioning;
+    }
+
+    /**
+     * @param mixed $offset
+     * @return bool
+     */
+    public function offsetExists($offset)
+    {
+        return isset($this->data[$offset]);
+    }
+
+    /**
+     * @param mixed $offset
+     * @return mixed
+     */
+    public function offsetGet($offset)
+    {
+        return $this->data[$offset];
+    }
+
+    /**
+     * @param mixed $offset
+     * @param mixed $value
+     */
+    public function offsetSet($offset, $value)
+    {
+        $this->data[$offset] = $value;
+    }
+
+    /**
+     * @param mixed $offset
+     */
+    public function offsetUnset($offset)
+    {
+        unset($this->data[$offset]);
     }
 }

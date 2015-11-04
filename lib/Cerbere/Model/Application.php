@@ -1,7 +1,8 @@
 <?php
 
-namespace Cerbere;
+namespace Cerbere\Model;
 
+use Cerbere\Action\ActionInterface;
 use Cerbere\Model\Config;
 use Cerbere\Model\Project;
 use Cerbere\Parser\Info;
@@ -18,28 +19,25 @@ class Application {
     protected $config;
 
     /**
-     *
+     * @var Project[]
      */
-    public function __construct()
-    {
-
-    }
+    protected $projects;
 
     /**
-     * @param string $filename
+     *
      */
-    public function loadConfigFilename($filename)
+    public function __construct(Config $config)
     {
-        $this->config = Config::loadFromFile($filename);
+        $this->config = $config;
+        $this->projects = array();
     }
 
     /**
      * @param array $patterns
-     * @return Project[]
      */
-    public function getProjects($patterns)
+    public function loadProjects($patterns)
     {
-        $projects = array();
+        $this->projects = array();
 
         foreach ($patterns as $pattern) {
             if ($files = glob($pattern)) {
@@ -47,16 +45,24 @@ class Application {
                     if (file_exists($file)) {
                         if (preg_match('/\.info$/', $file)) {
                             $info = new Info($file);
-                            $projects[] = $info->getProject();
+                            $this->projects[] = $info->getProject();
                         } elseif (preg_match('/\.make$/', $file)) {
                             $make = new Make($file);
-                            $projects = array_merge($projects, $make->getProjects());
+                            $this->projects = array_merge($this->projects, $make->getProjects());
                         }
                     }
                 }
             }
         }
+    }
 
-        return $projects;
+    /**
+     * @param \Cerbere\Action\ActionInterface $action
+     */
+    public function process(ActionInterface $action)
+    {
+        foreach ($this->projects as $project) {
+            $action->process($project);
+        }
     }
 }

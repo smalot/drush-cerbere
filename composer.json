@@ -11,7 +11,8 @@
   "require": {
     "drush/drush": "*",
     "symfony/yaml": "*",
-    "swiftmailer/swiftmailer": "*"
+    "swiftmailer/swiftmailer": "*",
+    "doctrine/cache": "*"
   },
   "require-dev": {
     "atoum/atoum": "*"

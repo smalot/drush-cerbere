@@ -2,15 +2,18 @@
 
 namespace Cerbere\Action;
 
+use Cerbere\Model\Config;
 use Cerbere\Model\Project;
 use Cerbere\Model\Release;
 use Cerbere\Model\ReleaseHistory;
+use Doctrine\Common\Cache\CacheProvider;
+use Doctrine\Common\Cache\FilesystemCache;
 
 /**
  * Class Update
  * @package Cerbere\Action
  */
-class Update
+class Update implements ActionInterface
 {
     /**
      * Project is missing security update(s).
@@ -58,11 +61,22 @@ class Update
     const UPDATE_FETCH_PENDING = -4;
 
     /**
-     *
+     * @var Config
      */
-    public function __construct()
-    {
+    protected $config;
 
+    /**
+     * @var CacheProvider
+     */
+    protected $cache;
+
+    /**
+     * Update constructor.
+     * @param \Cerbere\Model\Config|null $config
+     */
+    public function __construct(Config $config = null)
+    {
+        $this->config = $config;
     }
 
     /**
@@ -95,9 +109,37 @@ class Update
         }
     }
 
-    public function prepare($config)
+    /**
+     * @return void
+     */
+    public function prepare()
     {
+        $this->cache = new FilesystemCache(sys_get_temp_dir());
+    }
 
+    /**
+     * @param Project $project
+     * @return void
+     */
+    public function process(Project $project)
+    {
+        $cache_reset = empty($this->config['cache']);
+        $release_history = new ReleaseHistory($project, $this->cache);
+        $release_history->prepare($cache_reset);
+        $this->compare($project, $release_history);
+
+        $line = str_pad($release_history->getShortName(), 45, ' ', STR_PAD_RIGHT);
+        $line .= str_pad($project->getVersion(), 20, ' ', STR_PAD_RIGHT);
+        $line .= str_pad($project->getRecommended(), 20, ' ', STR_PAD_RIGHT);
+
+        if ($project->getStatus() != self::UPDATE_CURRENT) {
+            $line .= self::getStatusLabel($project->getStatus());
+            if ($reason = $project->getReason()) {
+                $line .= ' (' . $reason . ')';
+            }
+        }
+
+        drush_print($line);
     }
 
     /**
