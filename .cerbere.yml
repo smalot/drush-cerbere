@@ -1,9 +1,19 @@
 project: Projet Test
 vcs:
-    type: git
-    url:  git@gitlab.actualys.com:international-transport-forum/itf-2013.git
+    type:       git
+    url:        git@gitlab.actualys.com:international-transport-forum/itf-2013.git
     extra_args: ~
-drupal:
-    drupal_makefile: ~
+notification:
+    - type: mail
+      transport:
+          host:     localhost
+          port:     25
+          security: ~
+      level: security
 
+    - type:  console
+      level: all
+drupal:
+    path:
+        - sites/all/modules/contrib
 

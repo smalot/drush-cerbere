@@ -76,7 +76,7 @@ class Mail implements NotificationInterface
             case Mail::TRANSPORT_SMTP:
                 $host = !empty($config['host']) ? $config['host'] : 'localhost';
                 $port = !empty($config['port']) ? $config['port'] : 25;
-                $security = null;
+                $security = !empty($config['security']) ? $config['security'] : null;
 
                 return \Swift_SmtpTransport::newInstance($host, $port, $security);
 
