@@ -29,6 +29,7 @@ function cerbere_drush_command()
         'config'        => 'The config file to use for default setting values.',
         'report-format' => 'Reporting format: console (default), json, html.',
         'no-cache'      => 'Disable cache.',
+        'level'         => 'Reporting level (all, security, update)',
       ),
       'examples'    => array(
         'drush cerbere-check-update sites/all/modules/ctools/ctools.info',
@@ -50,13 +51,8 @@ function drush_cerbere_update()
 
     $config = new Config();
     $config->loadFromFile(drush_get_option('config', '.cerbere.yml'));
-
-    if (drush_get_option('no-cache', false)) {
-        $config['cache'] = false;
-    }
-    if (!isset($config['cache'])) {
-        $config['cache'] = true;
-    }
+    $config->override('cache', !drush_get_option('no-cache', false), true);
+    $config->override('level', drush_get_option('level'), 'all');
 
     $action = new Update($config);
     $action->prepare();

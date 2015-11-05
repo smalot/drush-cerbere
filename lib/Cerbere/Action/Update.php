@@ -127,19 +127,30 @@ class Update implements ActionInterface
         $release_history = new ReleaseHistory($project, $this->cache);
         $release_history->prepare($cache_reset);
         $this->compare($project, $release_history);
-
-        $line = str_pad($release_history->getShortName(), 45, ' ', STR_PAD_RIGHT);
-        $line .= str_pad($project->getVersion(), 20, ' ', STR_PAD_RIGHT);
-        $line .= str_pad($project->getRecommended(), 20, ' ', STR_PAD_RIGHT);
-
-        if ($project->getStatus() != self::UPDATE_CURRENT) {
-            $line .= self::getStatusLabel($project->getStatus());
-            if ($reason = $project->getReason()) {
-                $line .= ' (' . $reason . ')';
-            }
+      
+        $level = isset($this->config['level']) ? $this->config['level'] : 'all';
+        if ($level == 'security') {
+            $level = self::UPDATE_NOT_SECURE;
+        } elseif ($level == 'update') {
+            $level = self::UPDATE_NOT_CURRENT;
+        } else {
+            $level = self::UPDATE_CURRENT;
         }
 
-        drush_print($line);
+        if ($project->getStatus() <= $level) {
+            $line = str_pad($release_history->getShortName(), 45, ' ', STR_PAD_RIGHT);
+            $line .= str_pad($project->getVersion(), 20, ' ', STR_PAD_RIGHT);
+            $line .= str_pad($project->getRecommended(), 20, ' ', STR_PAD_RIGHT);
+
+            if ($project->getStatus() != self::UPDATE_CURRENT) {
+                $line .= self::getStatusLabel($project->getStatus());
+                if ($reason = $project->getReason()) {
+                    $line .= ' (' . $reason . ')';
+                }
+            }
+
+            drush_print($line);
+        }
     }
 
     /**

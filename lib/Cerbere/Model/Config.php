@@ -73,6 +73,22 @@ class Config implements \ArrayAccess
 
         return $this->versioning;
     }
+    
+    /**
+     * @param string $key
+     * @param mixed  $value
+     * @param mixed  $default
+     */
+    public function override($key, $value, $default)
+    {
+        if (!is_null($value)) {
+            $this->data[$key] = $value;
+        }
+
+        if (!array_key_exists($key, $this->data) || is_null($this->data[$key])) {
+            $this->data[$key] = $default;
+        }
+    }
 
     /**
      * @param mixed $offset
