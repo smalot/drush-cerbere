@@ -80,13 +80,8 @@ class Mail implements NotificationInterface
                 $security = !empty($config['security']) ? $config['security'] : null;
 
                 $transport = \Swift_SmtpTransport::newInstance($host, $port, $security);
-
-                if (!empty($config['username'])) {
-                    $transport->setUsername($config['username']);
-                }
-                if (!empty($config['password'])) {
-                    $transport->setPassword($config['password']);
-                }
+                $transport->setUsername($config['username']);
+                $transport->setPassword($config['password']);
 
                 return $transport;
 
