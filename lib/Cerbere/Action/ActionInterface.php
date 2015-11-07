@@ -2,6 +2,7 @@
 
 namespace Cerbere\Action;
 
+use Cerbere\Model\Config;
 use Cerbere\Model\Project;
 
 /**
@@ -17,12 +18,14 @@ interface ActionInterface
     public function getCode();
 
     /**
+     * @param Config $config
+     *
      * @return mixed
      */
-    public function prepare();
+    public function prepare(Config $config);
 
     /**
-     * @param \Cerbere\Model\Project $project
+     * @param Project $project
      *
      * @return mixed
      */

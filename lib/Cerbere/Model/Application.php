@@ -135,6 +135,8 @@ class Application
      */
     public function process(ActionInterface $action)
     {
+        $action->prepare($this->config);
+
         foreach ($this->projects as $project) {
             $action->process($project);
         }

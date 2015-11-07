@@ -58,7 +58,7 @@ function drush_cerbere_update()
     $action->prepare();
 
     $application = new Application($config);
-    $application->loadProjects($patterns);
+    $application->loadProjectsFromPatterns($patterns);
     $application->process($action);
 }
 
