@@ -53,7 +53,7 @@ class Make extends Ini
      */
     public function supportedFile($filename)
     {
-        return preg_match('/\.make$/', $filename);
+        return preg_match('/\.make$/', $filename) !== false;
     }
 
     /**

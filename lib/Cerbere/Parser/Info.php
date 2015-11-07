@@ -39,11 +39,11 @@ class Info extends Ini
 
     /**
      * @parser string $filename
-     * @return bool
+     * @return integer
      */
     public function supportedFile($filename)
     {
-        return preg_match('/\.info$/', $filename);
+        return preg_match('/\.info$/', $filename) !== false;
     }
 
     /**

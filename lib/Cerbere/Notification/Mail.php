@@ -62,7 +62,7 @@ class Mail implements NotificationInterface
         $this->project_name = $config['project'];
         $this->config       = $config['notification']['mail'];
 
-        $this->transport    = self::getTransport($this->config['transport']);
+        $this->transport = self::getTransport($this->config['transport']);
     }
 
     /**
@@ -75,8 +75,8 @@ class Mail implements NotificationInterface
     {
         switch (strtolower($config['type'])) {
             case (Mail::TRANSPORT_SMTP):
-                $host     = !empty($config['host']) ? $config['host'] : 'localhost';
-                $port     = !empty($config['port']) ? $config['port'] : 25;
+                $host = !empty($config['host']) ? $config['host'] : 'localhost';
+                $port = !empty($config['port']) ? $config['port'] : 25;
                 $security = !empty($config['security']) ? $config['security'] : null;
 
                 $transport = \Swift_SmtpTransport::newInstance($host, $port, $security);
@@ -149,7 +149,9 @@ class Mail implements NotificationInterface
                 }
 
                 $body .= '</table><br/>';
-                $body .= '<p>Analyze done at: '.date('Y-m-d H:i:d').' using <a href="https://github.com/smalot/drush-cerbere">Cerbere</a>.</p>';
+                $body .= '<p>Analyze done at: ' . date(
+                    'Y-m-d H:i:d'
+                  ) . ' using <a href="https://github.com/smalot/drush-cerbere">Cerbere</a>.</p>';
                 break;
         }
 

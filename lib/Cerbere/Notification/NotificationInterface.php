@@ -18,6 +18,7 @@ interface NotificationInterface
 
     /**
      * @param Config $config
+     *
      * @return mixed
      */
     public function prepare(Config $config);

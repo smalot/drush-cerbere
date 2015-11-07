@@ -3,7 +3,6 @@
 namespace Cerbere\Model;
 
 use Doctrine\Common\Cache\CacheProvider;
-use Drush\Make\Parser\ParserYaml;
 
 /**
  * Class ReleaseHistory
