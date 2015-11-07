@@ -74,7 +74,7 @@ class Mail implements NotificationInterface
     protected static function getTransport($config)
     {
         switch (strtolower($config['type'])) {
-            case Mail::TRANSPORT_SMTP:
+            case (Mail::TRANSPORT_SMTP):
                 $host     = !empty($config['host']) ? $config['host'] : 'localhost';
                 $port     = !empty($config['port']) ? $config['port'] : 25;
                 $security = !empty($config['security']) ? $config['security'] : null;
@@ -85,7 +85,7 @@ class Mail implements NotificationInterface
 
                 return $transport;
 
-            case Mail::TRANSPORT_SENDMAIL;
+            case (Mail::TRANSPORT_SENDMAIL);
                 $command = !empty($config['command']) ? $config['command'] : '/usr/sbin/sendmail -bs';
 
                 return \Swift_SendmailTransport::newInstance($command);
