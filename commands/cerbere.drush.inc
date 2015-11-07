@@ -6,13 +6,15 @@
  */
 
 // Todo: remove for PROD.
-//require_once dirname(__FILE__) . '/../vendor/autoload.php';
+require_once dirname(__FILE__) . '/../vendor/autoload.php';
 
 use Cerbere\Action\Update;
 use Cerbere\Model\Application;
 use Cerbere\Model\Config;
 use Cerbere\Model\Project;
 use Cerbere\Model\ReleaseHistory;
+use Cerbere\Parser\Info;
+use Cerbere\Parser\Make;
 
 /**
  * Implements hook_drush_command().
@@ -54,12 +56,20 @@ function drush_cerbere_update()
     $config->override('cache', !drush_get_option('no-cache', false), true);
     $config->override('level', drush_get_option('level'), 'all');
 
-    $action = new Update($config);
-    $action->prepare();
-
     $application = new Application($config);
+
+    // Parsers.
+    $application->registerParser(new Make());
+    $application->registerParser(new Info());
+
+    // Load projects using parsers.
     $application->loadProjectsFromPatterns($patterns);
-    $application->process($action);
+
+    // Actions.
+    $application->registerAction(new Update());
+
+    // Run it !
+    $application->process('update');
 }
 
 /**

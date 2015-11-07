@@ -12,15 +12,28 @@ use Cerbere\Model\Project;
 interface ParserInterface
 {
     /**
+     * @return string
+     */
+    public function getCode();
+
+    /**
+     * @param string $filename
+     *
+     * @return bool
+     */
+    public function supportedFile($filename);
+
+    /**
+     * @parser string $filename
+     * @return void
+     */
+    public function processFile($filename);
+
+    /**
      * @parser string $content
      * @return void
      */
     public function processContent($content);
-
-    /**
-     * @return string
-     */
-    public function getCode();
 
     /**
      * @return Project[]

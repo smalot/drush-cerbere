@@ -4,10 +4,9 @@ namespace Cerbere\Model;
 
 use Cerbere\Action\ActionInterface;
 use Cerbere\Notification\NotificationInterface;
-use Cerbere\Parser\Info;
-use Cerbere\Parser\Make;
 use Cerbere\Parser\ParserInterface;
 use Cerbere\Versioning\VersioningInterface;
+use Drush\Make\Parser\ParserYaml;
 
 /**
  * Class Application
@@ -47,11 +46,11 @@ class Application
     protected $notifications;
 
     /**
-     *
+     * @param \Cerbere\Model\Config $config
      */
-    public function __construct()
+    public function __construct(Config $config)
     {
-        $this->config   = new Config();
+        $this->config   = $config;
         $this->projects = array();
 
         $this->versionings   = array();
@@ -115,30 +114,47 @@ class Application
      */
     public function loadProjectsFromPattern($pattern)
     {
-        $files = glob($pattern);
+        $filenames = glob($pattern);
 
-        foreach ($files as $file) {
-            if (file_exists($file)) {
-                if (preg_match('/\.info$/', $file)) {
-                    $info             = new Info($file);
-                    $this->projects[] = $info->getProject();
-                } elseif (preg_match('/\.make$/', $file)) {
-                    $make           = new Make($file);
-                    $this->projects = array_merge($this->projects, $make->getProjects());
+        foreach ($filenames as $filename) {
+            /** @var ParserInterface $parser */
+            foreach ($this->parsers as $parser) {
+                if ($parser->supportedFile($filename)) {
+                    $parser->processFile($filename);
+                    $this->projects = array_merge($this->projects, $parser->getProjects());
                 }
             }
         }
     }
 
     /**
-     * @param \Cerbere\Action\ActionInterface $action
+     * @param ActionInterface|string $action
      */
-    public function process(ActionInterface $action)
+    public function process($action)
     {
+        if (!$action instanceof ActionInterface) {
+            $action = $this->getRegisteredAction((string) $action);
+        }
+
         $action->prepare($this->config);
 
         foreach ($this->projects as $project) {
             $action->process($project);
         }
+    }
+
+    /**
+     * @param string $action
+     *
+     * @return ActionInterface
+     * @throws \Exception
+     */
+    public function getRegisteredAction($action)
+    {
+        if (isset($this->actions[$action])) {
+            return $this->actions[$action];
+        }
+
+        throw new \Exception('Unregistered action');
     }
 }

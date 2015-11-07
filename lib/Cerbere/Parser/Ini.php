@@ -20,14 +20,6 @@ abstract class Ini implements ParserInterface
     }
 
     /**
-     * @param string $content
-     *
-     * @return void
-     * @throws \Exception
-     */
-    abstract public function processContent($content);
-
-    /**
      * Parses data in Drupal's .info format.
      *
      * Data should be in an .ini-like format to specify values. White-space

@@ -38,6 +38,15 @@ class Info extends Ini
     }
 
     /**
+     * @parser string $filename
+     * @return bool
+     */
+    public function supportedFile($filename)
+    {
+        return preg_match('/\.info$/', $filename);
+    }
+
+    /**
      * @param string $filename
      */
     public function processFile($filename)
