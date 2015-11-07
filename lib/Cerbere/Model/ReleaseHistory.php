@@ -3,10 +3,10 @@
 namespace Cerbere\Model;
 
 use Doctrine\Common\Cache\CacheProvider;
-use Doctrine\Common\Cache\FilesystemCache;
 
 /**
  * Class ReleaseHistory
+ *
  * @package Cerbere\Action
  */
 class ReleaseHistory
@@ -72,15 +72,15 @@ class ReleaseHistory
     protected $cache;
 
     /**
-     * @param Project $project
+     * @param Project       $project
      * @param CacheProvider $cache
-     * @param string $url
+     * @param string        $url
      */
     public function __construct(Project $project, CacheProvider $cache = null, $url = null)
     {
         $this->project = $project;
-        $this->cache = $cache;
-        $this->url = $url;
+        $this->cache   = $cache;
+        $this->url     = $url;
     }
 
     /**
@@ -96,7 +96,7 @@ class ReleaseHistory
           md5($this->project->getStatusUrl()),
         );
 
-        $cid = implode(':', $cid_parts);
+        $cid  = implode(':', $cid_parts);
         $data = false;
 
         if ($this->cache && !$reset) {
@@ -120,7 +120,7 @@ class ReleaseHistory
 
         // Hydrate release objects.
         foreach ($data['releases'] as $key => $value) {
-            $release = new Release($value);
+            $release                = new Release($value);
             $data['releases'][$key] = $release;
         }
 
@@ -161,7 +161,7 @@ class ReleaseHistory
 
         if (isset($xml->releases)) {
             foreach ($xml->releases->children() as $release) {
-                $version = (string) $release->version;
+                $version                    = (string) $release->version;
                 $data['releases'][$version] = array();
                 foreach ($release->children() as $k => $v) {
                     $data['releases'][$version][$k] = (string) $v;
@@ -233,6 +233,7 @@ class ReleaseHistory
 
     /**
      * @param string $version
+     *
      * @return Release
      */
     public function getRelease($version)

@@ -6,12 +6,19 @@ use Cerbere\Tests\AbstractTest;
 
 class Make extends AbstractTest
 {
+    public function testGetCode()
+    {
+        $make = new \Cerbere\Parser\Make();
+        $this->string($make->getCode())->isEqualTo('make');
+    }
+
     public function testGetCore()
     {
         $filename = $this->createMakeFile();
         $this->string($filename)->contains('ato');
 
-        $make = new \Cerbere\Parser\Make($filename);
+        $make = new \Cerbere\Parser\Make();
+        $make->processFile($filename);
         $this->class($make);
 
         $this->string($make->getCore())->isEqualTo('7.x');
@@ -67,7 +74,8 @@ libraries[bgrins-spectrum][download][url] = https://github.com/bgrins/spectrum/a
         $filename = $this->createMakeFile();
         $this->string($filename)->contains('ato');
 
-        $make = new \Cerbere\Parser\Make($filename);
+        $make = new \Cerbere\Parser\Make();
+        $make->processFile($filename);
         $this->class($make);
 
         $this->string($make->getApi())->isEqualTo('2');
@@ -78,10 +86,11 @@ libraries[bgrins-spectrum][download][url] = https://github.com/bgrins/spectrum/a
         $filename = $this->createMakeFile();
         $this->string($filename)->contains('ato');
 
-        $make = new \Cerbere\Parser\Make($filename);
+        $make = new \Cerbere\Parser\Make();
+        $make->processFile($filename);
         $this->class($make);
 
-        $projects = $make->getProjects();
+        $projects      = $make->getProjects();
         $project_names = array(
           0  => 'drupal',
           1  => 'admin_menu',
@@ -105,6 +114,8 @@ libraries[bgrins-spectrum][download][url] = https://github.com/bgrins/spectrum/a
         $this->string($project->getProject())->isEqualTo('ctools');
         $this->string($project->getCore())->isEqualTo('7.x');
         $this->string($project->getVersion())->isEqualTo('7.x-1.7');
+
+        $this->array($make->getProjects())->hasSize(11)->keys->isEqualTo($project_names);
     }
 
     public function testGetLibraries()
@@ -112,10 +123,11 @@ libraries[bgrins-spectrum][download][url] = https://github.com/bgrins/spectrum/a
         $filename = $this->createMakeFile();
         $this->string($filename)->contains('ato');
 
-        $make = new \Cerbere\Parser\Make($filename);
+        $make = new \Cerbere\Parser\Make();
+        $make->processFile($filename);
         $this->class($make);
 
-        $libraries = $make->getLibraries();
+        $libraries     = $make->getLibraries();
         $project_names = array(
           0 => 'predis',
           1 => 'bgrins-spectrum',

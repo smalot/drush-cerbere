@@ -4,6 +4,7 @@ namespace Cerbere\Notification;
 
 /**
  * Class Console
+ *
  * @package Cerbere\Notification
  */
 class Mail implements NotificationInterface
@@ -29,11 +30,20 @@ class Mail implements NotificationInterface
 
     /**
      * Mail constructor.
+     *
      * @param $config
      */
     public function __construct($config)
     {
         $this->config = $config;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCode()
+    {
+        return 'mail';
     }
 
     /**
@@ -45,7 +55,34 @@ class Mail implements NotificationInterface
     }
 
     /**
+     * @param array $config
+     *
+     * @return \Swift_Transport
+     * @throws \Exception
+     */
+    protected static function getTransport($config)
+    {
+        switch (strtolower($config['type'])) {
+            case Mail::TRANSPORT_SMTP:
+                $host     = !empty($config['host']) ? $config['host'] : 'localhost';
+                $port     = !empty($config['port']) ? $config['port'] : 25;
+                $security = !empty($config['security']) ? $config['security'] : null;
+
+                return \Swift_SmtpTransport::newInstance($host, $port, $security);
+
+            case Mail::TRANSPORT_SENDMAIL;
+                $command = !empty($config['command']) ? $config['command'] : '/usr/sbin/sendmail -bs';
+
+                return \Swift_SendmailTransport::newInstance($command);
+
+            default:
+                throw new \Exception('Invalid or unsupported transport type.');
+        }
+    }
+
+    /**
      * @param array $report
+     *
      * @return int
      * @throws \Exception
      */
@@ -63,30 +100,5 @@ class Mail implements NotificationInterface
 
         // Send the message
         return $this->transport->send($this->message);
-    }
-
-    /**
-     * @param array $config
-     * @return \Swift_Transport
-     * @throws \Exception
-     */
-    protected static function getTransport($config)
-    {
-        switch (strtolower($config['type'])) {
-            case Mail::TRANSPORT_SMTP:
-                $host = !empty($config['host']) ? $config['host'] : 'localhost';
-                $port = !empty($config['port']) ? $config['port'] : 25;
-                $security = !empty($config['security']) ? $config['security'] : null;
-
-                return \Swift_SmtpTransport::newInstance($host, $port, $security);
-
-            case Mail::TRANSPORT_SENDMAIL;
-                $command = !empty($config['command']) ? $config['command'] : '/usr/sbin/sendmail -bs';
-
-                return \Swift_SendmailTransport::newInstance($command);
-
-            default:
-                throw new \Exception('Invalid or unsupported transport type.');
-        }
     }
 }

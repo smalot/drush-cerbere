@@ -2,8 +2,8 @@
 
 namespace Cerbere\Tests\Units\Model;
 
-use Cerbere\Tests\AbstractTest;
 use Cerbere\Model\Release;
+use Cerbere\Tests\AbstractTest;
 
 class Project extends AbstractTest
 {
@@ -101,7 +101,9 @@ datestamp = "1430321048"
 ';
 
         $filename = $this->createFile($data);
-        $info = new \Cerbere\Parser\Info($filename);
+
+        $info = new \Cerbere\Parser\Info();
+        $info->processFile($filename);
         $project = $info->getProject();
 
         return $project;
@@ -144,7 +146,9 @@ datestamp = "1445641168"
 ';
 
         $filename = $this->createFile($data);
-        $info = new \Cerbere\Parser\Info($filename);
+
+        $info = new \Cerbere\Parser\Info();
+        $info->processFile($filename);
         $project = $info->getProject();
 
         return $project;

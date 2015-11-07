@@ -6,6 +6,7 @@ use Cerbere\Model\Project;
 
 /**
  * Class Info
+ *
  * @package Cerbere\Parser
  */
 class Info extends Ini
@@ -16,37 +17,56 @@ class Info extends Ini
     protected $filename;
 
     /**
-     * @var array
-     */
-    protected $data;
-
-    /**
      * @var Project
      */
     protected $project;
 
     /**
-     * @param string $filename
+     *
      */
-    public function __construct($filename)
+    public function __construct()
     {
-        $this->filename = $filename;
-        $this->init();
+
     }
 
     /**
-     *
+     * @return string
      */
-    protected function init()
+    public function getCode()
     {
-        $data = $this->parseFile($this->filename);
+        return 'info';
+    }
+
+    /**
+     * @param string $filename
+     */
+    public function processFile($filename)
+    {
+        $this->filename = $filename;
+
+        parent::processFile($filename);
+    }
+
+    /**
+     * @param string $content
+     */
+    public function processContent($content)
+    {
+        $data = $this->parseContent($content);
         $data += array('project' => basename($this->filename, '.info'));
 
-        // Todo: add properties to project.
         $project = new Project($data['project'], $data['core'], $data['version']);
         $project->setDetails($data);
 
         $this->project = $project;
+    }
+
+    /**
+     * @return Project[]
+     */
+    public function getProjects()
+    {
+        return array($this->getProject());
     }
 
     /**

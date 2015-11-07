@@ -2,6 +2,13 @@
 
 namespace Cerbere\Versioning;
 
-class Local extends AbstractVersioning {
-
+class Local implements VersioningInterface
+{
+    /**
+     * @return string
+     */
+    public function getCode()
+    {
+        return 'local';
+    }
 }

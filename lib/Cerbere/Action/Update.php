@@ -11,6 +11,7 @@ use Doctrine\Common\Cache\FilesystemCache;
 
 /**
  * Class Update
+ *
  * @package Cerbere\Action
  */
 class Update implements ActionInterface
@@ -72,6 +73,7 @@ class Update implements ActionInterface
 
     /**
      * Update constructor.
+     *
      * @param \Cerbere\Model\Config|null $config
      */
     public function __construct(Config $config = null)
@@ -80,7 +82,16 @@ class Update implements ActionInterface
     }
 
     /**
+     * @return string
+     */
+    public function getCode()
+    {
+        return 'update';
+    }
+
+    /**
      * @param int $status
+     *
      * @return string
      */
     public static function getStatusLabel($status)
@@ -119,15 +130,16 @@ class Update implements ActionInterface
 
     /**
      * @param Project $project
+     *
      * @return void
      */
     public function process(Project $project)
     {
-        $cache_reset = empty($this->config['cache']);
+        $cache_reset     = empty($this->config['cache']);
         $release_history = new ReleaseHistory($project, $this->cache);
         $release_history->prepare($cache_reset);
         $this->compare($project, $release_history);
-      
+
         $level = isset($this->config['level']) ? $this->config['level'] : 'all';
         if ($level == 'security') {
             $level = self::UPDATE_NOT_SECURE;
@@ -154,7 +166,7 @@ class Update implements ActionInterface
     }
 
     /**
-     * @param Project $project
+     * @param Project        $project
      * @param ReleaseHistory $releaseHistory
      */
     public function compare(Project $project, ReleaseHistory $releaseHistory)
@@ -193,7 +205,7 @@ class Update implements ActionInterface
         }
 
         // Figure out the target major version.
-        $existing_major = $project->getExistingMajor();
+        $existing_major   = $project->getExistingMajor();
         $supported_majors = array();
         if ($releaseHistory->getSupportedMajors()) {
             $supported_majors = explode(',', $releaseHistory->getSupportedMajors());
@@ -231,7 +243,7 @@ class Update implements ActionInterface
         $target_major = max($existing_major, $target_major);
 
         $release_patch_changed = null;
-        $patch = '';
+        $patch                 = '';
 
         // If the project is marked as UPDATE_FETCH_PENDING, it means that the
         // data we currently have (if any) is stale, and we've got a task queued
@@ -301,7 +313,7 @@ class Update implements ActionInterface
               && $release->getVersionPatch()
             ) {
                 if ($patch != $release->getVersionPatch()) {
-                    $patch = $release->getVersionPatch();
+                    $patch                 = $release->getVersionPatch();
                     $release_patch_changed = $release;
                 }
                 if (!$release->getVersionExtra() && $patch == $release->getVersionPatch()) {

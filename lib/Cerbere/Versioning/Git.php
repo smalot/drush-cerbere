@@ -2,6 +2,13 @@
 
 namespace Cerbere\Versioning;
 
-class Git extends AbstractVersioning {
-
+class Git implements VersioningInterface
+{
+    /**
+     * @return string
+     */
+    public function getCode()
+    {
+        return 'git';
+    }
 }

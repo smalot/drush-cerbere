@@ -2,6 +2,13 @@
 
 namespace Cerbere\Versioning;
 
-class Svn extends AbstractVersioning {
-
+class Svn implements VersioningInterface
+{
+    /**
+     * @return string
+     */
+    public function getCode()
+    {
+        return 'svn';
+    }
 }

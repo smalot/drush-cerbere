@@ -4,9 +4,16 @@ namespace Cerbere\Notification;
 
 /**
  * Interface NotificationInterface
+ *
  * @package Cerbere\Notification
  */
-interface NotificationInterface {
+interface NotificationInterface
+{
+    /**
+     * @return string
+     */
+    public function getCode();
+
     /**
      * @return mixed
      */
@@ -14,6 +21,7 @@ interface NotificationInterface {
 
     /**
      * @param $report
+     *
      * @return mixed
      */
     public function notify($report);

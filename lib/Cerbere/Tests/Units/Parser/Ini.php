@@ -6,6 +6,7 @@ use Cerbere\Tests\AbstractTest;
 
 /**
  * Class Ini
+ *
  * @package Cerbere\Tests\Units\Parser
  */
 class Ini extends AbstractTest
@@ -19,6 +20,7 @@ class Ini extends AbstractTest
         $this->string($filename)->contains('ato');
 
         $info = new \Cerbere\Parser\Info($filename);
+        $info->processFile($filename);
         $this->class($info);
 
         $project = $info->getProject();

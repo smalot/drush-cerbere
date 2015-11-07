@@ -4,11 +4,21 @@ namespace Cerbere\Notification;
 
 /**
  * Class Console
+ *
  * @package Cerbere\Notification
  */
-class Console implements NotificationInterface {
+class Console implements NotificationInterface
+{
     /**
-     *
+     * @return string
+     */
+    public function getCode()
+    {
+        return 'console';
+    }
+
+    /**
+     * @return void
      */
     public function prepare()
     {
@@ -17,6 +27,8 @@ class Console implements NotificationInterface {
 
     /**
      * @param $report
+     *
+     * @return void
      */
     public function notify($report)
     {

@@ -6,12 +6,19 @@ use Cerbere\Tests\AbstractTest;
 
 class Info extends AbstractTest
 {
+    public function testGetCode()
+    {
+        $make = new \Cerbere\Parser\Info();
+        $this->string($make->getCode())->isEqualTo('info');
+    }
+
     public function testGetProject()
     {
         $filename = $this->createInfoFile();
         $this->string($filename)->contains('ato');
 
-        $info = new \Cerbere\Parser\Info($filename);
+        $info = new \Cerbere\Parser\Info();
+        $info->processFile($filename);
         $this->class($info);
 
         $project = $info->getProject();
@@ -20,6 +27,8 @@ class Info extends AbstractTest
         $this->string($project->getVersion())->isEqualTo('7.x-3.11');
         $this->string($project->getName())->isEqualTo('Views');
         $this->string($project->getDatestamp())->isEqualTo('1430321048');
+
+        $this->array($info->getProjects())->hasSize(1);
     }
 
     protected function createInfoFile()

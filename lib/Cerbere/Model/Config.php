@@ -8,6 +8,7 @@ use Symfony\Component\Yaml\Parser;
 
 /**
  * Class Config
+ *
  * @package Cerbere\Model
  */
 class Config implements \ArrayAccess
@@ -27,12 +28,13 @@ class Config implements \ArrayAccess
      */
     public function __construct($data = array())
     {
-        $this->data = $data;
+        $this->data       = $data;
         $this->versioning = null;
     }
 
     /**
      * @param $filename
+     *
      * @return \Cerbere\Model\Config
      * @throws \Exception
      */
@@ -46,7 +48,7 @@ class Config implements \ArrayAccess
             throw new \Exception('Unable to read config file.');
         }
 
-        $parser = new Parser();
+        $parser     = new Parser();
         $this->data = $parser->parse($content);
     }
 
@@ -65,7 +67,7 @@ class Config implements \ArrayAccess
     public function getVersioning()
     {
         if (is_null($this->versioning)) {
-            $type = !empty($this->data['vcs']['type']) ? $this->data['vcs']['type'] : 'local';
+            $type   = !empty($this->data['vcs']['type']) ? $this->data['vcs']['type'] : 'local';
             $config = $this->data['vcs'];
             unset($config['type']);
             $this->versioning = Versioning::factory($type, $config);
@@ -73,7 +75,7 @@ class Config implements \ArrayAccess
 
         return $this->versioning;
     }
-    
+
     /**
      * @param string $key
      * @param mixed  $value
@@ -92,6 +94,7 @@ class Config implements \ArrayAccess
 
     /**
      * @param mixed $offset
+     *
      * @return bool
      */
     public function offsetExists($offset)
@@ -101,6 +104,7 @@ class Config implements \ArrayAccess
 
     /**
      * @param mixed $offset
+     *
      * @return mixed
      */
     public function offsetGet($offset)

@@ -6,10 +6,16 @@ use Cerbere\Model\Project;
 
 /**
  * Interface ActionInterface
+ *
  * @package Cerbere\Action
  */
 interface ActionInterface
 {
+    /**
+     * @return string
+     */
+    public function getCode();
+
     /**
      * @return mixed
      */
@@ -17,6 +23,7 @@ interface ActionInterface
 
     /**
      * @param \Cerbere\Model\Project $project
+     *
      * @return mixed
      */
     public function process(Project $project);
