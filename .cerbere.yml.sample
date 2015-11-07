@@ -1,0 +1,30 @@
+project: Projet Test
+
+vcs:
+    type:       git
+    url:        git@gitlab.example.com:project.git
+    extra_args: ~
+
+notification:
+    mail:
+        transport:
+            type:     smtp
+            host:     smtp.gmail.com
+            port:     587
+            security: true
+            username: ~
+            password: ~
+        message:
+            from:     cerbere@example.local
+            to:       ~
+            subject:  Cerbere Notification System
+        level: security
+
+    console:
+        type:  console
+        level: all
+
+drupal:
+    path:
+        - sites/all/modules/contrib
+

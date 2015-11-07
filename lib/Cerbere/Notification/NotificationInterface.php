@@ -2,6 +2,8 @@
 
 namespace Cerbere\Notification;
 
+use Cerbere\Model\Config;
+
 /**
  * Interface NotificationInterface
  *
@@ -15,14 +17,16 @@ interface NotificationInterface
     public function getCode();
 
     /**
+     * @param Config $config
      * @return mixed
      */
-    public function prepare();
+    public function prepare(Config $config);
 
     /**
-     * @param $report
+     * @param string $type
+     * @param array  $report
      *
      * @return mixed
      */
-    public function notify($report);
+    public function notify($type, $report);
 }

@@ -6,7 +6,6 @@ use Cerbere\Action\ActionInterface;
 use Cerbere\Notification\NotificationInterface;
 use Cerbere\Parser\ParserInterface;
 use Cerbere\Versioning\VersioningInterface;
-use Drush\Make\Parser\ParserYaml;
 
 /**
  * Class Application
@@ -128,19 +127,51 @@ class Application
     }
 
     /**
-     * @param ActionInterface|string $action
+     * @param ActionInterface|string            $action
+     * @param NotificationInterface|string|null $notification
+     *
+     * @throws \Exception
      */
-    public function process($action)
+    public function process($action, $notification = null)
     {
+        // Load notification class before running action.
+        if (is_string($notification)) {
+            $notification = $this->getRegisteredNotification($notification);
+        } elseif (!$notification instanceof NotificationInterface) {
+            $notification = $this->getRegisteredNotification($this->config['report-format']);
+        }
+
         if (!$action instanceof ActionInterface) {
-            $action = $this->getRegisteredAction((string) $action);
+            $action = $this->getRegisteredAction($action);
         }
 
         $action->prepare($this->config);
+        $report = array();
 
+        /** @var Project $project */
         foreach ($this->projects as $project) {
-            $action->process($project);
+            if ($project_report = $action->process($project)) {
+                $report[$project->getProject()] = $project_report;
+            }
         }
+
+        $notification->prepare($this->config);
+        $notification->notify($action->getCode(), $report);
+    }
+
+    /**
+     * @param string $notification
+     *
+     * @return NotificationInterface
+     * @throws \Exception
+     */
+    public function getRegisteredNotification($notification)
+    {
+        if (isset($this->notifications[$notification])) {
+            return $this->notifications[$notification];
+        }
+
+        throw new \Exception('Unregistered notification');
     }
 
     /**

@@ -2,6 +2,9 @@
 
 namespace Cerbere\Notification;
 
+use Cerbere\Model\Config;
+use Cerbere\Model\ReleaseHistory;
+
 /**
  * Class Console
  *
@@ -12,6 +15,11 @@ class Mail implements NotificationInterface
     const TRANSPORT_SMTP = 'smtp';
 
     const TRANSPORT_SENDMAIL = 'sendmail';
+
+    /**
+     * @var string
+     */
+    protected $project_name;
 
     /**
      * @var array
@@ -30,12 +38,10 @@ class Mail implements NotificationInterface
 
     /**
      * Mail constructor.
-     *
-     * @param $config
      */
-    public function __construct($config)
+    public function __construct()
     {
-        $this->config = $config;
+
     }
 
     /**
@@ -47,11 +53,16 @@ class Mail implements NotificationInterface
     }
 
     /**
+     * @param Config $config
+     *
      * @return mixed
      */
-    public function prepare()
+    public function prepare(Config $config)
     {
-        $this->transport = self::getTransport($this->config['transport']);
+        $this->project_name = $config['project'];
+        $this->config       = $config['notification']['mail'];
+
+        $this->transport    = self::getTransport($this->config['transport']);
     }
 
     /**
@@ -68,7 +79,16 @@ class Mail implements NotificationInterface
                 $port     = !empty($config['port']) ? $config['port'] : 25;
                 $security = !empty($config['security']) ? $config['security'] : null;
 
-                return \Swift_SmtpTransport::newInstance($host, $port, $security);
+                $transport = \Swift_SmtpTransport::newInstance($host, $port, $security);
+
+                if (!empty($config['username'])) {
+                    $transport->setUsername($config['username']);
+                }
+                if (!empty($config['password'])) {
+                    $transport->setPassword($config['password']);
+                }
+
+                return $transport;
 
             case Mail::TRANSPORT_SENDMAIL;
                 $command = !empty($config['command']) ? $config['command'] : '/usr/sbin/sendmail -bs';
@@ -76,29 +96,100 @@ class Mail implements NotificationInterface
                 return \Swift_SendmailTransport::newInstance($command);
 
             default:
-                throw new \Exception('Invalid or unsupported transport type.');
+                throw new \Exception('Invalid or unsupported transport type: ' . strtolower($config['type']) . '.');
         }
     }
 
     /**
-     * @param array $report
+     * @param string $type
+     * @param array  $report
      *
      * @return int
      * @throws \Exception
      */
-    public function notify($report)
+    public function notify($type, $report)
     {
+        $body = $this->buildBody($type, $report);
+
+        return $this->sendMessage($body);
+    }
+
+    /**
+     * @param string $type
+     * @param array  $report
+     *
+     * @return string
+     */
+    protected function buildBody($type, $report)
+    {
+        $body = '<h3>' . $this->project_name . '</h3>';
+
+        switch ($type) {
+            case 'update':
+                $body .= '<table width="100%" cellpadding="0" cellspacing="0">';
+                $body .= '<tr><th style="background-color: black; color: white;">Project</th>' .
+                  '<th style="background-color: black; color: white; width: 15%;">Version</th>' .
+                  '<th style="background-color: black; color: white; width: 15%;">Recommended</th>' .
+                  '<th style="background-color: black; color: white;">Status</th>' .
+                  '</tr>';
+
+                foreach ($report as $report_line) {
+                    $body .= '<tr>' .
+                      '<td>' . $report_line['project'] . '</td>' .
+                      '<td style="white-space: nowrap">' . $report_line['version'] . '</td>' .
+                      '<td style="white-space: nowrap">' . $report_line['recommended'] . '</td>';
+
+                    if ($report_line['status'] != ReleaseHistory::UPDATE_CURRENT) {
+                        $body .= '<td>' . $report_line['status_label'];
+
+                        if (!empty($report_line['reason'])) {
+                            $body .= ' (' . $report_line['reason'] . ')';
+                        }
+
+                        $body .= '</td>';
+                    } else {
+                        $body .= '<td>&nbsp;</td>';
+                    }
+                    $body .= '</tr>';
+                }
+
+                $body .= '</table><br/>';
+                $body .= '<p>Analyze done at: '.date('Y-m-d H:i:d').' using <a href="https://github.com/smalot/drush-cerbere">Cerbere</a>.</p>';
+                break;
+        }
+
+        return $body;
+    }
+
+    /**
+     * @param string $body
+     *
+     * @return int
+     */
+    protected function sendMessage($body)
+    {
+        $message_config = $this->config['message'];
+
+        $subject = !empty($message_config['subject']) ? $message_config['subject'] : 'Cerbere Notification System';
+        $to      = is_array($message_config['to']) ? $message_config['to'] : explode(',', $message_config['to']);
+
         $this->message = \Swift_Message::newInstance()
           // Give the message a subject
-          ->setSubject('Your subject')
+          ->setSubject($subject)
           // Set the From address with an associative array
-          ->setFrom(array('john@doe.com' => 'John Doe'))
+          ->setFrom($message_config['from'])
           // Set the To addresses with an associative array
-          ->setTo(array('sebastien@malot.fr', 'smalot@actualys.com' => 'Seb. Malot'))
+          ->setTo($to)
           // Give it a body
-          ->setBody('Here is the message itself');
+          ->setBody($body, 'text/html');
+
+        $mailer = \Swift_Mailer::newInstance($this->transport);
 
         // Send the message
-        return $this->transport->send($this->message);
+        $status = $mailer->send($this->message);
+
+        // Todo: check status.
+
+        return $status;
     }
 }

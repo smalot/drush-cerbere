@@ -11,8 +11,8 @@ require_once dirname(__FILE__) . '/../vendor/autoload.php';
 use Cerbere\Action\Update;
 use Cerbere\Model\Application;
 use Cerbere\Model\Config;
-use Cerbere\Model\Project;
-use Cerbere\Model\ReleaseHistory;
+use Cerbere\Notification\Console;
+use Cerbere\Notification\Mail;
 use Cerbere\Parser\Info;
 use Cerbere\Parser\Make;
 
@@ -55,6 +55,7 @@ function drush_cerbere_update()
     $config->loadFromFile(drush_get_option('config', '.cerbere.yml'));
     $config->override('cache', !drush_get_option('no-cache', false), true);
     $config->override('level', drush_get_option('level'), 'all');
+    $config->override('report-format', drush_get_option('report-format'), 'console');
 
     $application = new Application($config);
 
@@ -62,35 +63,16 @@ function drush_cerbere_update()
     $application->registerParser(new Make());
     $application->registerParser(new Info());
 
-    // Load projects using parsers.
-    $application->loadProjectsFromPatterns($patterns);
-
     // Actions.
     $application->registerAction(new Update());
 
+    // Notifications.
+    $application->registerNotification(new Console());
+    $application->registerNotification(new Mail());
+
+    // Load projects using parsers.
+    $application->loadProjectsFromPatterns($patterns);
+
     // Run it !
     $application->process('update');
-}
-
-/**
- * @param Project $project
- */
-function _drush_cerbere_update_log(Project $project)
-{
-    $release_history = new ReleaseHistory($project);
-    $update = new Update();
-    $update->compare($project, $release_history);
-
-    $line = str_pad($release_history->getShortName(), 45, ' ', STR_PAD_RIGHT);
-    $line .= str_pad($project->getVersion(), 20, ' ', STR_PAD_RIGHT);
-    $line .= str_pad($project->getRecommended(), 20, ' ', STR_PAD_RIGHT);
-
-    if ($project->getStatus() != Update::UPDATE_CURRENT) {
-        $line .= Update::getStatusLabel($project->getStatus());
-        if ($reason = $project->getReason()) {
-            $line .= ' (' . $reason . ')';
-        }
-    }
-
-    drush_print($line);
 }

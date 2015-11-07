@@ -55,7 +55,7 @@ class Update implements ActionInterface
     /**
      * @param Project $project
      *
-     * @return void
+     * @return array|false
      */
     public function process(Project $project)
     {
@@ -73,19 +73,25 @@ class Update implements ActionInterface
             $level = ReleaseHistory::UPDATE_CURRENT;
         }
 
-        if ($project->getStatus() <= $level) {
-            $line = str_pad($release_history->getShortName(), 45, ' ', STR_PAD_RIGHT);
-            $line .= str_pad($project->getVersion(), 20, ' ', STR_PAD_RIGHT);
-            $line .= str_pad($project->getRecommended(), 20, ' ', STR_PAD_RIGHT);
-
-            if ($project->getStatus() != ReleaseHistory::UPDATE_CURRENT) {
-                $line .= ReleaseHistory::getStatusLabel($project->getStatus());
-                if ($reason = $project->getReason()) {
-                    $line .= ' (' . $reason . ')';
-                }
-            }
-
-            drush_print($line);
+        if ($project->getStatus() != ReleaseHistory::UPDATE_CURRENT) {
+            $reason = $project->getReason();
+        } else {
+            $reason = '';
         }
+
+        if ($project->getStatus() <= $level) {
+            $report = array(
+              'project'      => $release_history->getShortName(),
+              'version'      => $project->getVersion(),
+              'recommended'  => $project->getRecommended(),
+              'status'       => $project->getStatus(),
+              'status_label' => ReleaseHistory::getStatusLabel($project->getStatus()),
+              'reason'       => $reason,
+            );
+
+            return $report;
+        }
+
+        return false;
     }
 }
