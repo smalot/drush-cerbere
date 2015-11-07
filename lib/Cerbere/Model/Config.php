@@ -2,8 +2,7 @@
 
 namespace Cerbere\Model;
 
-use Cerbere\Service\Versioning;
-use Cerbere\Versioning\AbstractVersioning;
+use Cerbere\Versioning\VersioningInterface;
 use Symfony\Component\Yaml\Parser;
 
 /**
@@ -19,7 +18,7 @@ class Config implements \ArrayAccess
     protected $data;
 
     /**
-     * @var AbstractVersioning
+     * @var VersioningInterface
      */
     protected $versioning;
 
@@ -61,7 +60,7 @@ class Config implements \ArrayAccess
     }
 
     /**
-     * @return AbstractVersioning
+     * @return VersioningInterface
      * @throws \Exception
      */
     public function getVersioning()
@@ -70,7 +69,9 @@ class Config implements \ArrayAccess
             $type   = !empty($this->data['vcs']['type']) ? $this->data['vcs']['type'] : 'local';
             $config = $this->data['vcs'];
             unset($config['type']);
-            $this->versioning = Versioning::factory($type, $config);
+
+            // Todo: rewrite !
+            $this->versioning = VersioningInterface::factory($type, $config);
         }
 
         return $this->versioning;

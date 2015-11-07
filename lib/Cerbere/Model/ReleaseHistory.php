@@ -137,7 +137,6 @@ class ReleaseHistory
 
         if ($this->cache && !$reset) {
             $data = $this->cache->fetch($cid);
-//            drush_print('Loaded from cache.');
         } else {
             drush_print('Not found in cache or skipped, needs to be fetched ...');
         }
