@@ -157,9 +157,13 @@ class ReleaseHistory
         }
 
         // Hydrate release objects.
-        foreach ($data['releases'] as $key => $value) {
-            $release                = new Release($value);
-            $data['releases'][$key] = $release;
+        if (isset($data['releases']) && is_array($data['releases'])) {
+            foreach ($data['releases'] as $key => $value) {
+                $release                = new Release($value);
+                $data['releases'][$key] = $release;
+            }
+        } else {
+            $data['releases'] = array();
         }
 
         $this->data = $data;
