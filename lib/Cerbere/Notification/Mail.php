@@ -53,16 +53,30 @@ class Mail implements NotificationInterface
     }
 
     /**
+     * @return \Swift_Transport
+     */
+    public function getTransport()
+    {
+        return $this->transport;
+    }
+
+    /**
+     * @param \Swift_Transport $transport
+     */
+    public function setTransport($transport)
+    {
+        $this->transport = $transport;
+    }
+
+    /**
      * @param Config $config
      *
      * @return mixed
      */
     public function prepare(Config $config)
     {
-        $this->project_name = $config['project'];
-        $this->config       = $config['notification']['mail'];
-
-        $this->transport = self::getTransport($this->config['transport']);
+        $this->project_name = 'No project name';
+        $this->config       = $config;
     }
 
     /**
@@ -71,12 +85,12 @@ class Mail implements NotificationInterface
      * @return \Swift_Transport
      * @throws \Exception
      */
-    protected static function getTransport($config)
+    public static function generateTransport($config)
     {
         switch (strtolower($config['type'])) {
             case Mail::TRANSPORT_SMTP:
-                $host = !empty($config['host']) ? $config['host'] : 'localhost';
-                $port = !empty($config['port']) ? $config['port'] : 25;
+                $host     = !empty($config['host']) ? $config['host'] : 'localhost';
+                $port     = !empty($config['port']) ? $config['port'] : 25;
                 $security = !empty($config['security']) ? $config['security'] : null;
 
                 $transport = \Swift_SmtpTransport::newInstance($host, $port, $security);
@@ -117,10 +131,11 @@ class Mail implements NotificationInterface
      */
     protected function buildBody($type, $report)
     {
-        $body = '<h3>' . $this->project_name . '</h3>';
+        $body = '';
 
         switch ($type) {
             case 'update':
+                $body = '<p style="font-size: 1.2em"><strong>' . $this->project_name . '</strong></p>';
                 $body .= '<table width="100%" cellpadding="0" cellspacing="0">';
                 $body .= '<tr><th style="background-color: black; color: white;">Project</th>' .
                   '<th style="background-color: black; color: white; width: 15%;">Version</th>' .
@@ -149,7 +164,7 @@ class Mail implements NotificationInterface
                 }
 
                 $body .= '</table><br/>';
-                $body .= '<p>Analyze done at: ' . date(
+                $body .= '<p style="color: grey; font-style: italic">Check done at: ' . date(
                     'Y-m-d H:i:d'
                   ) . ' using <a href="https://github.com/smalot/drush-cerbere">Cerbere</a>.</p>';
                 break;
@@ -176,16 +191,24 @@ class Mail implements NotificationInterface
           // Set the From address with an associative array
           ->setFrom($message_config['from'])
           // Set the To addresses with an associative array
-          ->setTo($to)
-          // Give it a body
-          ->setBody($body, 'text/html');
+          ->setTo($to);
 
-        $mailer = \Swift_Mailer::newInstance($this->transport);
+        // Set priority
+        if (!empty($message_config['priority'])) {
+            $this->message->setPriority($message_config['priority']);
+        }
+
+        // Give it a body
+        $this->message->setBody($body, 'text/html');
 
         // Send the message
-        $status = $mailer->send($this->message);
+        $mailer = \Swift_Mailer::newInstance($this->transport);
 
-        // Todo: check status.
+        if ($status = $mailer->send($this->message)) {
+            drush_print('Mail correctly sent.');
+        } else {
+            drush_print('En error occurs while trying to send mail.');
+        }
 
         return $status;
     }

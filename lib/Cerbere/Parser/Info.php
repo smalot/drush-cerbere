@@ -43,7 +43,7 @@ class Info extends Ini
      */
     public function supportedFile($filename)
     {
-        return preg_match('/\.info$/', $filename) !== false;
+        return preg_match('/\.info$/', $filename) > 0;
     }
 
     /**
@@ -51,6 +51,7 @@ class Info extends Ini
      */
     public function processFile($filename)
     {
+        // Store filename to extract project name.
         $this->filename = $filename;
 
         parent::processFile($filename);

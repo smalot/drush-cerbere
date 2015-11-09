@@ -12,7 +12,9 @@
     "drush/drush": "*",
     "symfony/yaml": "*",
     "swiftmailer/swiftmailer": "*",
-    "doctrine/cache": "*"
+    "doctrine/cache": "*",
+    "cpliakas/git-wrapper": "~1",
+    "monolog/monolog": "~1"
   },
   "require-dev": {
     "atoum/atoum": "*"

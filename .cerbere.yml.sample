@@ -1,30 +1,45 @@
 project: Projet Test
 
-vcs:
-    type:       git
-    url:        git@gitlab.example.com:project.git
-    extra_args: ~
+bin:
+    git: /usr/bin/git
+    svn: /usr/bin/svn
 
-notification:
+parts:
+    part_1:
+        title: "Part #1"
+        vcs:
+            type:   svn
+            url:    https://github.com/blindsidenetworks/drupal-module_bigbluebuttonbn/trunk
+            extra_args:
+                - "-q"
+        patterns:
+            - "*.info"
+
+    part_3:
+        title: "Part #3"
+        vcs:
+            type:   local
+        working_directory: modules
+        patterns:
+            - "modules/scald_galaxy-7.x-1.10/profiles/scald_galaxy/modules/*/*.info"
+
+notifications:
     mail:
+        type:         mail
         transport:
             type:     smtp
-            host:     smtp.gmail.com
+            host:     smtp.xxxxxx.xx
             port:     587
             security: true
-            username: ~
-            password: ~
+            username: xxxxxxxx
+            password: xxxxxxxx
         message:
-            from:     cerbere@example.local
-            to:       ~
+            # 1: Highest, 2: High, 3: Normal, 4: Low, 5: Lowest
+            priority: 1
+            from:     xxxxxxxxxxxxxxxxxx
+            to:       xxxxxxxxxxxxxxxxxx
             subject:  Cerbere Notification System
-        level: security
 
     console:
         type:  console
-        level: all
-
-drupal:
-    path:
-        - sites/all/modules/contrib
-
+        color: true

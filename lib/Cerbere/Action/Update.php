@@ -3,10 +3,9 @@
 namespace Cerbere\Action;
 
 use Cerbere\Model\Config;
-use Cerbere\Model\Project;
+use Cerbere\Model\Part;
 use Cerbere\Model\ReleaseHistory;
 use Doctrine\Common\Cache\CacheProvider;
-use Doctrine\Common\Cache\FilesystemCache;
 
 /**
  * Class Update
@@ -42,56 +41,77 @@ class Update implements ActionInterface
     }
 
     /**
-     * @param Config $config
-     *
-     * @return void
+     * @return CacheProvider
      */
-    public function prepare(Config $config)
+    public function getCache()
     {
-        $this->config = $config;
-        $this->cache  = new FilesystemCache(sys_get_temp_dir());
+        return $this->cache;
     }
 
     /**
-     * @param Project $project
-     *
-     * @return array|false
+     * @param CacheProvider $cache
      */
-    public function process(Project $project)
+    public function setCache($cache)
     {
-        $cache_reset     = empty($this->config['cache']);
-        $release_history = new ReleaseHistory($project, $this->cache);
-        $release_history->prepare($cache_reset);
-        $release_history->compare($project);
+        $this->cache = $cache;
+    }
 
-        $level = isset($this->config['level']) ? $this->config['level'] : 'all';
-        if ($level == 'security') {
-            $level = ReleaseHistory::UPDATE_NOT_SECURE;
-        } elseif ($level == 'update') {
-            $level = ReleaseHistory::UPDATE_NOT_CURRENT;
-        } else {
-            $level = ReleaseHistory::UPDATE_CURRENT;
+    /**
+     * @param array $config
+     *
+     * @return void
+     */
+    public function prepare($config)
+    {
+        $this->config = $config;
+    }
+
+    /**
+     * @param Part $part
+     *
+     * @return array
+     */
+    public function process(Part $part)
+    {
+        $reports     = array();
+        $cache_reset = empty($this->config['cache']) && isset($this->config['cache']);
+
+        foreach ($part->getProjects() as $project) {
+            $release_history = new ReleaseHistory($project, $this->cache);
+            $release_history->prepare($cache_reset);
+            $release_history->compare($project);
+
+            $level = isset($this->config['level']) ? $this->config['level'] : 'all';
+
+            if ($level == 'security') {
+                $level = ReleaseHistory::UPDATE_NOT_SECURE;
+            } elseif ($level == 'unsupported') {
+                $level = ReleaseHistory::UPDATE_NOT_SUPPORTED;
+            } elseif ($level == 'update') {
+                $level = ReleaseHistory::UPDATE_NOT_CURRENT;
+            } else {
+                $level = ReleaseHistory::UPDATE_CURRENT;
+            }
+
+            if ($project->getStatus() != ReleaseHistory::UPDATE_CURRENT) {
+                $reason = $project->getReason();
+            } else {
+                $reason = '';
+            }
+
+            if ($project->getStatus() <= $level) {
+                $reports[$project->getProject()] = array(
+                  'project'      => $project->getProject(),
+                  'project_name' => $project->getName(),
+                  'version'      => $project->getVersion(),
+                  'recommended'  => $project->getRecommended(),
+                  'status'       => $project->getStatus(),
+                  'status_label' => ReleaseHistory::getStatusLabel($project->getStatus()),
+                  'reason'       => $reason,
+                );
+            }
         }
 
-        if ($project->getStatus() != ReleaseHistory::UPDATE_CURRENT) {
-            $reason = $project->getReason();
-        } else {
-            $reason = '';
-        }
-
-        if ($project->getStatus() <= $level) {
-            $report = array(
-              'project'      => $release_history->getShortName(),
-              'version'      => $project->getVersion(),
-              'recommended'  => $project->getRecommended(),
-              'status'       => $project->getStatus(),
-              'status_label' => ReleaseHistory::getStatusLabel($project->getStatus()),
-              'reason'       => $reason,
-            );
-
-            return $report;
-        }
-
-        return false;
+        return $reports;
     }
 }

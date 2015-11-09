@@ -8,13 +8,21 @@
 // Todo: remove for PROD.
 require_once dirname(__FILE__) . '/../vendor/autoload.php';
 
+use Cerbere\Action\Checkout;
 use Cerbere\Action\Update;
-use Cerbere\Model\Application;
+use Cerbere\Cerbere;
+use Cerbere\Event\CerbereLoggerListener;
 use Cerbere\Model\Config;
 use Cerbere\Notification\Console;
 use Cerbere\Notification\Mail;
 use Cerbere\Parser\Info;
 use Cerbere\Parser\Make;
+use Cerbere\Versioning\Git;
+use Cerbere\Versioning\Local;
+use Cerbere\Versioning\Svn;
+use Doctrine\Common\Cache\FilesystemCache;
+use Monolog\Handler\StreamHandler;
+use Monolog\Logger;
 
 /**
  * Implements hook_drush_command().
@@ -23,7 +31,6 @@ function cerbere_drush_command()
 {
     $items['cerbere-update'] = array(
       'description' => 'Check updates using make file, info file or scanning folder to discover info files.',
-        //'aliases' => array('cdc'),
       'arguments'   => array(
         'source' => 'The source file or folder.',
       ),
@@ -31,7 +38,7 @@ function cerbere_drush_command()
         'config'        => 'The config file to use for default setting values.',
         'report-format' => 'Reporting format: console (default), json, html.',
         'no-cache'      => 'Disable cache.',
-        'level'         => 'Reporting level (all, security, update)',
+        'level'         => 'Reporting level (all, security, unsupported, update).',
       ),
       'examples'    => array(
         'drush cerbere-check-update sites/all/modules/ctools/ctools.info',
@@ -57,22 +64,38 @@ function drush_cerbere_update()
     $config->override('level', drush_get_option('level'), 'all');
     $config->override('report-format', drush_get_option('report-format'), 'console');
 
-    $application = new Application($config);
+    $cerbere = new Cerbere($config);
+
+    // Logger.
+    $log = new Logger('cerbere');
+    $log->pushHandler(new StreamHandler('cerbere.log', Logger::DEBUG));
+    $cerbere->addLoggerListener(new CerbereLoggerListener($log));
 
     // Parsers.
-    $application->registerParser(new Make());
-    $application->registerParser(new Info());
+    $cerbere->addParser(new Make());
+    $cerbere->addParser(new Info());
 
     // Actions.
-    $application->registerAction(new Update());
+    $cerbere->addAction(new Checkout());
+    $action = new Update();
+    $action->setCache(new FilesystemCache(sys_get_temp_dir() . '/cerbere'));
+    $cerbere->addAction($action);
+
+    // Versionings.
+    $cerbere->addVersioning(new Local());
+    $cerbere->addVersioning(new Git());
+    $cerbere->addVersioning(new Svn());
 
     // Notifications.
-    $application->registerNotification(new Console());
-    $application->registerNotification(new Mail());
+    $notification = new Console();
+    $notification->setColor(true);
+    $cerbere->addNotification($notification);
 
-    // Load projects using parsers.
-    $application->loadProjectsFromPatterns($patterns);
+    $notification = new Mail();
+    $transport = Mail::generateTransport($config['notifications']['mail']['transport']);
+    $notification->setTransport($transport);
+    $cerbere->addNotification($notification);
 
     // Run it !
-    $application->process('update');
+    $cerbere->run(array('checkout', 'update'));
 }

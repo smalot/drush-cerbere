@@ -125,20 +125,18 @@ class ReleaseHistory
     public function prepare($reset = false)
     {
         $cid_parts = array(
-          'cerbere',
           'release_history',
           $this->project->getProject(),
           $this->project->getCore(),
-          md5($this->project->getStatusUrl()),
         );
 
         $cid  = implode(':', $cid_parts);
         $data = false;
 
+        drush_print('   - ' . $this->project->getProject());
+
         if ($this->cache && !$reset) {
             $data = $this->cache->fetch($cid);
-        } else {
-            drush_print('Not found in cache or skipped, needs to be fetched ...');
         }
 
         // If not in cache, load from remote.
@@ -159,8 +157,7 @@ class ReleaseHistory
         // Hydrate release objects.
         if (isset($data['releases']) && is_array($data['releases'])) {
             foreach ($data['releases'] as $key => $value) {
-                $release                = new Release($value);
-                $data['releases'][$key] = $release;
+                $data['releases'][$key] = new Release($value);
             }
         } else {
             $data['releases'] = array();
