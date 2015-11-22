@@ -27,8 +27,34 @@ class Config implements \ArrayAccess
      */
     public function __construct($data = array())
     {
-        $this->data       = $data;
+        $this->data = $data;
         $this->versioning = null;
+    }
+
+    /**
+     * @return string
+     */
+    public function getProjectName()
+    {
+        return isset($this->data['project']) ? $this->data['project'] : 'Not specified';
+    }
+
+    /**
+     * @return VersioningInterface
+     * @throws \Exception
+     */
+    public function getVersioning()
+    {
+        if (is_null($this->versioning)) {
+            $type = !empty($this->data['vcs']['type']) ? $this->data['vcs']['type'] : 'local';
+            $config = $this->data['vcs'];
+            unset($config['type']);
+
+            // Todo: rewrite !
+            $this->versioning = VersioningInterface::factory($type, $config);
+        }
+
+        return $this->versioning;
     }
 
     /**
@@ -47,50 +73,8 @@ class Config implements \ArrayAccess
             throw new \Exception('Unable to read config file.');
         }
 
-        $parser     = new Parser();
+        $parser = new Parser();
         $this->data = $parser->parse($content);
-    }
-
-    /**
-     * @return string
-     */
-    public function getProjectName()
-    {
-        return isset($this->data['project']) ? $this->data['project'] : 'Not specified';
-    }
-
-    /**
-     * @return VersioningInterface
-     * @throws \Exception
-     */
-    public function getVersioning()
-    {
-        if (is_null($this->versioning)) {
-            $type   = !empty($this->data['vcs']['type']) ? $this->data['vcs']['type'] : 'local';
-            $config = $this->data['vcs'];
-            unset($config['type']);
-
-            // Todo: rewrite !
-            $this->versioning = VersioningInterface::factory($type, $config);
-        }
-
-        return $this->versioning;
-    }
-
-    /**
-     * @param string $key
-     * @param mixed  $value
-     * @param mixed  $default
-     */
-    public function override($key, $value, $default)
-    {
-        if (!is_null($value)) {
-            $this->data[$key] = $value;
-        }
-
-        if (!array_key_exists($key, $this->data) || is_null($this->data[$key])) {
-            $this->data[$key] = $default;
-        }
     }
 
     /**
@@ -128,5 +112,21 @@ class Config implements \ArrayAccess
     public function offsetUnset($offset)
     {
         unset($this->data[$offset]);
+    }
+
+    /**
+     * @param string $key
+     * @param mixed $value
+     * @param mixed $default
+     */
+    public function override($key, $value, $default)
+    {
+        if (!is_null($value)) {
+            $this->data[$key] = $value;
+        }
+
+        if (!array_key_exists($key, $this->data) || is_null($this->data[$key])) {
+            $this->data[$key] = $default;
+        }
     }
 }

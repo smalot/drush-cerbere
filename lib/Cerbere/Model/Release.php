@@ -23,11 +23,109 @@ class Release
     }
 
     /**
+     * @return \DateTime
+     */
+    public function getDate()
+    {
+        return new \DateTime('@' . $this->getDatestamp());
+    }
+
+    /**
+     * @return int
+     */
+    public function getDatestamp()
+    {
+        return $this->data['date'];
+    }
+
+    /**
+     * @return string
+     */
+    public function getDownloadLink()
+    {
+        return $this->data['download_link'];
+    }
+
+    /**
+     * @return array
+     */
+    public function getFiles()
+    {
+        return trim($this->data['files']);
+    }
+
+    /**
+     * @return int
+     */
+    public function getFilesize()
+    {
+        return intval($this->data['filesize']);
+    }
+
+    /**
+     * @return string
+     */
+    public function getMDHash()
+    {
+        return $this->data['mdhash'];
+    }
+
+    /**
      * @return string
      */
     public function getName()
     {
         return $this->data['name'];
+    }
+
+    /**
+     * @return string
+     */
+    public function getProjectStatus()
+    {
+        return $this->data['project_status'];
+    }
+
+    /**
+     * @return string
+     */
+    public function getReleaseLink()
+    {
+        return $this->data['release_link'];
+    }
+
+    /**
+     * @return string
+     */
+    public function getStatus()
+    {
+        return $this->data['status'];
+    }
+
+    /**
+     * @return string
+     */
+    public function getTag()
+    {
+        return $this->data['tag'];
+    }
+
+    /**
+     * @param $term
+     *
+     * @return mixed
+     */
+    public function getTerm($term)
+    {
+        return $this->data['terms'][$term];
+    }
+
+    /**
+     * @return array
+     */
+    public function getTerms()
+    {
+        return $this->data['terms'];
     }
 
     /**
@@ -41,9 +139,9 @@ class Release
     /**
      * @return string
      */
-    public function getTag()
+    public function getVersionExtra()
     {
-        return $this->data['tag'];
+        return isset($this->data['version_extra']) ? $this->data['version_extra'] : '';
     }
 
     /**
@@ -63,35 +161,13 @@ class Release
     }
 
     /**
-     * @return string
+     * @param $term
+     *
+     * @return bool
      */
-    public function getVersionExtra()
+    public function hasTerm($term)
     {
-        return isset($this->data['version_extra']) ? $this->data['version_extra'] : '';
-    }
-
-    /**
-     * @return string
-     */
-    public function getStatus()
-    {
-        return $this->data['status'];
-    }
-
-    /**
-     * @param int $status
-     */
-    public function setStatus($status)
-    {
-        $this->data['status'] = $status;
-    }
-
-    /**
-     * @return string
-     */
-    public function getProjectStatus()
-    {
-        return $this->data['project_status'];
+        return isset($this->data['terms'][$term]);
     }
 
     /**
@@ -103,86 +179,10 @@ class Release
     }
 
     /**
-     * @return string
+     * @param int $status
      */
-    public function getReleaseLink()
+    public function setStatus($status)
     {
-        return $this->data['release_link'];
-    }
-
-    /**
-     * @return string
-     */
-    public function getDownloadLink()
-    {
-        return $this->data['download_link'];
-    }
-
-    /**
-     * @return \DateTime
-     */
-    public function getDate()
-    {
-        return new \DateTime('@' . $this->getDatestamp());
-    }
-
-    /**
-     * @return int
-     */
-    public function getDatestamp()
-    {
-        return $this->data['date'];
-    }
-
-    /**
-     * @return string
-     */
-    public function getMDHash()
-    {
-        return $this->data['mdhash'];
-    }
-
-    /**
-     * @return int
-     */
-    public function getFilesize()
-    {
-        return intval($this->data['filesize']);
-    }
-
-    /**
-     * @return array
-     */
-    public function getFiles()
-    {
-        return trim($this->data['files']);
-    }
-
-    /**
-     * @return array
-     */
-    public function getTerms()
-    {
-        return $this->data['terms'];
-    }
-
-    /**
-     * @param $term
-     *
-     * @return bool
-     */
-    public function hasTerm($term)
-    {
-        return isset($this->data['terms'][$term]);
-    }
-
-    /**
-     * @param $term
-     *
-     * @return mixed
-     */
-    public function getTerm($term)
-    {
-        return $this->data['terms'][$term];
+        $this->data['status'] = $status;
     }
 }

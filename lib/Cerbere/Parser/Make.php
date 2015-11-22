@@ -42,18 +42,25 @@ class Make extends Ini
     /**
      * @return string
      */
+    public function getApi()
+    {
+        return $this->api;
+    }
+
+    /**
+     * @return string
+     */
     public function getCode()
     {
         return 'make';
     }
 
     /**
-     * @parser string $filename
-     * @return bool
+     * @return Project[]
      */
-    public function supportedFile($filename)
+    public function getProjects()
     {
-        return preg_match('/\.make$/', $filename) > 0;
+        return $this->projects;
     }
 
     /**
@@ -68,9 +75,9 @@ class Make extends Ini
         // Core attribute is mandatory since Drupal 7.x.
         $data += array('core' => '6.x', 'api' => '', 'projects' => array(), 'libraries' => array());
 
-        $this->core      = $data['core'];
-        $this->api       = $data['api'];
-        $this->projects  = array();
+        $this->core = $data['core'];
+        $this->api = $data['api'];
+        $this->projects = array();
         $this->libraries = $data['libraries'];
 
         // Wrap project into objects.
@@ -95,29 +102,20 @@ class Make extends Ini
     }
 
     /**
-     * @return string
-     */
-    public function getApi()
-    {
-        return $this->api;
-    }
-
-    /**
-     * @return Project[]
-     */
-    public function getProjects()
-    {
-        return $this->projects;
-    }
-
-    /**
-     * @param string $project
-     *
+     * @parser string $filename
      * @return bool
      */
-    public function hasProject($project)
+    public function supportedFile($filename)
     {
-        return isset($this->projects[$project]);
+        return preg_match('/\.make$/', $filename) > 0;
+    }
+
+    /**
+     * @return array
+     */
+    public function getLibraries()
+    {
+        return $this->libraries;
     }
 
     /**
@@ -131,10 +129,12 @@ class Make extends Ini
     }
 
     /**
-     * @return array
+     * @param string $project
+     *
+     * @return bool
      */
-    public function getLibraries()
+    public function hasProject($project)
     {
-        return $this->libraries;
+        return isset($this->projects[$project]);
     }
 }

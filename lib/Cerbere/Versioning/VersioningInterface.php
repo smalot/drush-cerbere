@@ -2,8 +2,6 @@
 
 namespace Cerbere\Versioning;
 
-use Cerbere\Model\Config;
-
 /**
  * Interface VersioningInterface
  *
@@ -22,15 +20,18 @@ interface VersioningInterface
     public function getWorkingDirectory();
 
     /**
-     * @param array $config
+     * @param string $source
      *
      * @return mixed
      */
-    public function prepare($config);
+    public function prepare($source);
 
     /**
-     * @param string|null $directory
-     * @return mixed
+     * @param string $source
+     * @param string $destination
+     * @param array $options
+     *
+     * @return string
      */
-    public function process($directory = null);
+    public function process($source, $destination, $options = array());
 }

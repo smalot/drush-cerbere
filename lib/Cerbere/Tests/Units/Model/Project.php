@@ -7,6 +7,51 @@ use Cerbere\Tests\AbstractTest;
 
 class Project extends AbstractTest
 {
+    public function testCodeCoverage()
+    {
+        $project = $this->createProjectDevFromFile();
+
+        $this->string($project->getCore())->isEqualTo('7.x');
+        $this->string($project->getVersion())->isEqualTo('7.x-3.11+29-dev');
+
+        $this->string($project->getInstallType())->isEqualTo(\Cerbere\Model\Project::INSTALL_TYPE_DEV);
+        $this->string($project->getExistingMajor())->isEqualTo('3');
+
+        $project = new \Cerbere\Model\Project('views', '7.x', null);
+
+        $this->string($project->getInstallType())->isEqualTo(\Cerbere\Model\Project::INSTALL_TYPE_UNKNOWN);
+        $this->integer($project->getExistingMajor())->isEqualTo(-1);
+
+        $project = new \Cerbere\Model\Project('views', '7.x', 'a.a-dev');
+
+        $this->string($project->getInstallType())->isEqualTo(\Cerbere\Model\Project::INSTALL_TYPE_DEV);
+        $this->integer($project->getExistingMajor())->isEqualTo(-1);
+    }
+
+    protected function createProjectDevFromFile()
+    {
+        $data = 'name = Views
+description = Create customized lists and queries from your database.
+package = Views
+core = 7.x
+php = 5.2
+
+; Information added by Drupal.org packaging script on 2015-10-23
+version = "7.x-3.11+29-dev"
+core = "7.x"
+project = "views"
+datestamp = "1445641168"
+';
+
+        $filename = $this->createFile($data);
+
+        $info = new \Cerbere\Parser\Info();
+        $info->processFile($filename);
+        $project = $info->getProject();
+
+        return $project;
+    }
+
     public function testGetter()
     {
         $project = $this->createProjectFromFile();
@@ -98,51 +143,6 @@ version = "7.x-8.11"
 core = "8.x"
 project = "views"
 datestamp = "1430321048"
-';
-
-        $filename = $this->createFile($data);
-
-        $info = new \Cerbere\Parser\Info();
-        $info->processFile($filename);
-        $project = $info->getProject();
-
-        return $project;
-    }
-
-    public function testCodeCoverage()
-    {
-        $project = $this->createProjectDevFromFile();
-
-        $this->string($project->getCore())->isEqualTo('7.x');
-        $this->string($project->getVersion())->isEqualTo('7.x-3.11+29-dev');
-
-        $this->string($project->getInstallType())->isEqualTo(\Cerbere\Model\Project::INSTALL_TYPE_DEV);
-        $this->string($project->getExistingMajor())->isEqualTo('3');
-
-        $project = new \Cerbere\Model\Project('views', '7.x', null);
-
-        $this->string($project->getInstallType())->isEqualTo(\Cerbere\Model\Project::INSTALL_TYPE_UNKNOWN);
-        $this->integer($project->getExistingMajor())->isEqualTo(-1);
-
-        $project = new \Cerbere\Model\Project('views', '7.x', 'a.a-dev');
-
-        $this->string($project->getInstallType())->isEqualTo(\Cerbere\Model\Project::INSTALL_TYPE_DEV);
-        $this->integer($project->getExistingMajor())->isEqualTo(-1);
-    }
-
-    protected function createProjectDevFromFile()
-    {
-        $data = 'name = Views
-description = Create customized lists and queries from your database.
-package = Views
-core = 7.x
-php = 5.2
-
-; Information added by Drupal.org packaging script on 2015-10-23
-version = "7.x-3.11+29-dev"
-core = "7.x"
-project = "views"
-datestamp = "1445641168"
 ';
 
         $filename = $this->createFile($data);

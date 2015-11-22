@@ -17,17 +17,9 @@ interface ParserInterface
     public function getCode();
 
     /**
-     * @param string $filename
-     *
-     * @return bool
+     * @return Project[]
      */
-    public function supportedFile($filename);
-
-    /**
-     * @parser string $filename
-     * @return void
-     */
-    public function processFile($filename);
+    public function getProjects();
 
     /**
      * @parser string $content
@@ -36,7 +28,15 @@ interface ParserInterface
     public function processContent($content);
 
     /**
-     * @return Project[]
+     * @parser string $filename
+     * @return void
      */
-    public function getProjects();
+    public function processFile($filename);
+
+    /**
+     * @param string $filename
+     *
+     * @return bool
+     */
+    public function supportedFile($filename);
 }

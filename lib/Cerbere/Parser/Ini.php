@@ -10,16 +10,6 @@ namespace Cerbere\Parser;
 abstract class Ini implements ParserInterface
 {
     /**
-     * @param string $filename
-     */
-    public function processFile($filename)
-    {
-        $content = file_get_contents($filename);
-
-        $this->processContent($content);
-    }
-
-    /**
      * Parses data in Drupal's .info format.
      *
      * Data should be in an .ini-like format to specify values. White-space
@@ -81,7 +71,7 @@ abstract class Ini implements ParserInterface
         )) {
             foreach ($matches as $match) {
                 // Fetch the key and value string.
-                $i   = 0;
+                $i = 0;
                 $key = $value1 = $value2 = $value3 = '';
                 foreach (array('key', 'value1', 'value2', 'value3') as $var) {
                     $$var = isset($match[++$i]) ? $match[$i] : '';
@@ -89,8 +79,8 @@ abstract class Ini implements ParserInterface
                 $value = stripslashes(substr($value1, 1, -1)) . stripslashes(substr($value2, 1, -1)) . $value3;
 
                 // Parse array syntax.
-                $keys   = preg_split('/\]?\[/', rtrim($key, ']'));
-                $last   = array_pop($keys);
+                $keys = preg_split('/\]?\[/', rtrim($key, ']'));
+                $last = array_pop($keys);
                 $parent = &$info;
 
                 // Create nested arrays.
@@ -118,5 +108,15 @@ abstract class Ini implements ParserInterface
         }
 
         return $info;
+    }
+
+    /**
+     * @param string $filename
+     */
+    public function processFile($filename)
+    {
+        $content = file_get_contents($filename);
+
+        $this->processContent($content);
     }
 }

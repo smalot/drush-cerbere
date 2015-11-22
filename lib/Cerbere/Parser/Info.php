@@ -38,23 +38,19 @@ class Info extends Ini
     }
 
     /**
-     * @parser string $filename
-     * @return integer
+     * @return Project[]
      */
-    public function supportedFile($filename)
+    public function getProjects()
     {
-        return preg_match('/\.info$/', $filename) > 0;
+        return array($this->getProject());
     }
 
     /**
-     * @param string $filename
+     * @return Project
      */
-    public function processFile($filename)
+    public function getProject()
     {
-        // Store filename to extract project name.
-        $this->filename = $filename;
-
-        parent::processFile($filename);
+        return $this->project;
     }
 
     /**
@@ -72,18 +68,22 @@ class Info extends Ini
     }
 
     /**
-     * @return Project[]
+     * @param string $filename
      */
-    public function getProjects()
+    public function processFile($filename)
     {
-        return array($this->getProject());
+        // Store filename to extract project name.
+        $this->filename = $filename;
+
+        parent::processFile($filename);
     }
 
     /**
-     * @return Project
+     * @parser string $filename
+     * @return integer
      */
-    public function getProject()
+    public function supportedFile($filename)
     {
-        return $this->project;
+        return preg_match('/\.info$/', $filename) > 0;
     }
 }

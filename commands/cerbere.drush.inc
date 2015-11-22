@@ -12,7 +12,7 @@ use Cerbere\Action\Checkout;
 use Cerbere\Action\Update;
 use Cerbere\Cerbere;
 use Cerbere\Event\CerbereLoggerListener;
-use Cerbere\Model\Config;
+use Cerbere\Model\Job;
 use Cerbere\Parser\Info;
 use Cerbere\Parser\Make;
 use Cerbere\Versioning\Git;
@@ -58,38 +58,51 @@ function drush_cerbere_update()
 {
     $patterns = func_get_args();
 
-    $config = new Config();
+/*    $config = new Config();
     $config->loadFromFile(drush_get_option('config', '.cerbere.yml'));
     $config->override('cache', !drush_get_option('no-cache', false), true);
     $config->override('level', drush_get_option('level'), 'all');
+*/
 
     $format = drush_get_option('format');
     $flat = in_array($format, array('table', 'csv'));
 
-    $cerbere = new Cerbere($config);
+    $cerbere = new Cerbere();
 
     // Logger.
     $log = new Logger('cerbere');
-    $log->pushHandler(new StreamHandler('logs/cerbere.log', Logger::DEBUG));
+    $log->pushHandler(new StreamHandler(__DIR__ . '/logs/cerbere.log', Logger::DEBUG));
     $cerbere->addLoggerListener(new CerbereLoggerListener($log));
 
     // Parsers.
     $cerbere->addParser(new Make());
     $cerbere->addParser(new Info());
 
-    // Actions.
-    $cerbere->addAction(new Checkout());
-    $action = new Update();
-    $action->setCache(new FilesystemCache(sys_get_temp_dir() . '/cerbere'));
-    $cerbere->addAction($action);
+    // Action.
+    $cache = new FilesystemCache(sys_get_temp_dir() . '/cerbere');
 
-    // Versionings.
-    $cerbere->addVersioning(new Local());
-    $cerbere->addVersioning(new Git());
-    $cerbere->addVersioning(new Svn());
+    $action = new Update();
+    $action->setCache($cache);
+
+    // Job.
+    $versioning = new Git();
+    $versioning->setWrapper(new \GitWrapper\GitWrapper());
+
+    $job = new Job();
+    $job->setVersioning($versioning);
+    $job->setSource('git://github.com/blindsidenetworks/drupal-module_bigbluebuttonbn', array());
+    $job->setPatterns(array('*.info'));
 
     // Run it !
-    $report = $cerbere->run('update', $flat);
+    //$report = $cerbere->run($job, $action, array('flat' => $flat));
+
+    $job = new Job();
+    $job->setVersioning(new Local());
+    $job->setSource('./modules/ctools/', array());
+    $job->setPatterns(array('*.info'));
+
+    // Run it !
+    $report = $cerbere->run($job, $action, array('flat' => $flat));
 
     return $report;
 }

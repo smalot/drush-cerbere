@@ -139,11 +139,11 @@ class Project
     public function __construct($project, $core, $version)
     {
         $this->project = $project;
-        $this->name    = $project;
-        $this->core    = $core;
+        $this->name = $project;
+        $this->core = $core;
         $this->version = $version;
 
-        $this->releases         = array();
+        $this->releases = array();
         $this->security_updates = array();
 
         $this->init();
@@ -157,7 +157,7 @@ class Project
         $this->status_url = self::UPDATE_DEFAULT_URL;
 
         // Assume an official release until we see otherwise.
-        $this->install_type     = self::INSTALL_TYPE_OFFICIAL;
+        $this->install_type = self::INSTALL_TYPE_OFFICIAL;
         $this->existing_version = $this->version;
 
         if (isset($this->version)) {
@@ -180,50 +180,18 @@ class Project
             }
         } else {
             // No version info available at all.
-            $this->install_type     = self::INSTALL_TYPE_UNKNOWN;
+            $this->install_type = self::INSTALL_TYPE_UNKNOWN;
             $this->existing_version = 'Unknown';
-            $this->existing_major   = -1;
+            $this->existing_major = -1;
         }
     }
 
     /**
-     * @param array $data
+     * @param Release $release
      */
-    public function setDetails($data)
+    public function addSecurityUpdate($version, $release)
     {
-        $this->data = $data;
-
-        foreach (array('name', 'core', 'version', 'datestamp') as $property) {
-            if (isset($data[$property])) {
-                $this->$property = $data[$property];
-            }
-        }
-
-        $this->init();
-    }
-
-    /**
-     * @return array
-     */
-    public function getDetails()
-    {
-        return $this->data;
-    }
-
-    /**
-     * @return string
-     */
-    public function getProject()
-    {
-        return $this->project;
-    }
-
-    /**
-     * @return string
-     */
-    public function getName()
-    {
-        return $this->name;
+        $this->security_updates[$version] = $release;
     }
 
     /**
@@ -235,43 +203,35 @@ class Project
     }
 
     /**
-     * @return string
+     * @return mixed
      */
-    public function getVersion()
+    public function getDatestamp()
     {
-        return $this->version;
+        return $this->datestamp;
     }
 
     /**
-     * @return string
+     * @return array
      */
-    public function getStatusUrl()
+    public function getDetails()
     {
-        return $this->status_url;
+        return $this->data;
     }
 
     /**
-     * @param string $status_url
+     * @return mixed
      */
-    public function setStatusUrl($status_url)
+    public function getDevVersion()
     {
-        $this->status_url = $status_url;
+        return $this->dev_version;
     }
 
     /**
-     * @return string
+     * @param $dev_version
      */
-    public function getInstallType()
+    public function setDevVersion($dev_version)
     {
-        return $this->install_type;
-    }
-
-    /**
-     * @return string
-     */
-    public function getExistingVersion()
-    {
-        return $this->existing_version;
+        $this->dev_version = $dev_version;
     }
 
     /**
@@ -283,19 +243,83 @@ class Project
     }
 
     /**
-     * @return int
+     * @return string
      */
-    public function getStatus()
+    public function getExistingVersion()
     {
-        return $this->status;
+        return $this->existing_version;
     }
 
     /**
-     * @param int $status
+     * @return integer
      */
-    public function setStatus($status)
+    public function getFetchStatus()
     {
-        $this->status = $status;
+        return $this->fetch_status;
+    }
+
+    /**
+     * @param $fetch_status
+     */
+    public function setFetchStatus($fetch_status)
+    {
+        $this->fetch_status = $fetch_status;
+    }
+
+    /**
+     * @return string
+     */
+    public function getInstallType()
+    {
+        return $this->install_type;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getLatestDev()
+    {
+        return $this->latest_dev;
+    }
+
+    /**
+     * @param $latest_dev
+     */
+    public function setLatestDev($latest_dev)
+    {
+        $this->latest_dev = $latest_dev;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getLatestVersion()
+    {
+        return $this->latest_version;
+    }
+
+    /**
+     * @param $latest_version
+     */
+    public function setLatestVersion($latest_version)
+    {
+        $this->latest_version = $latest_version;
+    }
+
+    /**
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    /**
+     * @return string
+     */
+    public function getProject()
+    {
+        return $this->project;
     }
 
     /**
@@ -328,70 +352,6 @@ class Project
     public function setReason($reason)
     {
         $this->reason = $reason;
-    }
-
-    /**
-     * @return integer
-     */
-    public function getFetchStatus()
-    {
-        return $this->fetch_status;
-    }
-
-    /**
-     * @param $fetch_status
-     */
-    public function setFetchStatus($fetch_status)
-    {
-        $this->fetch_status = $fetch_status;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getLatestVersion()
-    {
-        return $this->latest_version;
-    }
-
-    /**
-     * @param $latest_version
-     */
-    public function setLatestVersion($latest_version)
-    {
-        $this->latest_version = $latest_version;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getLatestDev()
-    {
-        return $this->latest_dev;
-    }
-
-    /**
-     * @param $latest_dev
-     */
-    public function setLatestDev($latest_dev)
-    {
-        $this->latest_dev = $latest_dev;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getDevVersion()
-    {
-        return $this->dev_version;
-    }
-
-    /**
-     * @param $dev_version
-     */
-    public function setDevVersion($dev_version)
-    {
-        $this->dev_version = $dev_version;
     }
 
     /**
@@ -443,28 +403,43 @@ class Project
     }
 
     /**
-     * @return mixed
+     * @return int
      */
-    public function getDatestamp()
+    public function getStatus()
     {
-        return $this->datestamp;
+        return $this->status;
     }
 
     /**
-     * @param string  $version
-     * @param Release $release
+     * @param int $status
      */
-    public function setRelease($version, Release $release)
+    public function setStatus($status)
     {
-        $this->releases[$version] = $release;
+        $this->status = $status;
     }
 
     /**
-     * @param Release $release
+     * @return string
      */
-    public function addSecurityUpdate($version, $release)
+    public function getStatusUrl()
     {
-        $this->security_updates[$version] = $release;
+        return $this->status_url;
+    }
+
+    /**
+     * @param string $status_url
+     */
+    public function setStatusUrl($status_url)
+    {
+        $this->status_url = $status_url;
+    }
+
+    /**
+     * @return string
+     */
+    public function getVersion()
+    {
+        return $this->version;
     }
 
     /**
@@ -473,5 +448,30 @@ class Project
     public function hasSecurityUpdates()
     {
         return count($this->security_updates) > 0;
+    }
+
+    /**
+     * @param array $data
+     */
+    public function setDetails($data)
+    {
+        $this->data = $data;
+
+        foreach (array('name', 'core', 'version', 'datestamp') as $property) {
+            if (isset($data[$property])) {
+                $this->$property = $data[$property];
+            }
+        }
+
+        $this->init();
+    }
+
+    /**
+     * @param string $version
+     * @param Release $release
+     */
+    public function setRelease($version, Release $release)
+    {
+        $this->releases[$version] = $release;
     }
 }

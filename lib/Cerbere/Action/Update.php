@@ -3,7 +3,6 @@
 namespace Cerbere\Action;
 
 use Cerbere\Model\Config;
-use Cerbere\Model\Part;
 use Cerbere\Model\Project;
 use Cerbere\Model\ReleaseHistory;
 use Doctrine\Common\Cache\CacheProvider;
@@ -18,7 +17,7 @@ class Update implements ActionInterface
     /**
      * @var Config
      */
-    protected $config;
+    protected $options;
 
     /**
      * @var CacheProvider
@@ -31,14 +30,6 @@ class Update implements ActionInterface
     public function __construct()
     {
 
-    }
-
-    /**
-     * @return string
-     */
-    public function getCode()
-    {
-        return 'update';
     }
 
     /**
@@ -58,45 +49,54 @@ class Update implements ActionInterface
     }
 
     /**
-     * @param array $config
-     *
-     * @return void
+     * @return string
      */
-    public function prepare($config)
+    public function getCode()
     {
-        $this->config = $config;
+        return 'update';
     }
 
     /**
-     * @param Part $part
-     * @param boolean $flat
+     * @return void
+     */
+    public function prepare()
+    {
+    }
+
+    /**
+     * @param array $projects
+     * @param array $options
      *
      * @return array
      */
-    public function process(Part $part, $flat = false)
+    public function process(array $projects, $options = array())
     {
-        $reports     = array();
-        $cache_reset = empty($this->config['cache']) && isset($this->config['cache']);
+        $options += array('cache' => true, 'level' => 'all', 'flat' => false);
+        $reports = array();
 
-        foreach ($part->getProjects() as $project) {
-            $release_history = new ReleaseHistory($project, $this->cache);
-            $release_history->prepare($cache_reset);
+        $release_history = new ReleaseHistory($this->cache);
+
+        /** @var Project $project */
+        foreach ($projects as $project) {
+            $release_history->prepare($project, $options['cache']);
             $release_history->compare($project);
 
-            $level = isset($this->config['level']) ? $this->config['level'] : 'all';
-
-            if ($level == 'security') {
-                $level = ReleaseHistory::UPDATE_NOT_SECURE;
-            } elseif ($level == 'unsupported') {
-                $level = ReleaseHistory::UPDATE_NOT_SUPPORTED;
-            } elseif ($level == 'update') {
-                $level = ReleaseHistory::UPDATE_NOT_CURRENT;
-            } else {
-                $level = ReleaseHistory::UPDATE_CURRENT;
+            switch ($options['level']) {
+                case 'security':
+                    $level = ReleaseHistory::UPDATE_NOT_SECURE;
+                    break;
+                case 'unsupported':
+                    $level = ReleaseHistory::UPDATE_NOT_SUPPORTED;
+                    break;
+                case 'update':
+                    $level = ReleaseHistory::UPDATE_NOT_CURRENT;
+                    break;
+                default:
+                    $level = ReleaseHistory::UPDATE_CURRENT;
             }
 
             if ($project->getStatus() <= $level) {
-                $reports[$project->getProject()] = $this->generateReport($project, $release_history, $flat);
+                $reports[$project->getProject()] = $this->generateReport($project, $release_history, $options['flat']);
             }
         }
 
@@ -109,7 +109,8 @@ class Update implements ActionInterface
      * @param boolean $flat
      * @return array
      */
-    protected function generateReport(Project $project, ReleaseHistory $release_history, $flat = false) {
+    protected function generateReport(Project $project, ReleaseHistory $release_history, $flat = false)
+    {
         $report = array(
           'project'      => $project->getProject(),
           'version'      => $project->getVersion(),

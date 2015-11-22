@@ -2,7 +2,7 @@
 
 namespace Cerbere\Action;
 
-use Cerbere\Model\Part;
+use Cerbere\Model\Project;
 
 /**
  * Interface ActionInterface
@@ -17,16 +17,14 @@ interface ActionInterface
     public function getCode();
 
     /**
-     * @param array $config
-     *
      * @return mixed
      */
-    public function prepare($config);
+    public function prepare();
 
     /**
-     * @param Part $part
-     * @param boolean $flat
+     * @param Project[] $projects
+     * @param array $options
      * @return array
      */
-    public function process(Part $part, $flat = false);
+    public function process(array $projects, $options = array());
 }

@@ -31,21 +31,23 @@ class Local implements VersioningInterface
     }
 
     /**
-     * @param array $config
+     * @param string $source
      *
      * @return mixed
      */
-    public function prepare($config)
+    public function prepare($source)
     {
-        $this->workDirectory = getcwd();
+        $this->workDirectory = $source;
     }
 
     /**
-     * @param string|null $directory
+     * @param string $source
+     * @param string $destination
+     * @param array $options
      *
-     * @return mixed
+     * @return string
      */
-    public function process($directory = null)
+    public function process($source, $destination, $options = array())
     {
         // TODO: Implement process() method.
     }

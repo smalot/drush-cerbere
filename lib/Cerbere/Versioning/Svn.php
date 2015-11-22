@@ -2,8 +2,6 @@
 
 namespace Cerbere\Versioning;
 
-use Cerbere\Model\Config;
-
 /**
  * Class Svn
  *
@@ -12,11 +10,6 @@ use Cerbere\Model\Config;
 class Svn implements VersioningInterface
 {
     const SVN_BINARY_PATH = '/usr/bin/svn';
-
-    /**
-     * @var Config
-     */
-    protected $config;
 
     /**
      * @var string
@@ -48,44 +41,47 @@ class Svn implements VersioningInterface
     }
 
     /**
-     * @param array $config
-     * @return mixed
+     * @param string $source
      */
-    public function prepare($config)
+    public function prepare($source)
     {
-        $this->config = $config;
         $this->workDirectory = drush_tempdir();
     }
 
     /**
-     * @param string|null $directory
-     * @return mixed
+     * @param string $source
+     * @param string $destination
+     * @param array $options
+     *
+     * @return string
      */
-    public function process($directory = null)
+    public function process($source, $destination, $options = array())
     {
-        $command = $this->buildCommandLine($directory);
+        $command = $this->buildCommandLine($source, $destination, $options);
         drush_print('$> ' . $command);
         passthru($command);
     }
 
     /**
-     * @param string $directory
+     * @param string $source
+     * @param string $destination
+     * @param array $options
+     *
      * @return string
      */
-    protected function buildCommandLine($directory)
+    protected function buildCommandLine($source, $destination, $options = array())
     {
-        $bin = !empty($this->config['bin']['svn']) ? $this->config['bin']['svn'] : self::SVN_BINARY_PATH;
+        $options += array('svn' => self::SVN_BINARY_PATH, 'arguments' => array());
 
-        $command = escapeshellarg($bin) . ' checkout ' . escapeshellarg($this->config['url']) . ' ';
-        $command.= escapeshellarg($directory) . ' ';
+        $command = escapeshellarg($options['svn']) . ' ' .
+          'checkout ' . escapeshellarg($source) . ' ' .
+          escapeshellarg($destination) . ' ';
 
-        if (!empty($this->config['extra_args'])) {
-            foreach ($this->config['extra_args'] as $param => $value) {
-                if (is_numeric($param)) {
-                    $command .= escapeshellarg($value) . ' ';
-                } else {
-                    $command .= $param . '=' . escapeshellarg($value) . ' ';
-                }
+        foreach ($options['arguments'] as $param => $value) {
+            if (is_numeric($param)) {
+                $command .= escapeshellarg($value) . ' ';
+            } else {
+                $command .= $param . '=' . escapeshellarg($value) . ' ';
             }
         }
 

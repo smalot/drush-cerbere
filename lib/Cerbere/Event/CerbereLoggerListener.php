@@ -20,7 +20,7 @@ class CerbereLoggerListener implements EventSubscriberInterface, LoggerAwareInte
      * @var array
      */
     protected $logLevelMappings = array(
-      CerbereEvents::APPLICATION_FILE_DISCOVER => LogLevel::INFO,
+      CerbereEvents::APPLICATION_FILE_DISCOVERED => LogLevel::INFO,
     );
 
     /**
@@ -44,7 +44,7 @@ class CerbereLoggerListener implements EventSubscriberInterface, LoggerAwareInte
     public static function getSubscribedEvents()
     {
         return array(
-          CerbereEvents::APPLICATION_FILE_DISCOVER => array('onFileDiscover', 0),
+          CerbereEvents::APPLICATION_FILE_DISCOVERED => array('onFileDiscover', 0),
         );
     }
 
@@ -97,7 +97,7 @@ class CerbereLoggerListener implements EventSubscriberInterface, LoggerAwareInte
     /**
      * Sets the log level mapping for an event.
      *
-     * @param string       $eventName
+     * @param string $eventName
      * @param string|false $logLevel
      *
      * @return $this
@@ -112,7 +112,7 @@ class CerbereLoggerListener implements EventSubscriberInterface, LoggerAwareInte
     /**
      * @param string $method
      * @param string $message
-     * @param array  $context
+     * @param array $context
      */
     protected function log($method, $message, array $context = array())
     {

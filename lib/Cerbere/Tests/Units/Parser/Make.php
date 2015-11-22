@@ -69,7 +69,7 @@ libraries[bgrins-spectrum][download][url] = https://github.com/bgrins/spectrum/a
         return $this->createFile($data);
     }
 
-    public function testGetVersion()
+    public function testGetLibraries()
     {
         $filename = $this->createMakeFile();
         $this->string($filename)->contains('ato');
@@ -78,7 +78,13 @@ libraries[bgrins-spectrum][download][url] = https://github.com/bgrins/spectrum/a
         $make->processFile($filename);
         $this->class($make);
 
-        $this->string($make->getApi())->isEqualTo('2');
+        $libraries = $make->getLibraries();
+        $project_names = array(
+          0 => 'predis',
+          1 => 'bgrins-spectrum',
+        );
+
+        $this->array($libraries)->hasSize(2)->keys->isEqualTo($project_names);
     }
 
     public function testGetProjects()
@@ -90,7 +96,7 @@ libraries[bgrins-spectrum][download][url] = https://github.com/bgrins/spectrum/a
         $make->processFile($filename);
         $this->class($make);
 
-        $projects      = $make->getProjects();
+        $projects = $make->getProjects();
         $project_names = array(
           0  => 'drupal',
           1  => 'admin_menu',
@@ -118,7 +124,7 @@ libraries[bgrins-spectrum][download][url] = https://github.com/bgrins/spectrum/a
         $this->array($make->getProjects())->hasSize(11)->keys->isEqualTo($project_names);
     }
 
-    public function testGetLibraries()
+    public function testGetVersion()
     {
         $filename = $this->createMakeFile();
         $this->string($filename)->contains('ato');
@@ -127,12 +133,6 @@ libraries[bgrins-spectrum][download][url] = https://github.com/bgrins/spectrum/a
         $make->processFile($filename);
         $this->class($make);
 
-        $libraries     = $make->getLibraries();
-        $project_names = array(
-          0 => 'predis',
-          1 => 'bgrins-spectrum',
-        );
-
-        $this->array($libraries)->hasSize(2)->keys->isEqualTo($project_names);
+        $this->string($make->getApi())->isEqualTo('2');
     }
 }

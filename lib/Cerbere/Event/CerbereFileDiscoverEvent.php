@@ -28,15 +28,15 @@ class CerbereFileDiscoverEvent extends CerbereEvent
     protected $parser;
 
     /**
-     * @param Cerbere     $cerbere
-     * @param string          $filename
+     * @param Cerbere $cerbere
+     * @param string $filename
      * @param ParserInterface $parser
      */
     public function __construct(Cerbere $cerbere, $filename, ParserInterface $parser)
     {
         $this->cerbere = $cerbere;
-        $this->filename    = $filename;
-        $this->parser      = $parser;
+        $this->filename = $filename;
+        $this->parser = $parser;
     }
 
     /**

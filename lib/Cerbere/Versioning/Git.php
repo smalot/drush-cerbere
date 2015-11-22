@@ -2,11 +2,7 @@
 
 namespace Cerbere\Versioning;
 
-use Cerbere\Model\Config;
-use GitWrapper\Event\GitLoggerListener;
 use GitWrapper\GitWrapper;
-use Monolog\Handler\StreamHandler;
-use Monolog\Logger;
 
 /**
  * Class Git
@@ -15,11 +11,6 @@ use Monolog\Logger;
  */
 class Git implements VersioningInterface
 {
-    /**
-     * @var Config
-     */
-    protected $config;
-
     /**
      * @var GitWrapper
      */
@@ -31,9 +22,9 @@ class Git implements VersioningInterface
     protected $workDirectory;
 
     /**
-     * @param GitWrapper|null $wrapper
+     * @param GitWrapper $wrapper
      */
-    public function __construct($wrapper = null)
+    public function __construct(GitWrapper $wrapper = null)
     {
         if (is_null($wrapper)) {
             $wrapper = new GitWrapper();
@@ -59,49 +50,52 @@ class Git implements VersioningInterface
     }
 
     /**
-     * @param array $config
+     * @param string $source
      *
      * @return void
      */
-    public function prepare($config)
+    public function prepare($source)
     {
-        $this->config = $config;
         $this->workDirectory = drush_tempdir();
-
-        if (!empty($this->config['log'])) {
-            // Log to a file named "git.log"
-            $log = new Logger('cerbere_git');
-            $log->pushHandler(new StreamHandler($this->config['log'], Logger::DEBUG));
-
-            // Instantiate the listener, add the logger to it, and register it.
-            $listener = new GitLoggerListener($log);
-            $this->wrapper->addLoggerListener($listener);
-        }
     }
 
     /**
-     * @param string|null $destination
+     * @param string $source
+     * @param string $destination
+     * @param array $options
      *
      * @return string
      */
-    public function process($destination = null)
+    public function process($source, $destination, $options = array())
     {
-        $options = array();
+        $parameters = array();
 
-        if (!empty($this->config['branch'])) {
-            $options['branch'] = $this->config['branch'];
-        }
+        $options += array('arguments' => array());
 
-        if (is_array($this->config['extra_args'])) {
-            foreach ($this->config['extra_args'] as $param => $value) {
-                if (is_numeric($param)) {
-                    $options[$value] = true;
-                } else {
-                    $options[$param] = $value;
-                }
+        foreach ($options['arguments'] as $param => $value) {
+            if (is_numeric($param)) {
+                $parameters[$value] = true;
+            } else {
+                $parameters[$param] = $value;
             }
         }
 
-        $this->wrapper->cloneRepository($this->config['url'], $destination, $options);
+        $this->wrapper->cloneRepository($source, $destination, $options);
+    }
+
+    /**
+     * @return GitWrapper
+     */
+    public function getWrapper()
+    {
+        return $this->wrapper;
+    }
+
+    /**
+     * @param GitWrapper $wrapper
+     */
+    public function setWrapper($wrapper)
+    {
+        $this->wrapper = $wrapper;
     }
 }

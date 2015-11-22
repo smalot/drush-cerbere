@@ -3,12 +3,12 @@
 namespace Cerbere;
 
 use Cerbere\Action\ActionInterface;
+use Cerbere\Event\CerbereEvents;
+use Cerbere\Event\CerbereFileDiscoverEvent;
 use Cerbere\Event\CerbereLoggerListener;
-use Cerbere\Model\Config;
-use Cerbere\Model\Part;
+use Cerbere\Model\Job;
 use Cerbere\Model\Project;
 use Cerbere\Parser\ParserInterface;
-use Cerbere\Versioning\VersioningInterface;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -20,9 +20,9 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 class Cerbere
 {
     /**
-     * @var Config
+     * @var ParserInterface[]
      */
-    protected $config;
+    protected $parsers = array();
 
     /**
      * @var EventDispatcher
@@ -30,47 +30,9 @@ class Cerbere
     protected $dispatcher;
 
     /**
-     * @var VersioningInterface[]
      */
-    protected $versionings;
-
-    /**
-     * @var ParserInterface[]
-     */
-    protected $parsers;
-
-    /**
-     * @var ActionInterface[]
-     */
-    protected $actions;
-
-    /**
-     * @var Part[]
-     */
-    protected $parts;
-
-    /**
-     * @param Config $config
-     */
-    public function __construct(Config $config)
+    public function __construct()
     {
-        $this->config = $config;
-
-        $this->versionings = array();
-        $this->parsers = array();
-        $this->actions = array();
-    }
-
-    /**
-     * @param ActionInterface $action
-     *
-     * @return $this
-     */
-    public function addAction(ActionInterface $action)
-    {
-        $this->actions[$action->getCode()] = $action;
-
-        return $this;
     }
 
     /**
@@ -127,18 +89,6 @@ class Cerbere
     }
 
     /**
-     * @param VersioningInterface $versioning
-     *
-     * @return $this
-     */
-    public function addVersioning(VersioningInterface $versioning)
-    {
-        $this->versionings[$versioning->getCode()] = $versioning;
-
-        return $this;
-    }
-
-    /**
      * @return ParserInterface[]
      */
     public function getParsers()
@@ -147,90 +97,72 @@ class Cerbere
     }
 
     /**
-     * @param string $versioning
-     *
-     * @return VersioningInterface
-     * @throws \DomainException
-     */
-    public function getVersioning($versioning)
-    {
-        if (isset($this->versionings[$versioning])) {
-            return $this->versionings[$versioning];
-        }
-
-        throw new \DomainException('Unregistered versioning');
-    }
-
-    /**
-     * @param string $action
-     * @param boolean $flat
+     * @param Job $job
+     * @param ActionInterface $action
+     * @param array $options
      *
      * @return $this
      */
-    public function run($action, $flat = false)
+    public function run(Job $job, ActionInterface $action, $options = array())
     {
-        /** @var ActionInterface $action */
-        $action = $this->getAction($action);
-        $report = array();
-        $currentDirectory = getcwd();
+        // Download remote project.
+        if ($dir = $job->checkoutRepository()) {
+            // Move to project folder.
+            $currentDirectory = getcwd();
+            chdir($dir);
 
-        foreach ($this->getParts() as $part_name => $part) {
-            drush_print('part: ' . $part->getTitle());
+            // Load projects from repository.
+            $projects = $this->getProjectsFromPatterns($job->getPatterns());
 
-            $checkout = $this->getAction('checkout');
-            $checkout->process($part);
-
-            if ($result = $action->process($part, $flat)) {
-                $report = array_merge($report, $result);
-            }
+            // Do cerbere action.
+            $report = $action->process($projects, $options);
 
             // Restore initial directory.
             chdir($currentDirectory);
-        }
 
-        return $report;
+            return $report;
+        } else {
+
+            return false;
+        }
     }
 
     /**
-     * @return Part[]
+     * @return Project[]
      */
-    public function getParts()
+    public function getProjectsFromPatterns($patterns)
     {
-        if (is_null($this->parts)) {
-            $this->parts = array();
+        $projects = array();
 
-            foreach ($this->config['parts'] as $name => $part) {
-                $this->parts[$name] = Part::generateFromConfig($this, $part);
-            }
+        foreach ($patterns as $pattern) {
+            $projects = array_merge($projects, $this->getProjectsFromPattern($pattern));
         }
 
-        return $this->parts;
+        return $projects;
     }
 
     /**
-     * @param Part[] $parts
+     * @param string $pattern
      *
      * @return $this
      */
-    public function setParts($parts)
+    public function getProjectsFromPattern($pattern)
     {
-        $this->parts = $parts;
+        $projects = array();
+        $dispatcher = $this->getDispatcher();
+        $files = glob($pattern);
 
-        return $this;
-    }
-
-    /**
-     * @param string $action
-     *
-     * @return ActionInterface
-     * @throws \DomainException
-     */
-    public function getAction($action)
-    {
-        if (isset($this->actions[$action])) {
-            return $this->actions[$action];
+        foreach ($files as $file) {
+            foreach ($this->getParsers() as $parser) {
+                if ($parser->supportedFile($file)) {
+                    $event = new CerbereFileDiscoverEvent($this, $file, $parser);
+                    $dispatcher->dispatch(CerbereEvents::APPLICATION_FILE_DISCOVERED, $event);
+                    $parser->processFile($file);
+                    $projects = array_merge($projects, $parser->getProjects());
+                }
+            }
         }
 
-        throw new \DomainException('Unregistered action');
+        return $projects;
     }
 }

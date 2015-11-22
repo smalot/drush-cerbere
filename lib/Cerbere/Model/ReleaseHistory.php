@@ -57,11 +57,6 @@ class ReleaseHistory
     const UPDATE_FETCH_PENDING = -4;
 
     /**
-     * @var Project
-     */
-    protected $project;
-
-    /**
      * @var string
      */
     protected $url;
@@ -77,147 +72,13 @@ class ReleaseHistory
     protected $cache;
 
     /**
-     * @param Project       $project
      * @param CacheProvider $cache
-     * @param string        $url
+     * @param string $url
      */
-    public function __construct(Project $project, CacheProvider $cache = null, $url = null)
+    public function __construct(CacheProvider $cache = null, $url = null)
     {
-        $this->project = $project;
-        $this->cache   = $cache;
-        $this->url     = $url;
-    }
-
-    /**
-     * @param int $status
-     *
-     * @return string
-     */
-    public static function getStatusLabel($status)
-    {
-        switch ($status) {
-            case self::UPDATE_NOT_SECURE:
-                return 'Not secure';
-            case self::UPDATE_REVOKED:
-                return 'Revoked';
-            case self::UPDATE_NOT_SUPPORTED:
-                return 'Not supported';
-            case self::UPDATE_NOT_CURRENT:
-                return 'Not current';
-            case self::UPDATE_CURRENT:
-                return 'Update current';
-            case self::UPDATE_NOT_CHECKED:
-                return 'Not checked';
-            case self::UPDATE_UNKNOWN:
-                return 'Unknown';
-            case self::UPDATE_NOT_FETCHED:
-                return 'Not fetched';
-            case self::UPDATE_FETCH_PENDING:
-                return 'Fetch pending';
-            default:
-                return '';
-        }
-    }
-
-    /**
-     * @param bool|false $reset
-     */
-    public function prepare($reset = false)
-    {
-        $cid_parts = array(
-          'release_history',
-          $this->project->getProject(),
-          $this->project->getCore(),
-        );
-
-        $cid  = implode(':', $cid_parts);
-        $data = false;
-
-        drush_print('   - ' . $this->project->getProject());
-
-        if ($this->cache && !$reset) {
-            $data = $this->cache->fetch($cid);
-        }
-
-        // If not in cache, load from remote.
-        if ($data === false) {
-            $url = $this->project->getStatusUrl() . '/' .
-              $this->project->getProject() . '/' .
-              $this->project->getCore();
-
-            // Todo: prefer guzzle library.
-            $content = file_get_contents($url);
-
-            // If data, store into cache.
-            if ($this->cache && ($data = $this->parseUpdateXml($content))) {
-                $this->cache->save($cid, $data, 1800);
-            }
-        }
-
-        // Hydrate release objects.
-        if (isset($data['releases']) && is_array($data['releases'])) {
-            foreach ($data['releases'] as $key => $value) {
-                $data['releases'][$key] = new Release($value);
-            }
-        } else {
-            $data['releases'] = array();
-        }
-
-        $this->data = $data;
-    }
-
-    /**
-     * Parses the XML of the Drupal release history info files.
-     *
-     * @param string $raw_xml
-     *   A raw XML string of available release data for a given project.
-     *
-     * @return array
-     *   Array of parsed data about releases for a given project, or NULL if there
-     *   was an error parsing the string.
-     */
-    protected function parseUpdateXml($raw_xml)
-    {
-        try {
-            $xml = new \SimpleXMLElement($raw_xml);
-        } catch (\Exception $e) {
-            // SimpleXMLElement::__construct produces an E_WARNING error message for
-            // each error found in the XML data and throws an exception if errors
-            // were detected. Catch any exception and return failure (NULL).
-            return array();
-        }
-
-        // If there is no valid project data, the XML is invalid, so return failure.
-        if (!isset($xml->short_name)) {
-            return array();
-        }
-
-        $data = array();
-        foreach ($xml as $k => $v) {
-            $data[$k] = (string) $v;
-        }
-        $data['releases'] = array();
-
-        if (isset($xml->releases)) {
-            foreach ($xml->releases->children() as $release) {
-                $version                    = (string) $release->version;
-                $data['releases'][$version] = array();
-                foreach ($release->children() as $k => $v) {
-                    $data['releases'][$version][$k] = (string) $v;
-                }
-                $data['releases'][$version]['terms'] = array();
-                if ($release->terms) {
-                    foreach ($release->terms->children() as $term) {
-                        if (!isset($data['releases'][$version]['terms'][(string) $term->name])) {
-                            $data['releases'][$version]['terms'][(string) $term->name] = array();
-                        }
-                        $data['releases'][$version]['terms'][(string) $term->name][] = (string) $term->value;
-                    }
-                }
-            }
-        }
-
-        return $data;
+        $this->cache = $cache;
+        $this->url = $url;
     }
 
     /**
@@ -259,7 +120,7 @@ class ReleaseHistory
         }
 
         // Figure out the target major version.
-        $existing_major   = $project->getExistingMajor();
+        $existing_major = $project->getExistingMajor();
         $supported_majors = array();
         if ($this->getSupportedMajors()) {
             $supported_majors = explode(',', $this->getSupportedMajors());
@@ -297,7 +158,7 @@ class ReleaseHistory
         $target_major = max($existing_major, $target_major);
 
         $release_patch_changed = null;
-        $patch                 = '';
+        $patch = '';
 
         // If the project is marked as UPDATE_FETCH_PENDING, it means that the
         // data we currently have (if any) is stale, and we've got a task queued
@@ -367,7 +228,7 @@ class ReleaseHistory
               && $release->getVersionPatch()
             ) {
                 if ($patch != $release->getVersionPatch()) {
-                    $patch                 = $release->getVersionPatch();
+                    $patch = $release->getVersionPatch();
                     $release_patch_changed = $release;
                 }
                 if (!$release->getVersionExtra() && $patch == $release->getVersionPatch()) {
@@ -535,6 +396,14 @@ class ReleaseHistory
     }
 
     /**
+     * @return string
+     */
+    public function getApiVersion()
+    {
+        return $this->data['api_version'];
+    }
+
+    /**
      * @return array
      */
     public function getData()
@@ -553,6 +422,14 @@ class ReleaseHistory
     }
 
     /**
+     * @return string
+     */
+    public function getLink()
+    {
+        return $this->data['link'];
+    }
+
+    /**
      * @return \Cerbere\Model\Project
      */
     public function getProject()
@@ -561,11 +438,66 @@ class ReleaseHistory
     }
 
     /**
-     * @param \Cerbere\Model\Project $project
+     * @return mixed
      */
-    public function setProject($project)
+    public function getShortName()
     {
-        $this->project = $project;
+        return $this->data['short_name'];
+    }
+
+    /**
+     * @param int $status
+     *
+     * @return string
+     */
+    public static function getStatusLabel($status)
+    {
+        switch ($status) {
+            case self::UPDATE_NOT_SECURE:
+                return 'Not secure';
+            case self::UPDATE_REVOKED:
+                return 'Revoked';
+            case self::UPDATE_NOT_SUPPORTED:
+                return 'Not supported';
+            case self::UPDATE_NOT_CURRENT:
+                return 'Not current';
+            case self::UPDATE_CURRENT:
+                return 'Update current';
+            case self::UPDATE_NOT_CHECKED:
+                return 'Not checked';
+            case self::UPDATE_UNKNOWN:
+                return 'Unknown';
+            case self::UPDATE_NOT_FETCHED:
+                return 'Not fetched';
+            case self::UPDATE_FETCH_PENDING:
+                return 'Fetch pending';
+            default:
+                return '';
+        }
+    }
+
+    /**
+     * @return string
+     */
+    public function getTerms()
+    {
+        return trim($this->data['terms']);
+    }
+
+    /**
+     * @return string
+     */
+    public function getTitle()
+    {
+        return $this->data['title'];
+    }
+
+    /**
+     * @return string
+     */
+    public function getType()
+    {
+        return $this->data['type'];
     }
 
     /**
@@ -585,50 +517,110 @@ class ReleaseHistory
     }
 
     /**
-     * @return string
+     * @param Project $project
+     * @param bool|false $reset
      */
-    public function getTitle()
+    public function prepare(Project $project, $reset = false)
     {
-        return $this->data['title'];
+        $cid_parts = array(
+          'release_history',
+          $project->getProject(),
+          $project->getCore(),
+        );
+
+        $cid = implode(':', $cid_parts);
+        $data = false;
+
+        if ($this->cache && !$reset) {
+            $data = $this->cache->fetch($cid);
+        }
+
+        // If not in cache, load from remote.
+        if ($data === false) {
+            $url = $project->getStatusUrl() . '/' .
+              $project->getProject() . '/' .
+              $project->getCore();
+
+            // Todo: prefer guzzle library.
+            $content = file_get_contents($url);
+
+            // If data, store into cache.
+            if ($this->cache && ($data = $this->parseUpdateXml($content))) {
+                $this->cache->save($cid, $data, 1800);
+            }
+        }
+
+        // Hydrate release objects.
+        if (isset($data['releases']) && is_array($data['releases'])) {
+            foreach ($data['releases'] as $key => $value) {
+                $data['releases'][$key] = new Release($value);
+            }
+        } else {
+            $data['releases'] = array();
+        }
+
+        $this->data = $data;
     }
 
     /**
-     * @return mixed
+     * Parses the XML of the Drupal release history info files.
+     *
+     * @param string $raw_xml
+     *   A raw XML string of available release data for a given project.
+     *
+     * @return array
+     *   Array of parsed data about releases for a given project, or NULL if there
+     *   was an error parsing the string.
      */
-    public function getShortName()
+    protected function parseUpdateXml($raw_xml)
     {
-        return $this->data['short_name'];
+        try {
+            $xml = new \SimpleXMLElement($raw_xml);
+        } catch (\Exception $e) {
+            // SimpleXMLElement::__construct produces an E_WARNING error message for
+            // each error found in the XML data and throws an exception if errors
+            // were detected. Catch any exception and return failure (NULL).
+            return array();
+        }
+
+        // If there is no valid project data, the XML is invalid, so return failure.
+        if (!isset($xml->short_name)) {
+            return array();
+        }
+
+        $data = array();
+        foreach ($xml as $k => $v) {
+            $data[$k] = (string)$v;
+        }
+        $data['releases'] = array();
+
+        if (isset($xml->releases)) {
+            foreach ($xml->releases->children() as $release) {
+                $version = (string)$release->version;
+                $data['releases'][$version] = array();
+                foreach ($release->children() as $k => $v) {
+                    $data['releases'][$version][$k] = (string)$v;
+                }
+                $data['releases'][$version]['terms'] = array();
+                if ($release->terms) {
+                    foreach ($release->terms->children() as $term) {
+                        if (!isset($data['releases'][$version]['terms'][(string)$term->name])) {
+                            $data['releases'][$version]['terms'][(string)$term->name] = array();
+                        }
+                        $data['releases'][$version]['terms'][(string)$term->name][] = (string)$term->value;
+                    }
+                }
+            }
+        }
+
+        return $data;
     }
 
     /**
-     * @return string
+     * @param \Cerbere\Model\Project $project
      */
-    public function getType()
+    public function setProject($project)
     {
-        return $this->data['type'];
-    }
-
-    /**
-     * @return string
-     */
-    public function getApiVersion()
-    {
-        return $this->data['api_version'];
-    }
-
-    /**
-     * @return string
-     */
-    public function getLink()
-    {
-        return $this->data['link'];
-    }
-
-    /**
-     * @return string
-     */
-    public function getTerms()
-    {
-        return trim($this->data['terms']);
+        $this->project = $project;
     }
 }
