@@ -3,6 +3,7 @@
 namespace Cerbere\Action;
 
 use Cerbere\Model\Project;
+use Cerbere\Model\Release;
 use Cerbere\Model\ReleaseHistory;
 use Doctrine\Common\Cache\CacheProvider;
 
@@ -121,31 +122,33 @@ class Update implements ActionInterface
             $report['dev'] = $project->getDevVersion();
         } else {
             if ($release = $release_history->getRelease($project->getRecommended())) {
-                $report['recommended'] = array(
-                  'version'       => $release->getVersion(),
-                  'datestamp'     => $release->getDatestamp(),
-                  'release_link'  => $release->getReleaseLink(),
-                  'download_link' => $release->getDownloadLink(),
-                  'filesize'      => $release->getFilesize(),
-                );
+                $report['recommended'] = $this->getReportFromRelease($release);
             }
 
             if ($release = $release_history->getRelease($project->getDevVersion())) {
-                $report['dev'] = array(
-                  'version'       => $release->getVersion(),
-                  'datestamp'     => $release->getDatestamp(),
-                  'release_link'  => $release->getReleaseLink(),
-                  'download_link' => $release->getDownloadLink(),
-                  'filesize'      => $release->getFilesize(),
-                );
+                $report['dev'] = $this->getReportFromRelease($release);
             }
         }
-
-
+        
         if ($reason = $project->getReason()) {
             $report['reason'] = $reason;
         }
 
         return $report;
+    }
+
+    /**
+     * @param \Cerbere\Model\Release $release
+     * @return array
+     */
+    protected function getReportFromRelease(Release $release)
+    {
+        return array(
+          'version'       => $release->getVersion(),
+          'datestamp'     => $release->getDatestamp(),
+          'release_link'  => $release->getReleaseLink(),
+          'download_link' => $release->getDownloadLink(),
+          'filesize'      => $release->getFilesize(),
+        );
     }
 }
