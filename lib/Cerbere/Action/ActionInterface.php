@@ -2,23 +2,31 @@
 
 namespace Cerbere\Action;
 
-use Cerbere\Model\Project;
+use Cerbere\Model\Part;
 
 /**
  * Interface ActionInterface
+ *
  * @package Cerbere\Action
  */
 interface ActionInterface
 {
     /**
-     * @return mixed
+     * @return string
      */
-    public function prepare();
+    public function getCode();
 
     /**
-     * @param \Cerbere\Model\Project $project
+     * @param array $config
+     *
+     * @return mixed
+     */
+    public function prepare($config);
+
+    /**
+     * @param Part $part
      * @param boolean $flat
      * @return array
      */
-    public function process(Project $project, $flat = false);
+    public function process(Part $part, $flat = false);
 }

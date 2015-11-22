@@ -4,6 +4,7 @@ namespace Cerbere\Model;
 
 /**
  * Class Project
+ *
  * @package Cerbere\Model
  */
 class Project
@@ -138,11 +139,11 @@ class Project
     public function __construct($project, $core, $version)
     {
         $this->project = $project;
-        $this->name = $project;
-        $this->core = $core;
+        $this->name    = $project;
+        $this->core    = $core;
         $this->version = $version;
 
-        $this->releases = array();
+        $this->releases         = array();
         $this->security_updates = array();
 
         $this->init();
@@ -156,7 +157,7 @@ class Project
         $this->status_url = self::UPDATE_DEFAULT_URL;
 
         // Assume an official release until we see otherwise.
-        $this->install_type = self::INSTALL_TYPE_OFFICIAL;
+        $this->install_type     = self::INSTALL_TYPE_OFFICIAL;
         $this->existing_version = $this->version;
 
         if (isset($this->version)) {
@@ -179,9 +180,9 @@ class Project
             }
         } else {
             // No version info available at all.
-            $this->install_type = self::INSTALL_TYPE_UNKNOWN;
+            $this->install_type     = self::INSTALL_TYPE_UNKNOWN;
             $this->existing_version = 'Unknown';
-            $this->existing_major = -1;
+            $this->existing_major   = -1;
         }
     }
 
@@ -450,7 +451,7 @@ class Project
     }
 
     /**
-     * @param string $version
+     * @param string  $version
      * @param Release $release
      */
     public function setRelease($version, Release $release)

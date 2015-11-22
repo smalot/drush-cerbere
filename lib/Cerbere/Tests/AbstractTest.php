@@ -6,6 +6,7 @@ use mageekguy\atoum;
 
 /**
  * Class AbstractTest
+ *
  * @package Cerbere
  */
 abstract class AbstractTest extends atoum\test
@@ -17,6 +18,7 @@ abstract class AbstractTest extends atoum\test
 
     /**
      * @param string $data
+     *
      * @return string|false
      */
     protected function createFile($data)
@@ -27,7 +29,7 @@ abstract class AbstractTest extends atoum\test
             $this->files[] = $filename;
 
             register_shutdown_function(
-              function() use ($filename) {
+              function () use ($filename) {
                   if (!unlink($filename)) {
                       ; // Nothing to do.
                   }
@@ -42,6 +44,7 @@ abstract class AbstractTest extends atoum\test
 
     /**
      * @param string $prefix
+     *
      * @return string
      */
     protected function generateFilename($prefix = 'atoum_')

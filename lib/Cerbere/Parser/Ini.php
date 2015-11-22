@@ -4,19 +4,19 @@ namespace Cerbere\Parser;
 
 /**
  * Class Ini
+ *
  * @package Cerbere\Parser
  */
-abstract class Ini
+abstract class Ini implements ParserInterface
 {
     /**
      * @param string $filename
-     * @return array
      */
-    protected function parseFile($filename)
+    public function processFile($filename)
     {
-        $data = file_get_contents($filename);
+        $content = file_get_contents($filename);
 
-        return $this->parseData($data);
+        $this->processContent($content);
     }
 
     /**
@@ -24,17 +24,18 @@ abstract class Ini
      *
      * Data should be in an .ini-like format to specify values. White-space
      * generally doesn't matter, except inside values:
+     *
      * @code
-     *   key = value
-     *   key = "value"
-     *   key = 'value'
-     *   key = "multi-line
-     *   value"
-     *   key = 'multi-line
-     *   value'
-     *   key
-     *   =
-     *   'value'
+     *      key = value
+     *      key = "value"
+     *      key = 'value'
+     *      key = "multi-line
+     *      value"
+     *      key = 'multi-line
+     *      value'
+     *      key
+     *      =
+     *      'value'
      * @endcode
      *
      * Arrays are created using a HTTP GET alike syntax:
@@ -56,7 +57,7 @@ abstract class Ini
      *
      * @see drupal_parse_info_file()
      */
-    protected function parseData($data)
+    protected function parseContent($data)
     {
         $info = array();
 
@@ -80,7 +81,7 @@ abstract class Ini
         )) {
             foreach ($matches as $match) {
                 // Fetch the key and value string.
-                $i = 0;
+                $i   = 0;
                 $key = $value1 = $value2 = $value3 = '';
                 foreach (array('key', 'value1', 'value2', 'value3') as $var) {
                     $$var = isset($match[++$i]) ? $match[$i] : '';
@@ -88,8 +89,8 @@ abstract class Ini
                 $value = stripslashes(substr($value1, 1, -1)) . stripslashes(substr($value2, 1, -1)) . $value3;
 
                 // Parse array syntax.
-                $keys = preg_split('/\]?\[/', rtrim($key, ']'));
-                $last = array_pop($keys);
+                $keys   = preg_split('/\]?\[/', rtrim($key, ']'));
+                $last   = array_pop($keys);
                 $parent = &$info;
 
                 // Create nested arrays.

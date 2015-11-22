@@ -4,6 +4,7 @@ namespace Cerbere\Model;
 
 /**
  * Class Release
+ *
  * @package Cerbere\Model
  */
 class Release
@@ -167,6 +168,7 @@ class Release
 
     /**
      * @param $term
+     *
      * @return bool
      */
     public function hasTerm($term)
@@ -176,6 +178,7 @@ class Release
 
     /**
      * @param $term
+     *
      * @return mixed
      */
     public function getTerm($term)

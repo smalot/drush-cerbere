@@ -2,12 +2,12 @@
 
 namespace Cerbere\Model;
 
-use Cerbere\Service\Versioning;
-use Cerbere\Versioning\AbstractVersioning;
+use Cerbere\Versioning\VersioningInterface;
 use Symfony\Component\Yaml\Parser;
 
 /**
  * Class Config
+ *
  * @package Cerbere\Model
  */
 class Config implements \ArrayAccess
@@ -18,7 +18,7 @@ class Config implements \ArrayAccess
     protected $data;
 
     /**
-     * @var AbstractVersioning
+     * @var VersioningInterface
      */
     protected $versioning;
 
@@ -27,12 +27,13 @@ class Config implements \ArrayAccess
      */
     public function __construct($data = array())
     {
-        $this->data = $data;
+        $this->data       = $data;
         $this->versioning = null;
     }
 
     /**
      * @param $filename
+     *
      * @return \Cerbere\Model\Config
      * @throws \Exception
      */
@@ -46,7 +47,7 @@ class Config implements \ArrayAccess
             throw new \Exception('Unable to read config file.');
         }
 
-        $parser = new Parser();
+        $parser     = new Parser();
         $this->data = $parser->parse($content);
     }
 
@@ -59,23 +60,42 @@ class Config implements \ArrayAccess
     }
 
     /**
-     * @return AbstractVersioning
+     * @return VersioningInterface
      * @throws \Exception
      */
     public function getVersioning()
     {
         if (is_null($this->versioning)) {
-            $type = !empty($this->data['vcs']['type']) ? $this->data['vcs']['type'] : 'local';
+            $type   = !empty($this->data['vcs']['type']) ? $this->data['vcs']['type'] : 'local';
             $config = $this->data['vcs'];
             unset($config['type']);
-            $this->versioning = Versioning::factory($type, $config);
+
+            // Todo: rewrite !
+            $this->versioning = VersioningInterface::factory($type, $config);
         }
 
         return $this->versioning;
     }
 
     /**
+     * @param string $key
+     * @param mixed  $value
+     * @param mixed  $default
+     */
+    public function override($key, $value, $default)
+    {
+        if (!is_null($value)) {
+            $this->data[$key] = $value;
+        }
+
+        if (!array_key_exists($key, $this->data) || is_null($this->data[$key])) {
+            $this->data[$key] = $default;
+        }
+    }
+
+    /**
      * @param mixed $offset
+     *
      * @return bool
      */
     public function offsetExists($offset)
@@ -85,6 +105,7 @@ class Config implements \ArrayAccess
 
     /**
      * @param mixed $offset
+     *
      * @return mixed
      */
     public function offsetGet($offset)
