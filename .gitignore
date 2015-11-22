@@ -4,8 +4,6 @@ coverage/
 bin/
 .idea/
 modules/
-test/
-tests/
 logs/
 .cerbere.yml
 
