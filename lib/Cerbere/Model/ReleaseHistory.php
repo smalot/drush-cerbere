@@ -179,9 +179,9 @@ class ReleaseHistory
             return;
         }
 
-        foreach ($this->getReleases() as $version => $release) {
+        foreach ($this->getReleases() as $release => $release) {
             // First, if this is the existing release, check a few conditions.
-            if ($project->getExistingVersion() == $version) {
+            if ($project->getExistingVersion() == $release) {
                 if ($release->hasTerm('Release type') &&
                   in_array('Insecure', $release->getTerm('Release type'))
                 ) {
@@ -207,8 +207,8 @@ class ReleaseHistory
             // Look for the 'latest version' if we haven't found it yet. Latest is
             // defined as the most recent version for the target major version.
             if (!$project->getLatestVersion() && $release->getVersionMajor() == $target_major) {
-                $project->setLatestVersion($version);
-                $project->setRelease($version, $release);
+                $project->setLatestVersion($release);
+                $project->setRelease($release, $release);
             }
 
             // Look for the development snapshot release for this branch.
@@ -216,8 +216,8 @@ class ReleaseHistory
               && $release->getVersionMajor() == $target_major
               && $release->getVersionExtra() == Project::INSTALL_TYPE_DEV
             ) {
-                $project->setDevVersion($version);
-                $project->setRelease($version, $release);
+                $project->setDevVersion($release);
+                $project->setRelease($release, $release);
             }
 
             // Look for the 'recommended' version if we haven't found it yet (see
@@ -239,7 +239,7 @@ class ReleaseHistory
             }
 
             // Stop searching once we hit the currently installed version.
-            if ($project->getExistingVersion() == $version) {
+            if ($project->getExistingVersion() == $release) {
                 break;
             }
 
@@ -385,13 +385,17 @@ class ReleaseHistory
     }
 
     /**
-     * @param string $version
+     * @param string $release
      *
-     * @return Release
+     * @return Release|null
      */
-    public function getRelease($version)
+    public function getRelease($release)
     {
-        return $this->data['releases'][$version];
+        if (isset($this->data['releases'][$release])) {
+            return $this->data['releases'][$release];
+        }
+
+        return null;
     }
 
     /**
@@ -541,6 +545,13 @@ class ReleaseHistory
             }
         }
 
+        $data += array(
+          'project_status'    => '',
+          'default_major'     => '',
+          'recommended_major' => '',
+          'supported_majors'  => '',
+        );
+
         // Hydrate release objects.
         if (isset($data['releases']) && is_array($data['releases'])) {
             foreach ($data['releases'] as $key => $value) {
@@ -587,18 +598,18 @@ class ReleaseHistory
 
         if (isset($xml->releases)) {
             foreach ($xml->releases->children() as $release) {
-                $version = (string) $release->version;
-                $data['releases'][$version] = array();
+                $release = (string) $release->version;
+                $data['releases'][$release] = array();
                 foreach ($release->children() as $k => $v) {
-                    $data['releases'][$version][$k] = (string) $v;
+                    $data['releases'][$release][$k] = (string) $v;
                 }
-                $data['releases'][$version]['terms'] = array();
+                $data['releases'][$release]['terms'] = array();
                 if ($release->terms) {
                     foreach ($release->terms->children() as $term) {
-                        if (!isset($data['releases'][$version]['terms'][(string) $term->name])) {
-                            $data['releases'][$version]['terms'][(string) $term->name] = array();
+                        if (!isset($data['releases'][$release]['terms'][(string) $term->name])) {
+                            $data['releases'][$release]['terms'][(string) $term->name] = array();
                         }
-                        $data['releases'][$version]['terms'][(string) $term->name][] = (string) $term->value;
+                        $data['releases'][$release]['terms'][(string) $term->name][] = (string) $term->value;
                     }
                 }
             }

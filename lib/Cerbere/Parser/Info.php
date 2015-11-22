@@ -59,7 +59,7 @@ class Info extends Ini
     public function processContent($content)
     {
         $data = $this->parseContent($content);
-        $data += array('project' => basename($this->filename, '.info'));
+        $data += array('project' => basename($this->filename, '.info'), 'version' => '');
 
         $project = new Project($data['project'], $data['core'], $data['version']);
         $project->setDetails($data);

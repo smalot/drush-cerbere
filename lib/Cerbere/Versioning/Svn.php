@@ -60,7 +60,7 @@ class Svn implements VersioningInterface
     public function process($source, $destination, $options = array())
     {
         $command = $this->buildCommandLine($source, $destination, $options);
-        
+
         if (!empty($options['debug'])) {
             drush_print('$> ' . $command);
         }

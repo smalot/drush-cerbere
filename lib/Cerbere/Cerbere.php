@@ -89,11 +89,16 @@ class Cerbere
     }
 
     /**
-     * @return ParserInterface[]
+     * @param string $code
+     * @return ParserInterface|null
      */
-    public function getParsers()
+    public function getParser($code)
     {
-        return $this->parsers;
+        if (isset($this->parsers[$code])) {
+            return $this->parsers[$code];
+        }
+
+        return null;
     }
 
     /**
@@ -101,30 +106,27 @@ class Cerbere
      * @param ActionInterface $action
      * @param array $options
      *
-     * @return $this
+     * @return array
      */
     public function run(Job $job, ActionInterface $action, $options = array())
     {
-        // Download remote project.
-        if ($dir = $job->checkoutRepository()) {
-            // Move to project folder.
-            $currentDirectory = getcwd();
-            chdir($dir);
+        // Download remote project if remote.
+        $dir = $job->checkoutRepository();
 
-            // Load projects from repository.
-            $projects = $this->getProjectsFromPatterns($job->getPatterns());
+        // Move to project folder.
+        $currentDirectory = getcwd();
+        chdir($dir);
 
-            // Do cerbere action.
-            $report = $action->process($projects, $options);
+        // Load projects from repository.
+        $projects = $this->getProjectsFromPatterns($job->getPatterns());
 
-            // Restore initial directory.
-            chdir($currentDirectory);
+        // Do cerbere action.
+        $report = $action->process($projects, $options);
 
-            return $report;
-        } else {
+        // Restore initial directory.
+        chdir($currentDirectory);
 
-            return false;
-        }
+        return $report;
     }
 
     /**
@@ -144,7 +146,7 @@ class Cerbere
     /**
      * @param string $pattern
      *
-     * @return $this
+     * @return Project[]
      */
     public function getProjectsFromPattern($pattern)
     {
@@ -164,5 +166,13 @@ class Cerbere
         }
 
         return $projects;
+    }
+
+    /**
+     * @return ParserInterface[]
+     */
+    public function getParsers()
+    {
+        return $this->parsers;
     }
 }
