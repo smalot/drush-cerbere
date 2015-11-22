@@ -25,7 +25,7 @@ class Cerbere
     protected $parsers = array();
 
     /**
-     * @var EventDispatcher
+     * @var EventDispatcherInterface
      */
     protected $dispatcher;
 
@@ -50,7 +50,7 @@ class Cerbere
     /**
      * Gets the dispatcher used by this library to dispatch events.
      *
-     * @return EventDispatcherInterface|null
+     * @return EventDispatcherInterface
      */
     public function getDispatcher()
     {
