@@ -50,7 +50,7 @@ class Cerbere
     /**
      * Gets the dispatcher used by this library to dispatch events.
      *
-     * @return EventDispatcherInterface
+     * @return EventDispatcherInterface|null
      */
     public function getDispatcher()
     {
