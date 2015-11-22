@@ -129,7 +129,7 @@ class Update implements ActionInterface
                 $report['dev'] = $this->getReportFromRelease($release);
             }
         }
-        
+
         if ($reason = $project->getReason()) {
             $report['reason'] = $reason;
         }

@@ -26,7 +26,7 @@ class Git implements VersioningInterface
      */
     public function __construct(GitWrapper $wrapper = null)
     {
-        if (is_null($wrapper)) {
+        if (null === $wrapper) {
             $wrapper = new GitWrapper();
         }
 
