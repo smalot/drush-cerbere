@@ -430,14 +430,6 @@ class ReleaseHistory
     }
 
     /**
-     * @return \Cerbere\Model\Project
-     */
-    public function getProject()
-    {
-        return $this->project;
-    }
-
-    /**
      * @return mixed
      */
     public function getShortName()
@@ -559,7 +551,7 @@ class ReleaseHistory
             $data['releases'] = array();
         }
 
-        $this->data = $data;
+        $this->data = (array) $data;
     }
 
     /**
@@ -614,13 +606,5 @@ class ReleaseHistory
         }
 
         return $data;
-    }
-
-    /**
-     * @param \Cerbere\Model\Project $project
-     */
-    public function setProject($project)
-    {
-        $this->project = $project;
     }
 }

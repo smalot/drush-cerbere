@@ -2,7 +2,6 @@
 
 namespace Cerbere\Action;
 
-use Cerbere\Model\Config;
 use Cerbere\Model\Project;
 use Cerbere\Model\ReleaseHistory;
 use Doctrine\Common\Cache\CacheProvider;
@@ -14,11 +13,6 @@ use Doctrine\Common\Cache\CacheProvider;
  */
 class Update implements ActionInterface
 {
-    /**
-     * @var Config
-     */
-    protected $options;
-
     /**
      * @var CacheProvider
      */
