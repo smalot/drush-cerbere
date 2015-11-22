@@ -20,22 +20,25 @@ use Cerbere\Model\ReleaseHistory;
 function cerbere_drush_command()
 {
     $items['cerbere-update'] = array(
-      'description' => 'Check updates using make file, info file or scanning folder to discover info files.',
+      'description'  => 'Check updates using make file, info file or scanning folder to discover info files.',
         //'aliases' => array('cdc'),
-      'arguments'   => array(
+      'arguments'    => array(
         'source' => 'The source file or folder.',
       ),
-      'options'     => array(
+      'options'      => array(
         'config'        => 'The config file to use for default setting values.',
         'report-format' => 'Reporting format: console (default), json, html.',
         'no-cache'      => 'Disable cache.',
       ),
-      'examples'    => array(
+      'outputformat' => array(
+        'default' => 'table',
+      ),
+      'examples'     => array(
         'drush cerbere-check-update sites/all/modules/ctools/ctools.info',
         'drush cerbere-check-update profiles/commerce_kickstart/drupal-core.make',
       ),
         // No bootstrap at all.
-      'bootstrap'   => DRUSH_BOOTSTRAP_NONE,
+      'bootstrap'    => DRUSH_BOOTSTRAP_NONE,
     );
 
     return $items;
@@ -58,12 +61,16 @@ function drush_cerbere_update()
         $config['cache'] = true;
     }
 
+    $format = drush_get_option('format');
+    $flat = in_array($format, array('table', 'csv'));
+
     $action = new Update($config);
     $action->prepare();
 
     $application = new Application($config);
     $application->loadProjects($patterns);
-    $application->process($action);
+
+    return $application->process($action, $flat);
 }
 
 /**

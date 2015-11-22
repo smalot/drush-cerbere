@@ -80,36 +80,6 @@ class Update implements ActionInterface
     }
 
     /**
-     * @param int $status
-     * @return string
-     */
-    public static function getStatusLabel($status)
-    {
-        switch ($status) {
-            case self::UPDATE_NOT_SECURE:
-                return 'Not secure';
-            case self::UPDATE_REVOKED:
-                return 'Revoked';
-            case self::UPDATE_NOT_SUPPORTED:
-                return 'Not supported';
-            case self::UPDATE_NOT_CURRENT:
-                return 'Not current';
-            case self::UPDATE_CURRENT:
-                return 'Update current';
-            case self::UPDATE_NOT_CHECKED:
-                return 'Not checked';
-            case self::UPDATE_UNKNOWN:
-                return 'Unknown';
-            case self::UPDATE_NOT_FETCHED:
-                return 'Not fetched';
-            case self::UPDATE_FETCH_PENDING:
-                return 'Fetch pending';
-            default:
-                return '';
-        }
-    }
-
-    /**
      * @return void
      */
     public function prepare()
@@ -119,27 +89,58 @@ class Update implements ActionInterface
 
     /**
      * @param Project $project
-     * @return void
+     * @param boolean $flat
+     * @return array
      */
-    public function process(Project $project)
+    public function process(Project $project, $flat = false)
     {
         $cache_reset = empty($this->config['cache']);
         $release_history = new ReleaseHistory($project, $this->cache);
         $release_history->prepare($cache_reset);
         $this->compare($project, $release_history);
 
-        $line = str_pad($release_history->getShortName(), 45, ' ', STR_PAD_RIGHT);
-        $line .= str_pad($project->getVersion(), 20, ' ', STR_PAD_RIGHT);
-        $line .= str_pad($project->getRecommended(), 20, ' ', STR_PAD_RIGHT);
+        $result = array(
+          'project'      => $release_history->getShortName(),
+          'version'      => $project->getVersion(),
+          'version_date' => $project->getDatestamp(),
+          'recommended'  => null,
+          'dev'          => null,
+          'status'       => $project->getStatus(),
+          'status_label' => self::getStatusLabel($project->getStatus()),
+          'reason'       => '',
+        );
 
-        if ($project->getStatus() != self::UPDATE_CURRENT) {
-            $line .= self::getStatusLabel($project->getStatus());
-            if ($reason = $project->getReason()) {
-                $line .= ' (' . $reason . ')';
+        if ($flat) {
+            $result['recommended'] = $project->getRecommended();
+            $result['dev'] = $project->getDevVersion();
+        } else {
+            if ($release = $release_history->getRelease($project->getRecommended())) {
+                $result['recommended'] = array(
+                  'version'       => $release->getVersion(),
+                  'datestamp'     => $release->getDatestamp(),
+                  'release_link'  => $release->getReleaseLink(),
+                  'download_link' => $release->getDownloadLink(),
+                  'filesize'      => $release->getFilesize(),
+                );
+            }
+
+            if ($release = $release_history->getRelease($project->getDevVersion())) {
+                $result['dev'] = array(
+                  'version'       => $release->getVersion(),
+                  'datestamp'     => $release->getDatestamp(),
+                  'release_link'  => $release->getReleaseLink(),
+                  'download_link' => $release->getDownloadLink(),
+                  'filesize'      => $release->getFilesize(),
+                );
             }
         }
 
-        drush_print($line);
+
+        if ($reason = $project->getReason()) {
+            $result['reason'] = $reason;
+        }
+
+        return $result;
     }
 
     /**
@@ -396,6 +397,36 @@ class Update implements ActionInterface
             default:
                 $project->setStatus(self::UPDATE_UNKNOWN);
                 $project->setReason('Invalid info');
+        }
+    }
+
+    /**
+     * @param int $status
+     * @return string
+     */
+    public static function getStatusLabel($status)
+    {
+        switch ($status) {
+            case self::UPDATE_NOT_SECURE:
+                return 'Not secure';
+            case self::UPDATE_REVOKED:
+                return 'Revoked';
+            case self::UPDATE_NOT_SUPPORTED:
+                return 'Not supported';
+            case self::UPDATE_NOT_CURRENT:
+                return 'Not current';
+            case self::UPDATE_CURRENT:
+                return 'Update current';
+            case self::UPDATE_NOT_CHECKED:
+                return 'Not checked';
+            case self::UPDATE_UNKNOWN:
+                return 'Unknown';
+            case self::UPDATE_NOT_FETCHED:
+                return 'Not fetched';
+            case self::UPDATE_FETCH_PENDING:
+                return 'Fetch pending';
+            default:
+                return '';
         }
     }
 }

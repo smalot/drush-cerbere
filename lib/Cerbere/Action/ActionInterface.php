@@ -17,7 +17,8 @@ interface ActionInterface
 
     /**
      * @param \Cerbere\Model\Project $project
-     * @return mixed
+     * @param boolean $flat
+     * @return array
      */
-    public function process(Project $project);
+    public function process(Project $project, $flat = false);
 }

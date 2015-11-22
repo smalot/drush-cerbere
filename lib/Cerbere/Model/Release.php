@@ -122,7 +122,15 @@ class Release
      */
     public function getDate()
     {
-        return new \DateTime('@' . $this->data['date']);
+        return new \DateTime('@' . $this->getDatestamp());
+    }
+
+    /**
+     * @return int
+     */
+    public function getDatestamp()
+    {
+        return $this->data['date'];
     }
 
     /**

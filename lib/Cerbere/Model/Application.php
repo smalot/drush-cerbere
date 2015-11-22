@@ -58,11 +58,17 @@ class Application {
 
     /**
      * @param \Cerbere\Action\ActionInterface $action
+     * @param boolean $flat
+     * @return array
      */
-    public function process(ActionInterface $action)
+    public function process(ActionInterface $action, $flat = false)
     {
+        $result = array();
+
         foreach ($this->projects as $project) {
-            $action->process($project);
+            $result[] = $action->process($project, $flat);
         }
+
+        return $result;
     }
 }
