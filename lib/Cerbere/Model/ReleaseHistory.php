@@ -12,19 +12,9 @@ use Doctrine\Common\Cache\CacheProvider;
 class ReleaseHistory
 {
     /**
-     * Project is missing security update(s).
+     * Project is up to date.
      */
-    const UPDATE_NOT_SECURE = 1;
-
-    /**
-     * Current release has been unpublished and is no longer available.
-     */
-    const UPDATE_REVOKED = 2;
-
-    /**
-     * Current release is no longer supported by the project maintainer.
-     */
-    const UPDATE_NOT_SUPPORTED = 3;
+    const UPDATE_CURRENT = 5;
 
     /**
      * Project has a new release available, but it is not a security release.
@@ -32,9 +22,18 @@ class ReleaseHistory
     const UPDATE_NOT_CURRENT = 4;
 
     /**
-     * Project is up to date.
+     * Current release is no longer supported by the project maintainer.
      */
-    const UPDATE_CURRENT = 5;
+    const UPDATE_NOT_SUPPORTED = 3;
+    /**
+     * Current release has been unpublished and is no longer available.
+     */
+    const UPDATE_REVOKED = 2;
+
+    /**
+     * Project is missing security update(s).
+     */
+    const UPDATE_NOT_SECURE = 1;
 
     /**
      * Project's status cannot be checked.
