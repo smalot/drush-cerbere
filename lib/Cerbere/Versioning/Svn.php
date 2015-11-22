@@ -42,6 +42,8 @@ class Svn implements VersioningInterface
 
     /**
      * @param string $source
+     *
+     * @return mixed
      */
     public function prepare($source)
     {
@@ -58,7 +60,11 @@ class Svn implements VersioningInterface
     public function process($source, $destination, $options = array())
     {
         $command = $this->buildCommandLine($source, $destination, $options);
-        drush_print('$> ' . $command);
+        
+        if (!empty($options['debug'])) {
+            drush_print('$> ' . $command);
+        }
+
         passthru($command);
     }
 
@@ -69,7 +75,7 @@ class Svn implements VersioningInterface
      *
      * @return string
      */
-    protected function buildCommandLine($source, $destination, $options = array())
+    public function buildCommandLine($source, $destination, $options = array())
     {
         $options += array('svn' => self::SVN_BINARY_PATH, 'arguments' => array());
 
@@ -79,9 +85,9 @@ class Svn implements VersioningInterface
 
         foreach ($options['arguments'] as $param => $value) {
             if (is_numeric($param)) {
-                $command .= escapeshellarg($value) . ' ';
+                $command .= escapeshellarg('-' . $value) . ' ';
             } else {
-                $command .= $param . '=' . escapeshellarg($value) . ' ';
+                $command .= '--' . $param . '=' . escapeshellarg($value) . ' ';
             }
         }
 

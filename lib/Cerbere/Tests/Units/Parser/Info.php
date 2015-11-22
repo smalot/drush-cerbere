@@ -55,4 +55,21 @@ datestamp = "1430321048"
 
         return $this->createFile($data);
     }
+
+    public function testSupportedFile()
+    {
+        $info = new \Cerbere\Parser\Info();
+
+        $this->boolean($info->supportedFile('foo.bar'))->isFalse();
+        $this->boolean($info->supportedFile('foo.yml'))->isFalse();
+        $this->boolean($info->supportedFile('foo.yaml'))->isFalse();
+        $this->boolean($info->supportedFile('foo.maker'))->isFalse();
+        $this->boolean($info->supportedFile('info/foo.yml'))->isFalse();
+        $this->boolean($info->supportedFile('make/foo.yml'))->isFalse();
+
+        $this->boolean($info->supportedFile('foo.info'))->isTrue();
+        $this->boolean($info->supportedFile('foo.Info'))->isTrue();
+        $this->boolean($info->supportedFile('foo.INFO'))->isTrue();
+        $this->boolean($info->supportedFile('test/foo.INFO'))->isTrue();
+    }
 }

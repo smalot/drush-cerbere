@@ -80,7 +80,7 @@ class Git implements VersioningInterface
             }
         }
 
-        $this->wrapper->cloneRepository($source, $destination, $options);
+        $this->wrapper->cloneRepository($source, $destination, $parameters);
     }
 
     /**

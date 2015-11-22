@@ -84,6 +84,6 @@ class Info extends Ini
      */
     public function supportedFile($filename)
     {
-        return preg_match('/\.info$/', $filename) > 0;
+        return preg_match('/\.info$/i', $filename) > 0;
     }
 }

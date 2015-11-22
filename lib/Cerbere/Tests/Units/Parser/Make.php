@@ -135,4 +135,22 @@ libraries[bgrins-spectrum][download][url] = https://github.com/bgrins/spectrum/a
 
         $this->string($make->getApi())->isEqualTo('2');
     }
+
+    public function testSupportedFile()
+    {
+        $make = new \Cerbere\Parser\Make();
+
+        $this->boolean($make->supportedFile('foo.bar'))->isFalse();
+        $this->boolean($make->supportedFile('foo.info'))->isFalse();
+        $this->boolean($make->supportedFile('foo.yml'))->isFalse();
+        $this->boolean($make->supportedFile('foo.yaml'))->isFalse();
+        $this->boolean($make->supportedFile('foo.maker'))->isFalse();
+        $this->boolean($make->supportedFile('info/foo.yml'))->isFalse();
+        $this->boolean($make->supportedFile('make/foo.yml'))->isFalse();
+
+        $this->boolean($make->supportedFile('foo.make'))->isTrue();
+        $this->boolean($make->supportedFile('foo.Make'))->isTrue();
+        $this->boolean($make->supportedFile('foo.MAKE'))->isTrue();
+        $this->boolean($make->supportedFile('test/foo.MAKE'))->isTrue();
+    }
 }
