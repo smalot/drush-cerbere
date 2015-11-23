@@ -6,9 +6,8 @@
  */
 
 // Todo: remove for PROD.
-//require_once dirname(__FILE__) . '/../vendor/autoload.php';
+require_once dirname(__FILE__) . '/../vendor/autoload.php';
 
-use Cerbere\Action\Checkout;
 use Cerbere\Action\Update;
 use Cerbere\Cerbere;
 use Cerbere\Event\CerbereLoggerListener;
