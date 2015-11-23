@@ -34,14 +34,11 @@ See [Drush documentation](https://github.com/drush-ops/drush/blob/master/docs/co
 ````php
 <?php
 
-$home = getenv('HOME');
-
-include_once $home . '/.composer/vendor/autoload.php';
-
 $script_name = $_SERVER['SCRIPT_NAME'];
 
 if ($pos = strrpos($script_name, 'vendor')) {
   $dir_name = substr($script_name, 0, $pos + 6);
+  include_once $dir_name . '/autoload.php';
 
   $options['include'][] = $dir_name . '/smalot/cerbere/commands';
 }
