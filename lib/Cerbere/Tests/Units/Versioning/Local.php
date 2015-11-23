@@ -3,7 +3,6 @@
 namespace Cerbere\Tests\Units\Versioning;
 
 use Cerbere\Tests\AbstractTest;
-use GitWrapper\GitWrapper;
 
 class Local extends AbstractTest
 {

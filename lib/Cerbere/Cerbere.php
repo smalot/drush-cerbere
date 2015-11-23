@@ -5,7 +5,6 @@ namespace Cerbere;
 use Cerbere\Action\ActionInterface;
 use Cerbere\Event\CerbereEvents;
 use Cerbere\Event\CerbereFileDiscoverEvent;
-use Cerbere\Event\CerbereLoggerListener;
 use Cerbere\Event\CerberePostActionEvent;
 use Cerbere\Event\CerberePreActionEvent;
 use Cerbere\Event\DispatcherAwareInterface;
@@ -101,9 +100,9 @@ class Cerbere implements DispatcherAwareInterface
     }
 
     /**
-     * @param Job             $job
+     * @param Job $job
      * @param ActionInterface $action
-     * @param array           $options
+     * @param array $options
      *
      * @return array
      */
@@ -118,6 +117,7 @@ class Cerbere implements DispatcherAwareInterface
 
         // Load projects from repository.
         $projects = $this->getProjectsFromPatterns($job->getPatterns(), $job->isPatternNested());
+        $projects = $this->dedupeProjectList($projects);
 
         $event = new CerberePreActionEvent($this, $job, $action, $projects);
         $this->getDispatcher()->dispatch(CerbereEvents::CERBERE_PRE_ACTION, $event);
@@ -135,7 +135,7 @@ class Cerbere implements DispatcherAwareInterface
     }
 
     /**
-     * @param array      $patterns
+     * @param array $patterns
      * @param bool|false $nested
      *
      * @return Project[]
@@ -152,16 +152,36 @@ class Cerbere implements DispatcherAwareInterface
     }
 
     /**
-     * @param string     $pattern
+     * @param Project[] $list
+     * @return Project[]
+     */
+    public function dedupeProjectList($list)
+    {
+        $projects = array();
+
+        /** @var Project $project */
+        foreach ($list as $project) {
+            if (!isset($projects[$project->getProject()])) {
+                $projects[$project->getProject()] = $project;
+            }
+        }
+
+        ksort($projects, SORT_NATURAL);
+
+        return $projects;
+    }
+
+    /**
+     * @param string $pattern
      * @param bool|false $nested
      *
      * @return Project[]
      */
     public function getProjectsFromPattern($pattern, $nested = false)
     {
-        $projects   = array();
+        $projects = array();
         $dispatcher = $this->getDispatcher();
-        $files      = $this->getFilesFromPattern($pattern, $nested);
+        $files = $this->getFilesFromPattern($pattern, $nested);
 
         foreach ($files as $file) {
             foreach ($this->getParsers() as $parser) {
@@ -190,7 +210,10 @@ class Cerbere implements DispatcherAwareInterface
 
         if ($nested) {
             foreach (glob(dirname($pattern) . DIRECTORY_SEPARATOR . '*', GLOB_ONLYDIR | GLOB_NOSORT) as $dir) {
-                $files = array_merge($files, $this->getFilesFromPattern($dir . DIRECTORY_SEPARATOR . basename($pattern), $nested, $flags));
+                $files = array_merge(
+                  $files,
+                  $this->getFilesFromPattern($dir . DIRECTORY_SEPARATOR . basename($pattern), $nested, $flags)
+                );
             }
         }
 

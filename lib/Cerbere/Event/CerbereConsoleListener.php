@@ -121,7 +121,7 @@ class CerbereConsoleListener implements EventSubscriberInterface
         $this->output->getErrorOutput()->writeln('');
 
         $format = " Project: %project%\n";
-        $format.= ProgressBar::getFormatDefinition('debug');
+        $format .= ProgressBar::getFormatDefinition('debug');
 
         $progress = new ProgressBar($this->output, count($event->getProjects()));
         $progress->setFormat($format);

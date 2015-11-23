@@ -36,7 +36,7 @@ class Git extends AbstractTest
           'arguments' => array(
             'q',
             'branch' => 'master',
-            'depth' => 1,
+            'depth'  => 1,
           ),
         );
         $git->process('https://github.com/smalot/drush-cerbere.git', $directory, $options);
