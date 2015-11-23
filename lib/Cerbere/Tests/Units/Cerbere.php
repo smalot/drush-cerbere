@@ -127,6 +127,6 @@ class Cerbere extends AbstractTest
 
         $this->exception(function() use ($cerbere, $job, $action) {
             $cerbere->run($job, $action);
-        })->message->contains('Repository not found')->contains('XXXXXX');
+        })->message->contains('XXXXXX');
     }
 }
