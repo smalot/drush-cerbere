@@ -6,18 +6,22 @@ use Cerbere\Action\ActionInterface;
 use Cerbere\Event\CerbereEvents;
 use Cerbere\Event\CerbereFileDiscoverEvent;
 use Cerbere\Event\CerbereLoggerListener;
+use Cerbere\Event\CerberePostActionEvent;
+use Cerbere\Event\CerberePreActionEvent;
+use Cerbere\Event\DispatcherAwareInterface;
 use Cerbere\Model\Job;
 use Cerbere\Model\Project;
 use Cerbere\Parser\ParserInterface;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * Class Cerbere
  *
  * @package Cerbere
  */
-class Cerbere
+class Cerbere implements DispatcherAwareInterface
 {
     /**
      * @var ParserInterface[]
@@ -36,15 +40,11 @@ class Cerbere
     }
 
     /**
-     * @param CerbereLoggerListener $listener
-     *
-     * @return $this
+     * @param EventSubscriberInterface $listener
      */
-    public function addLoggerListener(CerbereLoggerListener $listener)
+    public function addLoggerListener(EventSubscriberInterface $listener)
     {
         $this->getDispatcher()->addSubscriber($listener);
-
-        return $this;
     }
 
     /**
@@ -72,8 +72,6 @@ class Cerbere
     public function setDispatcher(EventDispatcherInterface $dispatcher)
     {
         $this->dispatcher = $dispatcher;
-
-        return $this;
     }
 
     /**
@@ -121,8 +119,14 @@ class Cerbere
         // Load projects from repository.
         $projects = $this->getProjectsFromPatterns($job->getPatterns(), $job->isPatternNested());
 
+        $event = new CerberePreActionEvent($this, $job, $action, $projects);
+        $this->getDispatcher()->dispatch(CerbereEvents::CERBERE_PRE_ACTION, $event);
+
         // Do cerbere action.
         $report = $action->process($projects, $options);
+
+        $event = new CerberePostActionEvent($this, $job, $action, $projects);
+        $this->getDispatcher()->dispatch(CerbereEvents::CERBERE_POST_ACTION, $event);
 
         // Restore initial directory.
         chdir($currentDirectory);
@@ -163,7 +167,7 @@ class Cerbere
             foreach ($this->getParsers() as $parser) {
                 if ($parser->supportedFile($file)) {
                     $event = new CerbereFileDiscoverEvent($this, $file, $parser);
-                    $dispatcher->dispatch(CerbereEvents::APPLICATION_FILE_DISCOVERED, $event);
+                    $dispatcher->dispatch(CerbereEvents::CERBERE_FILE_DISCOVERED, $event);
                     $parser->processFile($file);
                     $projects = array_merge($projects, $parser->getProjects());
                 }
@@ -185,8 +189,8 @@ class Cerbere
         $files = glob($pattern, $flags);
 
         if ($nested) {
-            foreach (glob(dirname($pattern) . '/*', GLOB_ONLYDIR | GLOB_NOSORT) as $dir) {
-                $files = array_merge($files, $this->getFilesFromPattern($dir . '/' . basename($pattern), $nested, $flags));
+            foreach (glob(dirname($pattern) . DIRECTORY_SEPARATOR . '*', GLOB_ONLYDIR | GLOB_NOSORT) as $dir) {
+                $files = array_merge($files, $this->getFilesFromPattern($dir . DIRECTORY_SEPARATOR . basename($pattern), $nested, $flags));
             }
         }
 

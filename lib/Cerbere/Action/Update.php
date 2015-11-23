@@ -2,12 +2,15 @@
 
 namespace Cerbere\Action;
 
+use Cerbere\Event\CerbereDoActionEvent;
+use Cerbere\Event\CerbereEvents;
 use Cerbere\Model\Project;
 use Cerbere\Model\Release;
 use Cerbere\Model\ReleaseHistory;
 use Doctrine\Common\Cache\CacheProvider;
-use Symfony\Component\Console\Helper\ProgressBar;
-use Symfony\Component\Console\Output\ConsoleOutput;
+use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * Class Update
@@ -22,6 +25,11 @@ class Update implements ActionInterface
     protected $cache;
 
     /**
+     * @var EventDispatcherInterface
+     */
+    protected $dispatcher;
+
+    /**
      * Update constructor.
      */
     public function __construct()
@@ -30,27 +38,36 @@ class Update implements ActionInterface
     }
 
     /**
-     * @return CacheProvider
+     * @param EventSubscriberInterface $listener
      */
-    public function getCache()
+    public function addLoggerListener(EventSubscriberInterface $listener)
     {
-        return $this->cache;
+        $this->getDispatcher()->addSubscriber($listener);
     }
 
     /**
-     * @param CacheProvider $cache
+     * Gets the dispatcher used by this library to dispatch events.
+     *
+     * @return EventDispatcherInterface
      */
-    public function setCache($cache)
+    public function getDispatcher()
     {
-        $this->cache = $cache;
+        if (!isset($this->dispatcher)) {
+            $this->dispatcher = new EventDispatcher();
+        }
+
+        return $this->dispatcher;
     }
 
     /**
-     * @return string
+     * Sets the dispatcher used by this library to dispatch events.
+     *
+     * @param EventDispatcherInterface $dispatcher
+     *   The Symfony event dispatcher object.
      */
-    public function getCode()
+    public function setDispatcher(EventDispatcherInterface $dispatcher)
     {
-        return 'update';
+        $this->dispatcher = $dispatcher;
     }
 
     /**
@@ -73,19 +90,10 @@ class Update implements ActionInterface
 
         $release_history = new ReleaseHistory($this->cache);
 
-        // Todo: move console output to event listener.
-        $output = new ConsoleOutput();
-        $progress = new ProgressBar($output, count($projects));
-        $progress->setFormat('debug');
-//        $progress->setFormat(" %message%\n%project%\n %current%/%max%\n");
-        $progress->setMessage('Task starts');
-
         /** @var Project $project */
         foreach ($projects as $project) {
-//            var_dump($project->getName());
-            $progress->setMessage($project->getName(), 'project');
-            $progress->advance();
-            //$progress->setMessage(dt('Project: @project', array('@project' => $project->getName())));
+            $event = new CerbereDoActionEvent($this, $project);
+            $this->getDispatcher()->dispatch(CerbereEvents::CERBERE_DO_ACTION, $event);
 
             $release_history->prepare($project, $options['cache']);
             $release_history->compare($project);
@@ -108,11 +116,6 @@ class Update implements ActionInterface
                 $reports[$project->getProject()] = $this->generateReport($project, $release_history, $options['flat']);
             }
         }
-
-        $progress->setMessage('Task starts');
-        $progress->setMessage('', 'project');
-        $progress->finish();
-        echo "\n";
 
         return $reports;
     }
@@ -169,5 +172,29 @@ class Update implements ActionInterface
           'download_link' => $release->getDownloadLink(),
           'filesize'      => $release->getFilesize(),
         );
+    }
+
+    /**
+     * @return CacheProvider
+     */
+    public function getCache()
+    {
+        return $this->cache;
+    }
+
+    /**
+     * @param CacheProvider $cache
+     */
+    public function setCache($cache)
+    {
+        $this->cache = $cache;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCode()
+    {
+        return 'update';
     }
 }

@@ -22,7 +22,7 @@ class Svn extends AbstractTest
         $svn = new \Cerbere\Versioning\Svn();
         $options = array('arguments' => array('q', 'branch' => 'master'));
         $command = $svn->buildCommandLine('source foo', 'destination bar', $options);
-        $command = str_replace('"', '"', $command);
+        $command = str_replace('"', "'", $command);
         $this->string(trim($command))->isEqualTo("'/usr/bin/svn' checkout 'source foo' 'destination bar' '-q' --branch='master'");
     }
 }
