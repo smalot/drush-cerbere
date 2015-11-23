@@ -166,7 +166,11 @@ class Cerbere implements DispatcherAwareInterface
             }
         }
 
-        ksort($projects, SORT_NATURAL);
+        if (defined('SORT_NATURAL')) {
+            ksort($projects, SORT_NATURAL);
+        } else {
+            ksort($projects);
+        }
 
         return $projects;
     }
