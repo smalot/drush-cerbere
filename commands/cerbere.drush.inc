@@ -64,7 +64,7 @@ function drush_cerbere_update()
     $config->override('level', drush_get_option('level'), 'all');
 */
 
-    $format = drush_get_option('format');
+    $format = drush_get_option('format', 'table');
     $flat = in_array($format, array('table', 'csv'));
 
     $cerbere = new Cerbere();
@@ -85,21 +85,21 @@ function drush_cerbere_update()
     $action->setCache($cache);
 
     // Job.
-    $versioning = new Git();
-    $versioning->setWrapper(new \GitWrapper\GitWrapper());
+//    $versioning = new Git();
+//    $versioning->setWrapper(new \GitWrapper\GitWrapper());
 
-    $job = new Job();
-    $job->setVersioning($versioning);
-    $job->setSource('git://github.com/blindsidenetworks/drupal-module_bigbluebuttonbn', array());
-    $job->setPatterns(array('*.info'));
+//    $job = new Job();
+//    $job->setVersioning($versioning);
+//    $job->setSource('git://github.com/blindsidenetworks/drupal-module_bigbluebuttonbn', array());
+//    $job->setPatterns(array('*.info'));
 
     // Run it !
     //$report = $cerbere->run($job, $action, array('flat' => $flat));
 
     $job = new Job();
     $job->setVersioning(new Local());
-    $job->setSource('./modules/ctools/', array());
-    $job->setPatterns(array('*.info'));
+    $job->setSource('./modules/', array());
+    $job->setPatterns($patterns, true);
 
     // Run it !
     $report = $cerbere->run($job, $action, array('flat' => $flat));

@@ -39,6 +39,11 @@ class Job
     protected $patterns = array();
 
     /**
+     * @var boolean
+     */
+    protected $pattern_nested = false;
+
+    /**
      * @var string
      */
     protected $workingDirectory = '';
@@ -119,13 +124,23 @@ class Job
     }
 
     /**
+     * @return boolean
+     */
+    public function isPatternNested()
+    {
+        return $this->pattern_nested;
+    }
+
+    /**
      * @param array $patterns
+     * @param boolean $nested
      *
      * @return Job
      */
-    public function setPatterns($patterns)
+    public function setPatterns($patterns, $nested = false)
     {
         $this->patterns = $patterns;
+        $this->pattern_nested = $nested;
 
         return $this;
     }

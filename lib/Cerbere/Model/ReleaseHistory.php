@@ -179,9 +179,9 @@ class ReleaseHistory
             return;
         }
 
-        foreach ($this->getReleases() as $release => $release) {
+        foreach ($this->getReleases() as $version => $release) {
             // First, if this is the existing release, check a few conditions.
-            if ($project->getExistingVersion() == $release) {
+            if ($project->getExistingVersion() == $version) {
                 if ($release->hasTerm('Release type') &&
                   in_array('Insecure', $release->getTerm('Release type'))
                 ) {
@@ -207,8 +207,8 @@ class ReleaseHistory
             // Look for the 'latest version' if we haven't found it yet. Latest is
             // defined as the most recent version for the target major version.
             if (!$project->getLatestVersion() && $release->getVersionMajor() == $target_major) {
-                $project->setLatestVersion($release);
-                $project->setRelease($release, $release);
+                $project->setLatestVersion($version);
+                $project->setRelease($version, $release);
             }
 
             // Look for the development snapshot release for this branch.
@@ -216,8 +216,8 @@ class ReleaseHistory
               && $release->getVersionMajor() == $target_major
               && $release->getVersionExtra() == Project::INSTALL_TYPE_DEV
             ) {
-                $project->setDevVersion($release);
-                $project->setRelease($release, $release);
+                $project->setDevVersion($version);
+                $project->setRelease($version, $release);
             }
 
             // Look for the 'recommended' version if we haven't found it yet (see
@@ -239,7 +239,7 @@ class ReleaseHistory
             }
 
             // Stop searching once we hit the currently installed version.
-            if ($project->getExistingVersion() == $release) {
+            if ($project->getExistingVersion() == $version) {
                 break;
             }
 
@@ -598,18 +598,18 @@ class ReleaseHistory
 
         if (isset($xml->releases)) {
             foreach ($xml->releases->children() as $release) {
-                $release = (string) $release->version;
-                $data['releases'][$release] = array();
+                $version = (string)$release->version;
+                $data['releases'][$version] = array();
                 foreach ($release->children() as $k => $v) {
-                    $data['releases'][$release][$k] = (string) $v;
+                    $data['releases'][$version][$k] = (string)$v;
                 }
-                $data['releases'][$release]['terms'] = array();
+                $data['releases'][$version]['terms'] = array();
                 if ($release->terms) {
                     foreach ($release->terms->children() as $term) {
-                        if (!isset($data['releases'][$release]['terms'][(string) $term->name])) {
-                            $data['releases'][$release]['terms'][(string) $term->name] = array();
+                        if (!isset($data['releases'][$version]['terms'][(string)$term->name])) {
+                            $data['releases'][$version]['terms'][(string)$term->name] = array();
                         }
-                        $data['releases'][$release]['terms'][(string) $term->name][] = (string) $term->value;
+                        $data['releases'][$version]['terms'][(string)$term->name][] = (string)$term->value;
                     }
                 }
             }

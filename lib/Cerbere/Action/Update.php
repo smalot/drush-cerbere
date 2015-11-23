@@ -6,6 +6,8 @@ use Cerbere\Model\Project;
 use Cerbere\Model\Release;
 use Cerbere\Model\ReleaseHistory;
 use Doctrine\Common\Cache\CacheProvider;
+use Symfony\Component\Console\Helper\ProgressBar;
+use Symfony\Component\Console\Output\ConsoleOutput;
 
 /**
  * Class Update
@@ -71,8 +73,20 @@ class Update implements ActionInterface
 
         $release_history = new ReleaseHistory($this->cache);
 
+        // Todo: move console output to event listener.
+        $output = new ConsoleOutput();
+        $progress = new ProgressBar($output, count($projects));
+        $progress->setFormat('debug');
+//        $progress->setFormat(" %message%\n%project%\n %current%/%max%\n");
+        $progress->setMessage('Task starts');
+
         /** @var Project $project */
         foreach ($projects as $project) {
+//            var_dump($project->getName());
+            $progress->setMessage($project->getName(), 'project');
+            $progress->advance();
+            //$progress->setMessage(dt('Project: @project', array('@project' => $project->getName())));
+
             $release_history->prepare($project, $options['cache']);
             $release_history->compare($project);
 
@@ -94,6 +108,11 @@ class Update implements ActionInterface
                 $reports[$project->getProject()] = $this->generateReport($project, $release_history, $options['flat']);
             }
         }
+
+        $progress->setMessage('Task starts');
+        $progress->setMessage('', 'project');
+        $progress->finish();
+        echo "\n";
 
         return $reports;
     }

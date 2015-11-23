@@ -90,6 +90,7 @@ class Cerbere
 
     /**
      * @param string $code
+     *
      * @return ParserInterface|null
      */
     public function getParser($code)
@@ -102,9 +103,9 @@ class Cerbere
     }
 
     /**
-     * @param Job $job
+     * @param Job             $job
      * @param ActionInterface $action
-     * @param array $options
+     * @param array           $options
      *
      * @return array
      */
@@ -118,7 +119,7 @@ class Cerbere
         chdir($dir);
 
         // Load projects from repository.
-        $projects = $this->getProjectsFromPatterns($job->getPatterns());
+        $projects = $this->getProjectsFromPatterns($job->getPatterns(), $job->isPatternNested());
 
         // Do cerbere action.
         $report = $action->process($projects, $options);
@@ -130,29 +131,33 @@ class Cerbere
     }
 
     /**
+     * @param array      $patterns
+     * @param bool|false $nested
+     *
      * @return Project[]
      */
-    public function getProjectsFromPatterns($patterns)
+    public function getProjectsFromPatterns($patterns, $nested = false)
     {
         $projects = array();
 
         foreach ($patterns as $pattern) {
-            $projects = array_merge($projects, $this->getProjectsFromPattern($pattern));
+            $projects = array_merge($projects, $this->getProjectsFromPattern($pattern, $nested));
         }
 
         return $projects;
     }
 
     /**
-     * @param string $pattern
+     * @param string     $pattern
+     * @param bool|false $nested
      *
      * @return Project[]
      */
-    public function getProjectsFromPattern($pattern)
+    public function getProjectsFromPattern($pattern, $nested = false)
     {
-        $projects = array();
+        $projects   = array();
         $dispatcher = $this->getDispatcher();
-        $files = glob($pattern);
+        $files      = $this->getFilesFromPattern($pattern, $nested);
 
         foreach ($files as $file) {
             foreach ($this->getParsers() as $parser) {
@@ -166,6 +171,26 @@ class Cerbere
         }
 
         return $projects;
+    }
+
+    /**
+     * @param string $pattern
+     * @param bool|false $nested
+     * @param int $flags
+     *
+     * @return array
+     */
+    public function getFilesFromPattern($pattern, $nested = false, $flags = 0)
+    {
+        $files = glob($pattern, $flags);
+
+        if ($nested) {
+            foreach (glob(dirname($pattern) . '/*', GLOB_ONLYDIR | GLOB_NOSORT) as $dir) {
+                $files = array_merge($files, $this->getFilesFromPattern($dir . '/' . basename($pattern), $nested, $flags));
+            }
+        }
+
+        return $files;
     }
 
     /**
