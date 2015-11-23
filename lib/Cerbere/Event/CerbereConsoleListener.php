@@ -95,7 +95,7 @@ class CerbereConsoleListener implements EventSubscriberInterface
      */
     public function onCerbereFileDiscovered(CerbereFileDiscoverEvent $event)
     {
-        $this->output->getErrorOutput()->writeln($event->getFilename());
+//        $this->output->getErrorOutput()->writeln($event->getFilename());
     }
 
     /**

@@ -65,6 +65,7 @@ function drush_cerbere_update()
 
     $format = drush_get_option('format', 'table');
     $flat = in_array($format, array('table', 'csv'));
+    $level = drush_get_option('level', 'all');
 
     $cerbere = new Cerbere();
 
@@ -72,9 +73,9 @@ function drush_cerbere_update()
     $console_listener = new \Cerbere\Event\CerbereConsoleListener();
 
     // Logger.
-    $log = new Logger('cerbere');
-    $log->pushHandler(new StreamHandler(__DIR__ . '/logs/cerbere.log', Logger::DEBUG));
-    $cerbere->addLoggerListener(new CerbereLoggerListener($log));
+//    $log = new Logger('cerbere');
+//    $log->pushHandler(new StreamHandler(getcwd() . '/logs/cerbere.log', Logger::DEBUG));
+//    $cerbere->addLoggerListener(new CerbereLoggerListener($log));
     $cerbere->addLoggerListener($console_listener);
 
     // Parsers.
@@ -89,24 +90,13 @@ function drush_cerbere_update()
     $action->addLoggerListener($console_listener);
 
     // Job.
-//    $versioning = new Git();
-//    $versioning->setWrapper(new \GitWrapper\GitWrapper());
-
-//    $job = new Job();
-//    $job->setVersioning($versioning);
-//    $job->setSource('git://github.com/blindsidenetworks/drupal-module_bigbluebuttonbn', array());
-//    $job->setPatterns(array('*.info'));
-
-    // Run it !
-    //$report = $cerbere->run($job, $action, array('flat' => $flat));
-
     $job = new Job();
     $job->setVersioning(new Local());
-    $job->setSource('.', array());
+    $job->setSource(getcwd(), array());
     $job->setPatterns($patterns, true);
 
     // Run it !
-    $report = $cerbere->run($job, $action, array('flat' => $flat));
+    $report = $cerbere->run($job, $action, array('flat' => $flat, 'level' => $level));
 
     return $report;
 }
