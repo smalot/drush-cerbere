@@ -55,3 +55,18 @@ Doing this step, Drush will be aware of commands provided by Cerbere, otherwise 
 ````sh
 drush --include=$HOME/.composer/vendor/smalot/cerbere/commands
 ````
+
+# Use
+
+## Command
+
+* `--no-cache` : Disable cache mecanism. Otherwise, remote informations are cached for 1800 seconds.
+* `--no-progress` : Disable progress bar.
+* `--level` : Specify analyze verbosity (`all`, `security`, `unsupported`, `update`) - default : `all`.
+* `--format` : Output format (`table`, `csv`, `json`) - default : `table`.
+
+Example:
+
+````sh
+drush cerbere-update sites/all/modules/*.info --level=update
+````
