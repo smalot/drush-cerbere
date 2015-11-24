@@ -25,17 +25,12 @@ function cerbere_drush_command()
         'source' => 'The source file or folder.',
       ),
       'options' => array(
-        'config' => 'The config file to use for default setting values.',
         'no-cache' => 'Disable cache.',
         'level' => 'Reporting level (all, security, unsupported, update).',
         'no-progress' => 'Disable progress bar.',
       ),
       'outputformat' => array(
         'default' => 'table',
-      ),
-      'examples' => array(
-        'drush cerbere-check-update "sites/all/modules/*.info" --format=json',
-        'drush cerbere-check-update profiles/commerce_kickstart/drupal-core.make --no-cache',
       ),
         // No bootstrap at all.
       'bootstrap' => DRUSH_BOOTSTRAP_NONE,
