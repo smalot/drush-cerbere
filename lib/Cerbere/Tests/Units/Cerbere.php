@@ -92,10 +92,11 @@ class Cerbere extends AbstractTest
 
         $job = new Job();
         $job->setVersioning($versioning);
+        $job->setAction($action);
         $job->setSource('https://github.com/smalot/drush-cerbere.git', $options);
         $job->setPatterns(array('*.info'));
 
-        $report = $cerbere->run($job, $action);
+        $report = $cerbere->run($job);
 
         $expected = array(
           'cerbere' => array(
@@ -122,12 +123,13 @@ class Cerbere extends AbstractTest
 
         $job = new Job();
         $job->setVersioning($versioning);
+        $job->setAction($action);
         $job->setSource('https://github.com/smalot/drush-cerbere-XXXXXX.git', $options);
         $job->setPatterns(array('*.info'));
 
         $this->exception(
-          function () use ($cerbere, $job, $action) {
-              $cerbere->run($job, $action);
+          function () use ($cerbere, $job) {
+              $cerbere->run($job);
           }
         )->message->contains('XXXXXX');
     }
