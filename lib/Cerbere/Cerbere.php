@@ -2,7 +2,6 @@
 
 namespace Cerbere;
 
-use Cerbere\Action\ActionInterface;
 use Cerbere\Event\CerbereEvents;
 use Cerbere\Event\CerbereFileDiscoverEvent;
 use Cerbere\Event\CerberePostActionEvent;
@@ -101,7 +100,6 @@ class Cerbere implements DispatcherAwareInterface
 
     /**
      * @param Job $job
-     * @param ActionInterface $action
      * @param array $options
      *
      * @return array
