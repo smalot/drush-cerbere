@@ -58,7 +58,7 @@ drush --include=$HOME/.composer/vendor/smalot/cerbere/commands
 
 # Use
 
-## Command
+## Command : cerbere-update
 
 * `--no-cache` : Disable cache mecanism. Otherwise, remote informations are cached for 1800 seconds.
 * `--no-progress` : Disable progress bar.
@@ -70,3 +70,7 @@ Example:
 ````sh
 drush cerbere-update sites/all/modules/*.info --level=update
 ````
+
+## Command : cerbere-hacked
+
+Work in progress ...
