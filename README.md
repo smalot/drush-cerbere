@@ -36,7 +36,7 @@ See [Drush documentation](https://github.com/drush-ops/drush/blob/master/docs/co
 
 // Detected composer dir according to OS platform.
 if (($home_dir = getenv('HOME')) && (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN')) {
-    $composer_dir = $home_dir . '/AppData/Composer';
+    $composer_dir = $home_dir . '/AppData/Roaming/Composer';
 } else {
     $composer_dir = $home_dir . '/.composer';
 }
@@ -54,4 +54,19 @@ Doing this step, Drush will be aware of commands provided by Cerbere, otherwise 
 
 ````sh
 drush --include=$HOME/.composer/vendor/smalot/cerbere/commands
+````
+
+# Use
+
+## Command
+
+* `--no-cache` : Disable cache mecanism. Otherwise, remote informations are cached for 1800 seconds.
+* `--no-progress` : Disable progress bar.
+* `--level` : Specify analyze verbosity (`all`, `security`, `unsupported`, `update`) - default : `all`.
+* `--format` : Output format (`table`, `csv`, `json`) - default : `table`.
+
+Example:
+
+````sh
+drush cerbere-update sites/all/modules/*.info --level=update
 ````
