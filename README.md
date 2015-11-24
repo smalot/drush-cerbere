@@ -36,7 +36,7 @@ See [Drush documentation](https://github.com/drush-ops/drush/blob/master/docs/co
 
 // Detected composer dir according to OS platform.
 if (($home_dir = getenv('HOME')) && (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN')) {
-    $composer_dir = $home_dir . '/AppData/Composer';
+    $composer_dir = $home_dir . '/AppData/Roaming/Composer';
 } else {
     $composer_dir = $home_dir . '/.composer';
 }
