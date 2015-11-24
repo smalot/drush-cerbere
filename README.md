@@ -11,7 +11,7 @@ Cerbere is a Drush commands set performing action on project' modules stored in 
 * Drush _([install drush](http://docs.drush.org/en/master/install/))_
 * PHP 5.3+
 
-Compatible with both Drush 7.x and 8.x.
+[Compatible](https://travis-ci.org/smalot/drush-cerbere) with both Drush 7.x and 8.x.
 
 # Installation
 
