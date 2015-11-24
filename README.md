@@ -42,7 +42,8 @@ if (($home_dir = getenv('HOME')) && (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN')
 }
 
 // Include composer autoload file and declare Cerbere commands.
-if (is_file($composer_dir . '/vendor/autoload.php') && is_dir($composer_dir . '/vendor/smalot/cerbere/commands')) {
+if (is_file($composer_dir . '/vendor/autoload.php') && 
+    is_dir($composer_dir . '/vendor/smalot/cerbere/commands')) {
     include_once $composer_dir . '/vendor/autoload.php';
 
     $options['include'][] = $composer_dir . '/vendor/smalot/cerbere/commands';
