@@ -536,13 +536,13 @@ class ReleaseHistory
               $project->getProject() . '/' .
               $project->getCore();
 
-            // Todo: prefer guzzle library.
+            // Todo: use guzzle library.
             $content = file_get_contents($url);
 
             $data = $this->parseUpdateXml($content);
 
             // If data, store into cache.
-            if ($this->cache && $data) {
+            if ($this->cache && !empty($data)) {
                 $this->cache->save($cid, $data, 1800);
             }
         }
