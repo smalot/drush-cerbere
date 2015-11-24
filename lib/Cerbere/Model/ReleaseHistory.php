@@ -598,18 +598,18 @@ class ReleaseHistory
 
         if (isset($xml->releases)) {
             foreach ($xml->releases->children() as $release) {
-                $version = (string)$release->version;
+                $version = (string) $release->version;
                 $data['releases'][$version] = array();
                 foreach ($release->children() as $k => $v) {
-                    $data['releases'][$version][$k] = (string)$v;
+                    $data['releases'][$version][$k] = (string) $v;
                 }
                 $data['releases'][$version]['terms'] = array();
                 if ($release->terms) {
                     foreach ($release->terms->children() as $term) {
-                        if (!isset($data['releases'][$version]['terms'][(string)$term->name])) {
-                            $data['releases'][$version]['terms'][(string)$term->name] = array();
+                        if (!isset($data['releases'][$version]['terms'][(string) $term->name])) {
+                            $data['releases'][$version]['terms'][(string) $term->name] = array();
                         }
-                        $data['releases'][$version]['terms'][(string)$term->name][] = (string)$term->value;
+                        $data['releases'][$version]['terms'][(string) $term->name][] = (string) $term->value;
                     }
                 }
             }

@@ -2,6 +2,7 @@
 
 namespace Cerbere\Action;
 
+use Cerbere\Event\DispatcherAwareInterface;
 use Cerbere\Model\Project;
 
 /**
@@ -9,7 +10,7 @@ use Cerbere\Model\Project;
  *
  * @package Cerbere\Action
  */
-interface ActionInterface
+interface ActionInterface extends DispatcherAwareInterface
 {
     /**
      * @return string

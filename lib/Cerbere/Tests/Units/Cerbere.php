@@ -54,7 +54,7 @@ class Cerbere extends AbstractTest
           'arguments' => array(
             'q',
             'branch' => 'master',
-            'depth' => 1,
+            'depth'  => 1,
           ),
         );
         $git->process('https://github.com/smalot/drush-cerbere.git', $directory, $options);
@@ -86,7 +86,7 @@ class Cerbere extends AbstractTest
           'arguments' => array(
             'q',
             'branch' => 'master',
-            'depth' => 1,
+            'depth'  => 1,
           ),
         );
 
@@ -116,7 +116,7 @@ class Cerbere extends AbstractTest
           'arguments' => array(
             'q',
             'branch' => 'master',
-            'depth' => 1,
+            'depth'  => 1,
           ),
         );
 
@@ -125,8 +125,10 @@ class Cerbere extends AbstractTest
         $job->setSource('https://github.com/smalot/drush-cerbere-XXXXXX.git', $options);
         $job->setPatterns(array('*.info'));
 
-        $this->exception(function() use ($cerbere, $job, $action) {
-            $cerbere->run($job, $action);
-        })->message->contains('XXXXXX');
+        $this->exception(
+          function () use ($cerbere, $job, $action) {
+              $cerbere->run($job, $action);
+          }
+        )->message->contains('XXXXXX');
     }
 }

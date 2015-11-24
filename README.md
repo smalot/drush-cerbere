@@ -34,12 +34,18 @@ See [Drush documentation](https://github.com/drush-ops/drush/blob/master/docs/co
 ````php
 <?php
 
-$script_name = $_SERVER['SCRIPT_NAME'];
+// Detected composer dir according to OS platform.
+if (($home_dir = getenv('HOME')) && (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN')) {
+    $composer_dir = $home_dir . '/AppData/Composer';
+} else {
+    $composer_dir = $home_dir . '/.composer';
+}
 
-if ($pos = strrpos($script_name, 'vendor')) {
-  $dir_name = substr($script_name, 0, $pos + 6);
+// Include composer autoload file and declare Cerbere commands.
+if (is_file($composer_dir . '/vendor/autoload.php') && is_dir($composer_dir . '/vendor/smalot/cerbere/commands')) {
+    include_once $composer_dir . '/vendor/autoload.php';
 
-  $options['include'][] = $dir_name . '/smalot/cerbere/commands';
+    $options['include'][] = $composer_dir . '/vendor/smalot/cerbere/commands';
 }
 ````
 
