@@ -539,8 +539,10 @@ class ReleaseHistory
             // Todo: prefer guzzle library.
             $content = file_get_contents($url);
 
+            $data = $this->parseUpdateXml($content);
+
             // If data, store into cache.
-            if ($this->cache && ($data = $this->parseUpdateXml($content))) {
+            if ($this->cache && $data) {
                 $this->cache->save($cid, $data, 1800);
             }
         }

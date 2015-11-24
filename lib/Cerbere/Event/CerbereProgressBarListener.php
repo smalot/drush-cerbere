@@ -8,15 +8,20 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * Class CerbereConsoleListener
+ * Class CerbereProgressBarListener
  * @package Cerbere\Event
  */
-class CerbereConsoleListener implements EventSubscriberInterface
+class CerbereProgressBarListener implements EventSubscriberInterface
 {
     /**
      * @var OutputInterface
      */
     protected $output;
+
+    /**
+     * @var ProgressBar
+     */
+    protected $progress;
 
     /**
      * CerbereConsoleListener constructor.
@@ -68,15 +73,51 @@ class CerbereConsoleListener implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return array(
-          CerbereEvents::CERBERE_FILE_DISCOVERED => array('onCerbereFileDiscovered', 0),
+          CerbereEvents::CERBERE_PRE_ACTION      => array('onCerberePreAction', 0),
+          CerbereEvents::CERBERE_DO_ACTION       => array('onCerbereDoAction', 0),
+          CerbereEvents::CERBERE_POST_ACTION     => array('onCerberePostAction', 0),
         );
     }
 
     /**
-     * @param \Cerbere\Event\CerbereFileDiscoverEvent $event
+     * @param \Cerbere\Event\CerbereDoActionEvent $event
      */
-    public function onCerbereFileDiscovered(CerbereFileDiscoverEvent $event)
+    public function onCerbereDoAction(CerbereDoActionEvent $event)
     {
-        $this->output->getErrorOutput()->writeln($event->getFilename());
+        $this->progress->setMessage($event->getProject()->getName(), 'project');
+        $this->progress->advance();
+    }
+
+    /**
+     * @param CerberePostActionEvent $event
+     */
+    public function onCerberePostAction(CerberePostActionEvent $event)
+    {
+        $this->progress->setMessage('Action ended');
+        $this->progress->setMessage('', 'project');
+        $this->progress->finish();
+
+        // Returns and jump new line.
+        $this->output->getErrorOutput()->writeln('');
+        $this->output->getErrorOutput()->writeln('');
+    }
+
+    /**
+     * @param CerberePreActionEvent $event
+     */
+    public function onCerberePreAction(CerberePreActionEvent $event)
+    {
+        // Returns and jump new line.
+        $this->output->getErrorOutput()->writeln('');
+
+        $format = " Project: %project%\n";
+        $format .= ProgressBar::getFormatDefinition('debug');
+
+        $progress = new ProgressBar($this->output, count($event->getProjects()));
+        $progress->setFormat($format);
+        $progress->setRedrawFrequency(1);
+        $progress->setMessage('Action starts');
+
+        $this->progress = $progress;
     }
 }
