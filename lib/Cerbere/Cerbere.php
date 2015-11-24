@@ -106,7 +106,7 @@ class Cerbere implements DispatcherAwareInterface
      *
      * @return array
      */
-    public function run(Job $job, ActionInterface $action, $options = array())
+    public function run(Job $job, $options = array())
     {
         // Download remote project if remote.
         $dir = $job->checkoutRepository();
@@ -119,13 +119,13 @@ class Cerbere implements DispatcherAwareInterface
         $projects = $this->getProjectsFromPatterns($job->getPatterns(), $job->isPatternNested());
         $projects = $this->dedupeProjectList($projects);
 
-        $event = new CerberePreActionEvent($this, $job, $action, $projects);
+        $event = new CerberePreActionEvent($this, $job, $job->getAction(), $projects);
         $this->getDispatcher()->dispatch(CerbereEvents::CERBERE_PRE_ACTION, $event);
 
         // Do cerbere action.
-        $report = $action->process($projects, $options);
+        $report = $job->getAction()->process($projects, $options);
 
-        $event = new CerberePostActionEvent($this, $job, $action, $projects);
+        $event = new CerberePostActionEvent($this, $job, $job->getAction(), $projects);
         $this->getDispatcher()->dispatch(CerbereEvents::CERBERE_POST_ACTION, $event);
 
         // Restore initial directory.

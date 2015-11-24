@@ -82,11 +82,12 @@ function drush_cerbere_update()
     // Job.
     $job = new Job();
     $job->setVersioning(new Local());
+    $job->setAction($action);
     $job->setSource(getcwd(), array());
     $job->setPatterns($patterns, true);
 
     // Run it !
-    $report = $cerbere->run($job, $action, array('flat' => $flat, 'level' => $level));
+    $report = $cerbere->run($job, array('flat' => $flat, 'level' => $level));
 
     return $report;
 }

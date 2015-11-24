@@ -2,6 +2,7 @@
 
 namespace Cerbere\Model;
 
+use Cerbere\Action\ActionInterface;
 use Cerbere\Versioning\VersioningInterface;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -22,6 +23,11 @@ class Job
      * @var VersioningInterface
      */
     protected $versioning = null;
+
+    /**
+     * @var ActionInterface
+     */
+    protected $action;
 
     /**
      * @var string
@@ -87,6 +93,22 @@ class Job
     }
 
     /**
+     * @return ActionInterface
+     */
+    public function getAction()
+    {
+        return $this->action;
+    }
+
+    /**
+     * @param ActionInterface $action
+     */
+    public function setAction($action)
+    {
+        $this->action = $action;
+    }
+
+    /**
      * Gets the dispatcher used by this library to dispatch events.
      *
      * @return EventDispatcherInterface
@@ -132,14 +154,14 @@ class Job
     }
 
     /**
-     * @param array $patterns
+     * @param array   $patterns
      * @param boolean $nested
      *
      * @return Job
      */
     public function setPatterns($patterns, $nested = false)
     {
-        $this->patterns = $patterns;
+        $this->patterns       = $patterns;
         $this->pattern_nested = $nested;
 
         return $this;
@@ -147,11 +169,11 @@ class Job
 
     /**
      * @param string $url
-     * @param array $options
+     * @param array  $options
      */
     public function setSource($url, $options = array())
     {
-        $this->source_url = $url;
+        $this->source_url     = $url;
         $this->source_options = $options;
     }
 }
