@@ -131,8 +131,17 @@ class Update implements ActionInterface
             }
 
             if ($project->getStatus() <= $level) {
-                $reports[$project->getProject()] = $this->generateReport($project, $release_history, $options['flat']);
+                $report = $this->generateReport($project, $release_history, $options['flat']);
+
+                $event = new CerbereReportActionEvent($this, $project, $report);
+                $this->getDispatcher()->dispatch(CerbereEvents::CERBERE_REPORT_ACTION, $event);
+                $report = $event->getReport();
+
+                $reports[$project->getProject()] = $report;
             }
+
+            $event = new CerbereDoneActionEvent($this, $project);
+            $this->getDispatcher()->dispatch(CerbereEvents::CERBERE_DONE_ACTION, $event);
         }
 
         return $reports;

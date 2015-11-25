@@ -84,10 +84,7 @@ class Hacked implements ActionInterface
      */
     public function process(array $projects, $options = array())
     {
-        // TODO: Implement process() method.
         $project = reset($projects);
-
         var_dump($project);
     }
-
 }

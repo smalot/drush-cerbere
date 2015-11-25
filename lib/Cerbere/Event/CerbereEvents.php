@@ -34,4 +34,8 @@ final class CerbereEvents
     const CERBERE_POST_ACTION = 'cerbere.action.post';
 
     const CERBERE_DO_ACTION = 'cerbere.action.do';
+
+    const CERBERE_REPORT_ACTION = 'cerbere.action.report';
+
+    const CERBERE_DONE_ACTION = 'cerbere.action.done';
 }
