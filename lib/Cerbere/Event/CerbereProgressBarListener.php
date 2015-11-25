@@ -35,12 +35,12 @@ class CerbereProgressBarListener implements EventSubscriberInterface
     /**
      * @var OutputInterface
      */
-    protected $output;
+    protected $output = null;
 
     /**
      * @var ProgressBar
      */
-    protected $progress;
+    protected $progress = null;
 
     /**
      * CerbereConsoleListener constructor.
@@ -103,8 +103,10 @@ class CerbereProgressBarListener implements EventSubscriberInterface
      */
     public function onCerbereDoAction(CerbereDoActionEvent $event)
     {
-        $this->progress->setMessage($event->getProject()->getName(), 'project');
-        $this->progress->advance();
+        if (null !== $this->progress) {
+            $this->progress->setMessage($event->getProject()->getName(), 'project');
+            $this->progress->advance();
+        }
     }
 
     /**
@@ -112,13 +114,15 @@ class CerbereProgressBarListener implements EventSubscriberInterface
      */
     public function onCerberePostAction(CerberePostActionEvent $event)
     {
-        $this->progress->setMessage('Action ended');
-        $this->progress->setMessage('', 'project');
-        $this->progress->finish();
+        if (null !== $this->progress) {
+            $this->progress->setMessage('Action ended');
+            $this->progress->setMessage('', 'project');
+            $this->progress->finish();
 
-        // Returns and jump new line.
-        $this->output->getErrorOutput()->writeln('');
-        $this->output->getErrorOutput()->writeln('');
+            // Returns and jump new line.
+            $this->output->getErrorOutput()->writeln('');
+            $this->output->getErrorOutput()->writeln('');
+        }
     }
 
     /**
@@ -126,17 +130,19 @@ class CerbereProgressBarListener implements EventSubscriberInterface
      */
     public function onCerberePreAction(CerberePreActionEvent $event)
     {
-        // Returns and jump new line.
-        $this->output->getErrorOutput()->writeln('');
+        if ($max = count($event->getProjects())) {
+            // Returns and jump new line.
+            $this->output->getErrorOutput()->writeln('');
 
-        $format = " Project: %project%\n";
-        $format .= ProgressBar::getFormatDefinition('debug');
+            $format = " Project: %project%\n";
+            $format .= ProgressBar::getFormatDefinition('debug');
 
-        $progress = new ProgressBar($this->output, count($event->getProjects()));
-        $progress->setFormat($format);
-        $progress->setRedrawFrequency(1);
-        $progress->setMessage('Action starts');
+            $progress = new ProgressBar($this->output, $max);
+            $progress->setFormat($format);
+            $progress->setRedrawFrequency(1);
+            $progress->setMessage('Action starts');
 
-        $this->progress = $progress;
+            $this->progress = $progress;
+        }
     }
 }

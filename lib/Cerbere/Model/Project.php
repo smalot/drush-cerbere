@@ -53,6 +53,11 @@ class Project
     protected $project;
 
     /**
+     * @var string
+     */
+    protected $filename;
+
+    /**
      * @var
      */
     protected $name;
@@ -165,6 +170,22 @@ class Project
         $this->security_updates = array();
 
         $this->init();
+    }
+
+    /**
+     * @return string
+     */
+    public function getFilename()
+    {
+        return $this->filename;
+    }
+
+    /**
+     * @param string $filename
+     */
+    public function setFilename($filename)
+    {
+        $this->filename = $filename;
     }
 
     /**

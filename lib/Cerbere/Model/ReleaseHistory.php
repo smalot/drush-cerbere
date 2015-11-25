@@ -577,6 +577,7 @@ class ReleaseHistory
             foreach ($data['releases'] as $key => $value) {
                 $data['releases'][$key] = new Release($value);
             }
+            $project->setReleases($data['releases']);
         } else {
             $data['releases'] = array();
         }

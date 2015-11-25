@@ -30,11 +30,6 @@ use Cerbere\Model\Project;
 class Info extends Ini
 {
     /**
-     * @var string
-     */
-    protected $filename;
-
-    /**
      * @var Project
      */
     protected $project;
@@ -73,14 +68,20 @@ class Info extends Ini
 
     /**
      * @param string $content
+     * @param string $filename
      */
-    public function processContent($content)
+    public function processContent($content, $filename = null)
     {
         $data = $this->parseContent($content);
-        $data += array('project' => basename($this->filename, '.info'), 'version' => '');
+        $data += array('project' => basename($filename, '.info'), 'version' => '');
 
         $project = new Project($data['project'], $data['core'], $data['version']);
         $project->setDetails($data);
+
+        if (!empty($filename)) {
+            var_dump($filename);
+            $project->setFilename(realpath($filename));
+        }
 
         $this->project = $project;
     }
@@ -90,10 +91,9 @@ class Info extends Ini
      */
     public function processFile($filename)
     {
-        // Store filename to extract project name.
-        $this->filename = $filename;
+        $content = file_get_contents($filename);
 
-        parent::processFile($filename);
+        $this->processContent($content, $filename);
     }
 
     /**

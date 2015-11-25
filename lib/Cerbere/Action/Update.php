@@ -22,7 +22,9 @@
 namespace Cerbere\Action;
 
 use Cerbere\Event\CerbereDoActionEvent;
+use Cerbere\Event\CerbereDoneActionEvent;
 use Cerbere\Event\CerbereEvents;
+use Cerbere\Event\CerbereReportActionEvent;
 use Cerbere\Model\Project;
 use Cerbere\Model\Release;
 use Cerbere\Model\ReleaseHistory;
@@ -96,7 +98,7 @@ class Update implements ActionInterface
     }
 
     /**
-     * @param array $projects
+     * @param Project[] $projects
      * @param array $options
      *
      * @return array

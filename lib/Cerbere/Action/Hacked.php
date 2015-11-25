@@ -21,6 +21,9 @@
 
 namespace Cerbere\Action;
 
+use Cerbere\Model\Hacked\HackedProject;
+use Cerbere\Model\Project;
+use Cerbere\Model\ReleaseHistory;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -63,20 +66,20 @@ class Hacked implements ActionInterface
      */
     public function prepare()
     {
-        $files = array(
-          'hackedProjectWebFilesDownloader.inc',
-          'hackedProjectWebDownloader.inc',
-          'hackedProjectWebCSVDownloader.inc',
-          'hackedProject.inc',
-          'hackedFileIncludeEndingsHasher.inc',
-          'hackedFileIgnoreEndingsHasher.inc',
-          'hackedFileHasher.inc',
-          'hackedFileGroup.inc',
-        );
-
-        foreach ($files as $file) {
-            require_once __DIR__ . '/../../../modules/hacked/includes/' . $file;
-        }
+//        $files = array(
+//          'hackedProject.inc',
+//          'hackedFileGroup.inc',
+//          'hackedProjectWebDownloader.inc',
+//          'hackedProjectWebFilesDownloader.inc',
+//          'hackedProjectWebCVSDownloader.inc',
+//          'hackedFileHasher.inc',
+//          'hackedFileIncludeEndingsHasher.inc',
+//          'hackedFileIgnoreEndingsHasher.inc',
+//        );
+//
+//        foreach ($files as $file) {
+//            require_once __DIR__ . '/../../../modules/hacked/includes/' . $file;
+//        }
     }
 
     /**
@@ -84,7 +87,30 @@ class Hacked implements ActionInterface
      */
     public function process(array $projects, $options = array())
     {
+        if (empty($projects)) {
+            return array();
+        }
+
+        /** @var Project $project */
         $project = reset($projects);
-        var_dump($project);
+        $release_history = new ReleaseHistory();
+        $release_history->prepare($project);
+
+        if ($filename = $project->getFilename()) {
+            $current_dir = getcwd();
+            // Change current directory to the module directory.
+            chdir(dirname($filename));
+
+            $hacked = new HackedProject($project);
+            $result = $hacked->compute_report();
+
+            var_dump($result);
+            die('test');
+
+            // Restore current directory.
+            chdir($current_dir);
+        }
+
+        die('error');
     }
 }

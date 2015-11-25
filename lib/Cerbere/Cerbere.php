@@ -140,6 +140,7 @@ class Cerbere implements DispatcherAwareInterface
         $this->getDispatcher()->dispatch(CerbereEvents::CERBERE_PRE_ACTION, $event);
 
         // Do cerbere action.
+        $job->getAction()->prepare();
         $report = $job->getAction()->process($projects, $options);
 
         $event = new CerberePostActionEvent($this, $job, $job->getAction(), $projects);
