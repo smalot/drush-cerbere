@@ -186,6 +186,11 @@ class Project
     protected $security_updates;
 
     /**
+     * @var array
+     */
+    protected $also_available;
+
+    /**
      * @param string $project
      * @param string $core
      * @param string $version
@@ -201,6 +206,7 @@ class Project
 
         $this->releases         = array();
         $this->security_updates = array();
+        $this->also_available   = array();
 
         $this->init();
     }
@@ -278,11 +284,30 @@ class Project
     }
 
     /**
+     * @param string  $version
      * @param Release $release
      */
     public function addSecurityUpdate($version, $release)
     {
         $this->security_updates[$version] = $release;
+    }
+
+    /**
+     * @param string  $version
+     * @param Release $release
+     */
+    public function addAlsoAvailable($version, $release)
+    {
+        $this->also_available[$version] = $release;
+    }
+
+    /**
+     * @param string  $version
+     * @return mixed
+     */
+    public function getAlsoAvailable($version)
+    {
+        return $this->also_available[$version];
     }
 
     /**

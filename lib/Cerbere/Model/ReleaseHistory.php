@@ -222,6 +222,30 @@ class ReleaseHistory
                 continue;
             }
 
+            // See if this is a higher major version than our target and yet still
+            // supported. If so, record it as an "Also available" release.
+            // Note: some projects have a HEAD release from CVS days, which could
+            // be one of those being compared. They would not have version_major
+            // set, so we must call isset first.
+            if ($release->getVersionMajor() > $target_major) {
+//                if (in_array($release['version_major'], $supported_majors)) {
+//                    if (!isset($project_data['also'][$release['version_major']])) {
+//                        $project_data['also'][$release['version_major']] = $version;
+//                        $project_data['releases'][$version] = $release;
+//
+//                        $project->addAlsoAvailable($version, $release);
+//                    }
+//                }
+                // Otherwise, this release can't matter to us, since it's neither
+                // from the release series we're currently using nor the recommended
+                // release. We don't even care about security updates for this
+                // branch, since if a project maintainer puts out a security release
+                // at a higher major version and not at the lower major version,
+                // they must remove the lower version from the supported major
+                // versions at the same time, in which case we won't hit this code.
+                continue;
+            }
+
             // Look for the 'latest version' if we haven't found it yet. Latest is
             // defined as the most recent version for the target major version.
             if (!$project->getLatestVersion() && $release->getVersionMajor() == $target_major) {
@@ -467,25 +491,22 @@ class ReleaseHistory
     {
         switch ($status) {
             case self::UPDATE_NOT_SECURE:
-                return 'Not secure';
+                return 'SECURITY UPDATE available';
             case self::UPDATE_REVOKED:
-                return 'Revoked';
+                return 'Installed version REVOKED';
             case self::UPDATE_NOT_SUPPORTED:
-                return 'Not supported';
+                return 'Installed version not supported';
             case self::UPDATE_NOT_CURRENT:
-                return 'Not current';
+                return 'Update available';
             case self::UPDATE_CURRENT:
-                return 'Update current';
+                return 'Up to date';
             case self::UPDATE_NOT_CHECKED:
-                return 'Not checked';
-            case self::UPDATE_UNKNOWN:
-                return 'Unknown';
             case self::UPDATE_NOT_FETCHED:
-                return 'Not fetched';
             case self::UPDATE_FETCH_PENDING:
-                return 'Fetch pending';
+                return 'Unable to check status';
+            case self::UPDATE_UNKNOWN:
             default:
-                return '';
+                return 'Unknown';
         }
     }
 
