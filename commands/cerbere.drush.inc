@@ -116,7 +116,7 @@ function drush_cerbere_update()
 
     // Hacked reporting.
     if ($hacked) {
-        $hacked_listener = new \Cerbere\Event\CerbereHackedListener();
+        $hacked_listener = new CerbereHackedListener();
         $action->addLoggerListener($hacked_listener);
     }
 
