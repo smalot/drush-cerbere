@@ -124,15 +124,16 @@ class Cerbere extends AbstractTest
 
         $expected = array(
           'cerbere' => array(
-            'project'      => 'cerbere',
-            'type'         => Project::TYPE_UNKNOWN,
-            'version'      => '',
-            'version_date' => null,
-            'recommended'  => null,
-            'dev'          => null,
-            'status'       => -2,
-            'status_label' => 'Unknown',
-            'reason'       => 'No available releases found',
+            'project'        => 'cerbere',
+            'type'           => Project::TYPE_UNKNOWN,
+            'version'        => '',
+            'version_date'   => null,
+            'recommended'    => null,
+            'dev'            => null,
+            'also_available' => array(),
+            'status'         => -2,
+            'status_label'   => 'Unknown',
+            'reason'         => 'No available releases found',
           ),
         );
 
