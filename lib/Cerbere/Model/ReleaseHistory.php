@@ -582,7 +582,11 @@ class ReleaseHistory
             $data['releases'] = array();
         }
 
-        $project->setProjectType($data['type']);
+        if (!empty($data['type'])) {
+            $project->setProjectType($data['type']);
+        } else {
+            $project->setProjectType(Project::TYPE_UNKNOWN);
+        }
 
         $this->data = (array) $data;
     }

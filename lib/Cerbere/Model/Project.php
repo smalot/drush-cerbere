@@ -229,7 +229,7 @@ class Project
     protected function init()
     {
         // Patch project if Drupal detected.
-        if (strtolower($this->data['package']) == 'core') {
+        if (isset($this->data['package']) && strtolower($this->data['package']) == 'core') {
             $this->name = 'Drupal';
 
             $this->data = array(

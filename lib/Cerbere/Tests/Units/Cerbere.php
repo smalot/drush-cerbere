@@ -24,6 +24,7 @@ namespace Cerbere\Tests\Units;
 use Cerbere\Action\Update;
 use Cerbere\Event\CerbereLoggerListener;
 use Cerbere\Model\Job;
+use Cerbere\Model\Project;
 use Cerbere\Parser\Info;
 use Cerbere\Parser\Make;
 use Cerbere\Tests\AbstractTest;
@@ -124,6 +125,7 @@ class Cerbere extends AbstractTest
         $expected = array(
           'cerbere' => array(
             'project'      => 'cerbere',
+            'type'         => Project::TYPE_UNKNOWN,
             'version'      => '',
             'version_date' => null,
             'recommended'  => null,
