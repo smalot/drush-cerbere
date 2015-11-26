@@ -4,6 +4,7 @@ Cerbere is a Drush commands set performing action on project' modules stored in 
 
 [![Build Status](https://travis-ci.org/smalot/drush-cerbere.svg)](https://travis-ci.org/smalot/drush-cerbere)
 [![Latest Stable Version](https://poser.pugx.org/smalot/cerbere/v/stable)](https://packagist.org/packages/smalot/cerbere) [![Total Downloads](https://poser.pugx.org/smalot/cerbere/downloads)](https://packagist.org/packages/smalot/cerbere) [![Latest Unstable Version](https://poser.pugx.org/smalot/cerbere/v/unstable)](https://packagist.org/packages/smalot/cerbere) [![License](https://poser.pugx.org/smalot/cerbere/license)](https://packagist.org/packages/smalot/cerbere)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/smalot/drush-cerbere/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/smalot/drush-cerbere/?branch=master)
 
 # Requirements
 
@@ -60,13 +61,18 @@ drush --include=$HOME/.composer/vendor/smalot/cerbere/commands
 
 ## Command : cerbere-update
 
+This report is oriented on the update of the modules. It can be enriched with the `hacked` flag which will append 2 columns indicating that a module has been locally altered or not.
+
 * `--no-cache` : Disable cache mecanism. Otherwise, remote informations are cached for 1800 seconds.
 * `--no-progress` : Disable progress bar.
 * `--level` : Specify analyze verbosity (`all`, `security`, `unsupported`, `update`) - default : `all`.
 * `--hacked` : Append Hacked reporting.
 * `--format` : Output format (`table`, `csv`, `json`) - default : `table`.
 
-Example:
+**Example**
+
+List all outdated module, and check if there has been hacked.
+Usefull to know if module update can be safely realized.
 
 ````sh
 drush cerbere-update sites/all/modules/*.info --hacked --level=update
@@ -74,5 +80,12 @@ drush cerbere-update sites/all/modules/*.info --hacked --level=update
 
 ## Command : cerbere-hacked
 
+This report is dedicated to the `hacked` check. 
+
 * `--no-progress` : Disable progress bar.
 * `--format` : Output format (`table`, `csv`, `json`) - default : `table`.
+
+
+# Credits
+
+Parts of code has been reused from [Drupal 7.x core](https://www.drupal.org/project/drupal), [Hacked module](https://www.drupal.org/project/hacked).
