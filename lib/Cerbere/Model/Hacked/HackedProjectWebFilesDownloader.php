@@ -30,7 +30,7 @@ class HackedProjectWebFilesDownloader extends HackedProjectWebDownloader
     }
 
     /**
-     * @return string|false
+     * @return string|boolean
      */
     public function downloadFile()
     {

@@ -15,7 +15,7 @@ abstract class HackedFileHasher
      * Ignores file line endings
      *
      * @param string $filename
-     * @return string|bool
+     * @return string|false
      */
     public function hash($filename)
     {
