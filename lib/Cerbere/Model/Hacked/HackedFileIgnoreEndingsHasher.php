@@ -4,12 +4,11 @@ namespace Cerbere\Model\Hacked;
 
 class HackedFileIgnoreEndingsHasher extends HackedFileHasher {
   /**
-   * Returns a hash of the given filename.
-   *
    * Ignores file line endings.
+   * @inheritdoc
    */
-  function perform_hash($filename) {
-    if (!HackedFileGroup::hacked_file_is_binary($filename)) {
+  public function performHash($filename) {
+    if (!HackedFileGroup::isBinary($filename)) {
       $file = file($filename, FILE_IGNORE_NEW_LINES);
       return sha1(serialize($file));
     }
@@ -18,7 +17,10 @@ class HackedFileIgnoreEndingsHasher extends HackedFileHasher {
     }
   }
 
-  function fetch_lines($filename) {
+  /**
+   * @inheritdoc
+   */
+  public function fetchLines($filename) {
     return file($filename, FILE_IGNORE_NEW_LINES);
   }
 }

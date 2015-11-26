@@ -44,7 +44,7 @@ class HackedProject {
 
   /**
    * Constructor.
-   * @param Project $propject
+   * @param Project $project
    */
   public function __construct(Project $project) {
     $this->project = $project;
@@ -55,8 +55,9 @@ class HackedProject {
   /**
    * Get the Human readable title of this project.
    */
-  function title() {
-    $this->identify_project();
+  public function getTitle() {
+    $this->identifyProject();
+
     return isset($this->project_info['title']) ? $this->project_info['title'] : $this->name;
   }
 
@@ -67,7 +68,7 @@ class HackedProject {
    * projects. We just pull the information in, and make descisions about this
    * project being from CVS or not.
    */
-  function identify_project() {
+  public function identifyProject() {
     // Only do this once, no matter how many times we're called.
     if (!empty($this->project_identified)) {
       return;
@@ -75,6 +76,7 @@ class HackedProject {
 
     $data = (array) $this->project;
     $this->project_info = array();
+
     foreach ($data as $key => $value) {
       $key = str_replace('*', '', $key);
       $this->project_info[$key] = $value;
@@ -90,47 +92,48 @@ class HackedProject {
   /**
    * Downloads the remote project to be hashed later.
    */
-  function download_remote_project() {
+  public function downloadRemoteProject() {
     // Only do this once, no matter how many times we're called.
     if (!empty($this->remote_downloaded)) {
       return;
     }
 
-    $this->identify_project();
-    $this->remote_downloaded = (bool) $this->remote_files_downloader->download();
+    $this->identifyProject();
+    $this->remote_downloaded = (bool) $this->remote_files_downloader->downloadFile();
   }
 
   /**
    * Hashes the remote project downloaded earlier.
    */
-  function hash_remote_project() {
+  public function hashRemoteProject() {
     // Only do this once, no matter how many times we're called.
     if (!empty($this->remote_hashed)) {
       return;
     }
 
     // Ensure that the remote project has actually been downloaded.
-    $this->download_remote_project();
+    $this->downloadRemoteProject();
 
     // Set up the remote file group.
-    $base_path = $this->remote_files_downloader->get_final_destination();
+    $base_path = $this->remote_files_downloader->getFinalDestination();
+    var_dump($base_path);
     $this->remote_files = HackedFileGroup::fromDirectory($base_path);
-    $this->remote_files->compute_hashes();
+    $this->remote_files->computeHashes();
 
-    $this->remote_hashed = !empty($this->remote_files->files);
+    $this->remote_hashed = count($this->remote_files->getFiles()) > 0;
 
     // Logging.
     if (!$this->remote_hashed) {
-      watchdog('hacked', 'Could not hash remote project: @title', array('@title' => $this->title()), WATCHDOG_ERROR);
+      watchdog('hacked', 'Could not hash remote project: @title', array('@title' => $this->getTitle()), WATCHDOG_ERROR);
     }
   }
 
   /**
    * Locate the base directory of the local project.
    */
-  function locate_local_project() {
+  public function locateLocalProject() {
     // we need a remote project to do this :(
-    $this->hash_remote_project();
+    $this->hashRemoteProject();
 
     // Do we have at least some modules to check for:
     if (!is_array($this->project_info['includes']) || !count($this->project_info['includes'])) {
@@ -156,7 +159,7 @@ class HackedProject {
 
     // Now we need to find the path of the info file in the downloaded package:
     $temp = '';
-    foreach ($this->remote_files->files as $file) {
+    foreach ($this->remote_files->getFiles() as $file) {
       if (preg_match('@(^|.*/)' . $include . '.info$@', $file)) {
         $temp = $file;
         break;
@@ -173,27 +176,27 @@ class HackedProject {
   /**
    * Hash the local version of the project.
    */
-  function hash_local_project() {
+  public function hashLocalProject() {
     // Only do this once, no matter how many times we're called.
     if (!empty($this->local_hashed)) {
       return;
     }
 
-    $location = $this->locate_local_project();
+    $location = $this->locateLocalProject();
 
-    $this->local_files = hackedFileGroup::fromList($location, $this->remote_files->files);
-    $this->local_files->compute_hashes();
+    $this->local_files = hackedFileGroup::fromList($location, $this->remote_files->getFiles());
+    $this->local_files->computeHashes();
 
-    $this->local_hashed = !empty($this->local_files->files);
+    $this->local_hashed = count($this->local_files->getFiles()) > 0;
   }
 
   /**
    * Compute the differences between our version and the canonical version of the project.
    */
-  function compute_differences() {
+  public function computeDifferences() {
     // Make sure we've hashed both remote and local files.
-    $this->hash_remote_project();
-    $this->hash_local_project();
+    $this->hashRemoteProject();
+    $this->hashLocalProject();
 
     $results = array(
       'same' => array(),
@@ -203,14 +206,14 @@ class HackedProject {
     );
 
     // Now compare the two file groups.
-    foreach ($this->remote_files->files as $file) {
-      if ($this->remote_files->files_hashes[$file] == $this->local_files->files_hashes[$file]) {
+    foreach ($this->remote_files->getFiles() as $file) {
+      if ($this->remote_files->getFileHash($file) == $this->local_files->getFileHash($file)) {
         $results['same'][] = $file;
       }
-      elseif (!$this->local_files->file_exists($file)) {
+      elseif (!$this->local_files->fileExists($file)) {
         $results['missing'][] = $file;
       }
-      elseif (!$this->local_files->is_readable($file)) {
+      elseif (!$this->local_files->isReadable($file)) {
         $results['access_denied'][] = $file;
       }
       else {
@@ -224,12 +227,11 @@ class HackedProject {
   /**
    * Return a nice report, a simple overview of the status of this project.
    */
-  function compute_report() {
+  public function computeReport() {
     // Ensure we know the differences.
-    $this->compute_differences();
+    $this->computeDifferences();
 
     // Do some counting
-
     $report = array(
       'project_name' => $this->name,
       'status' => HACKED_STATUS_UNCHECKED,
@@ -239,7 +241,7 @@ class HackedProject {
         'missing' => count($this->result['missing']),
         'access_denied' => count($this->result['access_denied']),
       ),
-      'title' => $this->title(),
+      'title' => $this->getTitle(),
     );
 
     // Add more details into the report result (if we can).
@@ -252,12 +254,12 @@ class HackedProject {
       'project_type',
       'includes',
     );
+
     foreach ($details as $item) {
       if (isset($this->project_info[$item])) {
         $report[$item] = $this->project_info[$item];
       }
     }
-
 
     if ($report['counts']['access_denied'] > 0) {
       $report['status'] = HACKED_STATUS_PERMISSION_DENIED;
@@ -273,15 +275,15 @@ class HackedProject {
     }
 
     return $report;
-
   }
 
   /**
    * Return a nice detailed report.
+   * @return array
    */
-  function compute_details() {
+  public function computeDetails() {
     // Ensure we know the differences.
-    $report = $this->compute_report();
+    $report = $this->computeReport();
 
     $report['files'] = array();
 
@@ -296,32 +298,41 @@ class HackedProject {
     foreach ($states as $state => $status) {
       foreach ($this->result[$state] as $file) {
         $report['files'][$file] = $status;
-        $report['diffable'][$file] = $this->file_is_diffable($file);
+        $report['diffable'][$file] = $this->fileIsDiffable($file);
       }
     }
 
     return $report;
-
   }
 
+  /**
+   * @param string $file
+   *
+   * @return bool
+   */
+  public function fileIsDiffable($file) {
+    $this->hashRemoteProject();
+    $this->hashLocalProject();
 
-  function file_is_diffable($file) {
-    $this->hash_remote_project();
-    $this->hash_local_project();
-    return $this->remote_files->is_not_binary($file) && $this->local_files->is_not_binary($file);
+    return $this->remote_files->isNotBinary($file) && $this->local_files->isNotBinary($file);
   }
 
-  function file_get_location($storage = 'local', $file) {
+  /**
+   * @param string $storage
+   * @param string $file
+   *
+   * @return bool|string
+   */
+  public function file_get_location($storage = 'local', $file) {
     switch ($storage) {
       case 'remote':
-        $this->download_remote_project();
-        return $this->remote_files->file_get_location($file);
+        $this->downloadRemoteProject();
+        return $this->remote_files->getFileLocation($file);
       case 'local':
-        $this->hash_local_project();
-        return $this->local_files->file_get_location($file);
+        $this->hashLocalProject();
+        return $this->local_files->getFileLocation($file);
     }
+
     return FALSE;
   }
-
-
 }

@@ -6,11 +6,17 @@ namespace Cerbere\Model\Hacked;
  * This is a much faster, but potentially less useful file hasher.
  */
 class HackedFileIncludeEndingsHasher extends HackedFileHasher {
-  function perform_hash($filename) {
+  /**
+   * @inheritdoc
+   */
+  public function performHash($filename) {
     return sha1_file($filename);
   }
 
-  function fetch_lines($filename) {
+  /**
+   * @inheritdoc
+   */
+  public function fetchLines($filename) {
     return file($filename);
   }
 }

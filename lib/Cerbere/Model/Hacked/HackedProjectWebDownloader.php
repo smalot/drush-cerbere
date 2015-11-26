@@ -6,31 +6,37 @@ namespace Cerbere\Model\Hacked;
  * Base class for downloading remote versions of projects.
  */
 class HackedProjectWebDownloader {
+  /**
+   * @var
+   */
   var $project;
 
   /**
    * Constructor, pass in the project this downloaded is expected to download.
+   * @param $project
    */
-  public function __construct(&$project) {
+  public function __construct($project) {
     $this->project = $project;
   }
 
   /**
    * Returns a temp directory to work in.
    *
-   * @param $namespace
+   * @param string $namespace
    *   The optional namespace of the temp directory, defaults to the classname.
+   * @return string
    */
-  function get_temp_directory($namespace = NULL) {
-    if (is_null($namespace)) {
+  protected function getTempDirectory($namespace = NULL) {
+    if (null === $namespace) {
       $namespace = get_class($this);
     }
-    $segments = array(
-      sys_get_temp_dir(),
-      'hacked-cache-1',
-      $namespace,
-    );
-    $dir = implode('/', array_filter($segments));
+
+    if (empty($namespace)) {
+      $dir = sys_get_temp_dir() . '/hacked-cache';
+    } else {
+      $dir = sys_get_temp_dir() . '/hacked-cache/' . preg_replace('/[^0-9A-Z\-_]/i', '', $namespace);
+    }
+
     @mkdir($dir, 0775, TRUE);
 
     return $dir;
@@ -38,30 +44,34 @@ class HackedProjectWebDownloader {
 
   /**
    * Returns a directory to save the downloaded project into.
+   * @return string
    */
-  function get_destination() {
+  public function getDestination() {
     $type = $this->project->project_type;
     $name = $this->project->name;
     $version = $this->project->existing_version;
 
-    $dir = $this->get_temp_directory() . "/$type/$name";
+    $dir = $this->getTempDirectory() . '/' . $type . '/' . $name;
+
     // Build the destination folder tree if it doesn't already exists.
     @mkdir($dir, 0775, TRUE);
 
-    return "$dir/$version";
+    return $dir . '/' . $version;
   }
 
   /**
    * Returns the final destination of the unpacked project.
+   * @return string
    */
-  function get_final_destination() {
-    $dir = $this->get_destination();
+  public function getFinalDestination() {
+    $dir = $this->getDestination();
     $name = $this->project->name;
     $version = $this->project->existing_version;
     $type = $this->project->project_type;
+
     // More special handling for core:
     if ($type != 'core') {
-      $module_dir = $dir . "/$name";
+      $module_dir = $dir . '/' . $name;
     }
     else {
       $module_dir = $dir . '/' . $name . '-' . $version;
@@ -72,9 +82,10 @@ class HackedProjectWebDownloader {
 
   /**
    * Download the remote files to the local filesystem.
+   * @return bool
    */
-  function download() {
-
+  public function downloadFile() {
+    return true;
   }
 
   /**
@@ -86,25 +97,23 @@ class HackedProjectWebDownloader {
    * @param string $path
    *   A filepath relative to file_directory_path.
    */
-  function remove_dir($path) {
+  protected function removeDir($path) {
     if (is_file($path) || is_link($path)) {
-      unlink($path);
+      @unlink($path);
     }
     elseif (is_dir($path)) {
       $d = dir($path);
+
       while (($entry = $d->read()) !== FALSE) {
         if ($entry == '.' || $entry == '..') {
           continue;
         }
         $entry_path = $path . '/' . $entry;
-        $this->remove_dir($entry_path);
+        $this->removeDir($entry_path);
       }
-      $d->close();
-      rmdir($path);
-    }
-    else {
 
+      $d->close();
+      @rmdir($path);
     }
   }
-
 }

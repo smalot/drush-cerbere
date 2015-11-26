@@ -6,67 +6,111 @@ namespace Cerbere\Model\Hacked;
  * Represents a group of files on the local filesystem.
  */
 class HackedFileGroup {
+  /**
+   * @var string
+   */
+  protected $base_path = '';
 
-  var $base_path = '';
-  var $files = array();
-  var $files_hashes = array();
-  var $file_mtimes = array();
+  /**
+   * @var array
+   */
+  protected $files = array();
+
+  /**
+   * @var array
+   */
+  protected $files_hashes = array();
+
+  /**
+   * @var array
+   */
+  protected $file_mtimes = array();
 
   /**
    * @var HackedFileHasher
    */
-  var $hasher;
+  protected $hasher;
 
   /**
    * Constructor.
    *
-   * @param $base_path
+   * @param string $base_path
+   * @param HackedFileHasher $hasher
    */
-  public function __construct($base_path) {
+  public function __construct($base_path, HackedFileHasher $hasher = null) {
+    if (null === $hasher) {
+      $hasher = new HackedFileIgnoreEndingsHasher();
+    }
+
     $this->base_path = $base_path;
-    $this->hasher = new HackedFileIgnoreEndingsHasher();//hacked_get_file_hasher();
+    $this->hasher = $hasher;
+  }
+
+  /**
+   * @return array
+   */
+  public function getFiles()
+  {
+    return $this->files;
+  }
+
+  /**
+   * @param string $file
+   *
+   * @return string|bool
+   */
+  public function getFileHash($file)
+  {
+    if (isset($this->files_hashes[$file])) {
+      return $this->files_hashes[$file];
+    }
+
+    return false;
   }
 
   /**
    * Return a new hackedFileGroup listing all files inside the given $path.
    *
-   * @param $path
+   * @param string $path
    *
-   * @return \Cerbere\Model\Hacked\HackedFileGroup
+   * @return HackedFileGroup
    */
-  static function fromDirectory($path) {
+  public static function fromDirectory($path) {
     $filegroup = new self($path);
     // Find all the files in the path, and add them to the file group.
-    $filegroup->scan_base_path();
+    $filegroup->scanBasePath();
+
     return $filegroup;
   }
 
   /**
    * Return a new hackedFileGroup listing all files specified.
    *
-   * @param $path
-   * @param $files
+   * @param string $path
+   * @param array  $files
    *
-   * @return \Cerbere\Model\Hacked\HackedFileGroup
+   * @return HackedFileGroup
    */
-  static function fromList($path, $files) {
+  public static function fromList($path, array $files) {
     $filegroup = new self($path);
     // Find all the files in the path, and add them to the file group.
     $filegroup->files = $files;
+
     return $filegroup;
   }
 
   /**
    * Locate all sensible files at the base path of the file group.
    */
-  function scan_base_path() {
-    $files = self::hacked_file_scan_directory($this->base_path, '/.*/', array(
+  public function scanBasePath() {
+    $files = self::scanDirectory($this->base_path, '/.*/', array(
       '.',
       '..',
       'CVS',
       '.svn',
       '.git'
     ));
+
     foreach ($files as $file) {
       $filename = str_replace($this->base_path . '/', '', $file->filename);
       $this->files[] = $filename;
@@ -76,7 +120,7 @@ class HackedFileGroup {
   /**
    * Hash all files listed in the file group.
    */
-  function compute_hashes() {
+  public function computeHashes() {
     foreach ($this->files as $filename) {
       $this->files_hashes[$filename] = $this->hasher->hash($this->base_path . '/' . $filename);
     }
@@ -87,7 +131,7 @@ class HackedFileGroup {
    * @param string $file
    * @return bool
    */
-  function is_readable($file) {
+  public function isReadable($file) {
     return is_readable($this->base_path . '/' . $file);
   }
 
@@ -96,7 +140,7 @@ class HackedFileGroup {
    * @param string $file
    * @return bool
    */
-  function file_exists($file) {
+  public function fileExists($file) {
     return file_exists($this->base_path . '/' . $file);
   }
 
@@ -105,15 +149,15 @@ class HackedFileGroup {
    * @param string $file
    * @return bool
    */
-  function is_not_binary($file) {
-    return is_readable($this->base_path . '/' . $file) && !self::hacked_file_is_binary($this->base_path . '/' . $file);
+  public function isNotBinary($file) {
+    return is_readable($this->base_path . '/' . $file) && !self::isBinary($this->base_path . '/' . $file);
   }
 
   /**
    * @param string $file
    * @return string
    */
-  function file_get_location($file) {
+  public function getFileLocation($file) {
     return $this->base_path . '/' . $file;
   }
 
@@ -127,7 +171,7 @@ class HackedFileGroup {
    *
    * @return bool
    */
-  public static function hacked_file_is_binary($file) {
+  public static function isBinary($file) {
     if (file_exists($file)) {
       if (!is_file($file)) return 0;
       if (!is_readable($file)) return 1;
@@ -146,7 +190,19 @@ class HackedFileGroup {
     return 0;
   }
 
-  public static function hacked_file_scan_directory($dir, $mask, $nomask = array('.', '..', 'CVS'), $callback = null, $recurse = TRUE, $key = 'filename', $min_depth = 0, $depth = 0) {
+  /**
+   * @param string    $dir
+   * @param int       $mask
+   * @param array     $nomask
+   * @param callable  $callback
+   * @param bool|true $recurse
+   * @param string    $key
+   * @param int       $min_depth
+   * @param int       $depth
+   *
+   * @return array
+   */
+  public static function scanDirectory($dir, $mask, $nomask = array('.', '..', 'CVS'), $callback = null, $recurse = TRUE, $key = 'filename', $min_depth = 0, $depth = 0) {
     $key = (in_array($key, array('filename', 'basename', 'name')) ? $key : 'filename');
     $files = array();
 
@@ -155,7 +211,7 @@ class HackedFileGroup {
         if (!in_array($file, $nomask)) {
           if (is_dir("$dir/$file") && $recurse) {
             // Give priority to files in this folder by merging them in after any subdirectory files.
-            $files = array_merge(self::hacked_file_scan_directory("$dir/$file", $mask, $nomask, $callback, $recurse, $key, $min_depth, $depth + 1), $files);
+            $files = array_merge(self::scanDirectory("$dir/$file", $mask, $nomask, $callback, $recurse, $key, $min_depth, $depth + 1), $files);
           }
           elseif ($depth >= $min_depth && preg_match($mask, $file)) {
             // Always use this match over anything already set in $files with the same $$key.

@@ -102,7 +102,7 @@ class Hacked implements ActionInterface
             chdir(dirname($filename));
 
             $hacked = new HackedProject($project);
-            $result = $hacked->compute_report();
+            $result = $hacked->computeReport();
 
             var_dump($result);
             die('test');
