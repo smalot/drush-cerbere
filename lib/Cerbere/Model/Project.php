@@ -293,21 +293,29 @@ class Project
     }
 
     /**
-     * @param string  $version
-     * @param Release $release
+     * @param string $version_major
+     * @param string $version
      */
-    public function addAlsoAvailable($version, $release)
+    public function addAlsoAvailable($version_major, $version)
     {
-        $this->also_available[$version] = $release;
+        $this->also_available[$version_major] = $version;
     }
 
     /**
-     * @param string  $version
-     * @return mixed
+     * @return array
      */
-    public function getAlsoAvailable($version)
+    public function getAlsoAvailable()
     {
-        return $this->also_available[$version];
+        return $this->also_available;
+    }
+
+    /**
+     * @param string $version_major
+     * @return bool
+     */
+    public function hasAlsoAvailable($version_major)
+    {
+        return isset($this->also_available[$version_major]);
     }
 
     /**

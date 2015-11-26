@@ -228,14 +228,13 @@ class ReleaseHistory
             // be one of those being compared. They would not have version_major
             // set, so we must call isset first.
             if ($release->getVersionMajor() > $target_major) {
-//                if (in_array($release['version_major'], $supported_majors)) {
-//                    if (!isset($project_data['also'][$release['version_major']])) {
-//                        $project_data['also'][$release['version_major']] = $version;
-//                        $project_data['releases'][$version] = $release;
-//
-//                        $project->addAlsoAvailable($version, $release);
-//                    }
-//                }
+                if (in_array($release->getVersionMajor(), $supported_majors)) {
+                    if (!$project->hasAlsoAvailable($release->getVersionMajor())) {
+                        $project->addAlsoAvailable($release->getVersionMajor(), $version);
+                        $project->setRelease($version, $release);
+                    }
+                }
+
                 // Otherwise, this release can't matter to us, since it's neither
                 // from the release series we're currently using nor the recommended
                 // release. We don't even care about security updates for this

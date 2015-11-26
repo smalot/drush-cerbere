@@ -158,20 +158,22 @@ class Update implements ActionInterface
     protected function generateReport(Project $project, ReleaseHistory $release_history, $flat = false)
     {
         $report = array(
-          'project'      => $project->getProject(),
-          'type'         => $project->getProjectType(),
-          'version'      => $project->getVersion(),
-          'version_date' => $project->getDatestamp(),
-          'recommended'  => null,
-          'dev'          => null,
-          'status'       => $project->getStatus(),
-          'status_label' => ReleaseHistory::getStatusLabel($project->getStatus()),
-          'reason'       => '',
+          'project'        => $project->getProject(),
+          'type'           => $project->getProjectType(),
+          'version'        => $project->getVersion(),
+          'version_date'   => $project->getDatestamp(),
+          'recommended'    => null,
+          'dev'            => null,
+          'also_available' => array(),
+          'status'         => $project->getStatus(),
+          'status_label'   => ReleaseHistory::getStatusLabel($project->getStatus()),
+          'reason'         => '',
         );
 
         if ($flat) {
             $report['recommended'] = $project->getRecommended();
             $report['dev'] = $project->getDevVersion();
+            $report['also_available'] = implode(',', $project->getAlsoAvailable());
         } else {
             if ($release = $release_history->getRelease($project->getRecommended())) {
                 $report['recommended'] = $this->getReportFromRelease($release);
@@ -179,6 +181,11 @@ class Update implements ActionInterface
 
             if ($release = $release_history->getRelease($project->getDevVersion())) {
                 $report['dev'] = $this->getReportFromRelease($release);
+            }
+
+            foreach ($project->getAlsoAvailable() as $version) {
+                $release = $project->getRelease($version);
+                $report['also_available'][] = $this->getReportFromRelease($release);
             }
         }
 
