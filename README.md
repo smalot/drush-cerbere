@@ -86,6 +86,14 @@ This report is dedicated to the `hacked` check.
 * `--format` : Output format (`table`, `csv`, `json`) - default : `table`.
 
 
+# Roadmap
+
+* Fix notices (mkdir / unlink)
+* Add error handler on hacked plugin
+* Add logging on hacked plugin
+* Add unit tests on hacked plugin
+
+
 # Credits
 
 Parts of code has been reused from [Drupal 7.x core](https://www.drupal.org/project/drupal), [Hacked module](https://www.drupal.org/project/hacked).
