@@ -58,7 +58,7 @@ class Update implements ActionInterface
     }
 
     /**
-     * @param EventSubscriberInterface $listener
+     * @inheritDoc
      */
     public function addLoggerListener(EventSubscriberInterface $listener)
     {

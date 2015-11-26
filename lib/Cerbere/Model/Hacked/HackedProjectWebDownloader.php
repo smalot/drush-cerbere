@@ -42,7 +42,7 @@ class HackedProjectWebDownloader
             $dir .= DIRECTORY_SEPARATOR . preg_replace('/[^0-9A-Z\-_]/i', '', $namespace);
         }
 
-        @mkdir($dir, 0775, true);
+        mkdir($dir, 0775, true);
 
         return $dir;
     }
@@ -60,7 +60,7 @@ class HackedProjectWebDownloader
         $dir = $this->getTempDirectory() . DIRECTORY_SEPARATOR . $type . DIRECTORY_SEPARATOR . $name;
 
         // Build the destination folder tree if it doesn't already exists.
-        @mkdir($dir, 0775, true);
+        mkdir($dir, 0775, true);
 
         return $dir . DIRECTORY_SEPARATOR . $version;
     }
@@ -97,7 +97,7 @@ class HackedProjectWebDownloader
     protected function removeDir($path)
     {
         if (is_file($path) || is_link($path)) {
-            @unlink($path);
+            unlink($path);
         } elseif (is_dir($path)) {
             $d = dir($path);
 
@@ -110,7 +110,7 @@ class HackedProjectWebDownloader
             }
 
             $d->close();
-            @rmdir($path);
+            rmdir($path);
         }
     }
 }

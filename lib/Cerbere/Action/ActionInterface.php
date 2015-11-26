@@ -23,6 +23,7 @@ namespace Cerbere\Action;
 
 use Cerbere\Event\DispatcherAwareInterface;
 use Cerbere\Model\Project;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * Interface ActionInterface
@@ -46,4 +47,10 @@ interface ActionInterface extends DispatcherAwareInterface
      * @return array
      */
     public function process(array $projects, $options = array());
+
+    /**
+     * @param \Symfony\Component\EventDispatcher\EventSubscriberInterface $listener
+     * @return void
+     */
+    public function addLoggerListener(EventSubscriberInterface $listener);
 }

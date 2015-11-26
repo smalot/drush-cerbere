@@ -40,6 +40,11 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 class Hacked implements ActionInterface
 {
     /**
+     * @var EventDispatcherInterface
+     */
+    protected $dispatcher;
+
+    /**
      * @inheritDoc
      */
     public function getCode()
@@ -48,7 +53,7 @@ class Hacked implements ActionInterface
     }
 
     /**
-     * @param EventSubscriberInterface $listener
+     * @inheritDoc
      */
     public function addLoggerListener(EventSubscriberInterface $listener)
     {
