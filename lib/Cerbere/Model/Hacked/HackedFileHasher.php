@@ -26,6 +26,8 @@ abstract class HackedFileHasher {
         return $hash;
       }
     }
+
+    return false;
   }
 
   /**

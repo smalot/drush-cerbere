@@ -23,6 +23,7 @@ namespace Cerbere\Model;
 
 /**
  * Class Project
+ *
  * @package Cerbere\Model
  */
 class Project
@@ -46,6 +47,31 @@ class Project
      *
      */
     const INSTALL_TYPE_UNKNOWN = 'unknown';
+
+    /**
+     *
+     */
+    const TYPE_PROJECT_DISTRIBUTION = 'project_distribution';
+
+    /**
+     *
+     */
+    const TYPE_PROJECT_CORE = 'project_core';
+
+    /**
+     *
+     */
+    const TYPE_PROJECT_MODULE = 'project_module';
+
+    /**
+     *
+     */
+    const TYPE_PROJECT_THEME = 'project_theme';
+
+    /**
+     *
+     */
+    const TYPE_UNKNOWN = 'unknown';
 
     /**
      * @var
@@ -110,6 +136,11 @@ class Project
     protected $project_status;
 
     /**
+     * @var string
+     */
+    protected $project_type;
+
+    /**
      * @var
      */
     protected $reason;
@@ -162,11 +193,13 @@ class Project
     public function __construct($project, $core, $version)
     {
         $this->project = $project;
-        $this->name = $project;
-        $this->core = $core;
+        $this->name    = $project;
+        $this->core    = $core;
         $this->version = $version;
 
-        $this->releases = array();
+        $this->project_type = self::TYPE_UNKNOWN;
+
+        $this->releases         = array();
         $this->security_updates = array();
 
         $this->init();
@@ -186,6 +219,8 @@ class Project
     public function setFilename($filename)
     {
         $this->filename = $filename;
+
+        $this->init();
     }
 
     /**
@@ -193,10 +228,27 @@ class Project
      */
     protected function init()
     {
+        // Patch project if Drupal detected.
+        if (strtolower($this->data['package']) == 'core') {
+            $this->name = 'Drupal';
+
+            $this->data = array(
+              'name' => $this->name,
+              'description' => '',
+              'package' => $this->data['package'],
+              'core' => $this->data['core'],
+              'version' => $this->data['version'],
+              'files' => array(),
+              'configure' => '',
+              'project' => 'drupal',
+              'datestamp' => $this->data['datestamp'],
+            );
+        }
+
         $this->status_url = self::UPDATE_DEFAULT_URL;
 
         // Assume an official release until we see otherwise.
-        $this->install_type = self::INSTALL_TYPE_OFFICIAL;
+        $this->install_type     = self::INSTALL_TYPE_OFFICIAL;
         $this->existing_version = $this->version;
 
         if (isset($this->version)) {
@@ -219,9 +271,9 @@ class Project
             }
         } else {
             // No version info available at all.
-            $this->install_type = self::INSTALL_TYPE_UNKNOWN;
+            $this->install_type     = self::INSTALL_TYPE_UNKNOWN;
             $this->existing_version = 'Unknown';
-            $this->existing_major = -1;
+            $this->existing_major   = -1;
         }
     }
 
@@ -255,6 +307,22 @@ class Project
     public function getDetails()
     {
         return $this->data;
+    }
+
+    /**
+     * @return string
+     */
+    public function getProjectType()
+    {
+        return $this->project_type;
+    }
+
+    /**
+     * @param string $type
+     */
+    public function setProjectType($type)
+    {
+        $this->project_type = $type;
     }
 
     /**
@@ -426,6 +494,20 @@ class Project
     }
 
     /**
+     * @param string $release
+     *
+     * @return Release|false
+     */
+    public function getRelease($release)
+    {
+        if (isset($this->releases[$release])) {
+            return $this->releases[$release];
+        }
+
+        return false;
+    }
+
+    /**
      * @return Release[]
      */
     public function getSecurityUpdates()
@@ -506,7 +588,7 @@ class Project
     }
 
     /**
-     * @param string $version
+     * @param string  $version
      * @param Release $release
      */
     public function setRelease($version, Release $release)

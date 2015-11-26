@@ -582,6 +582,8 @@ class ReleaseHistory
             $data['releases'] = array();
         }
 
+        $project->setProjectType($data['type']);
+
         $this->data = (array) $data;
     }
 

@@ -4,7 +4,6 @@ namespace Cerbere\Model\Hacked;
 
 use splitbrain\PHPArchive\Archive;
 use splitbrain\PHPArchive\Tar;
-use Cerbere\Model\Release;
 
 /**
  * Downloads a project using a standard Drupal method.
@@ -14,17 +13,15 @@ class HackedProjectWebFilesDownloader extends HackedProjectWebDownloader {
    * @return string|false
    */
   public function getDownloadLink() {
-    $existing_version = $this->project->existing_version;
+    $existing_version = $this->project->getVersion();
 
+    // Remove 'dev' tailing flag from version name.
     if (preg_match('/(\+\d+\-dev)$/', $existing_version)) {
       $existing_version = preg_replace('/(\+\d+\-dev)$/', '', $existing_version);
     }
 
-    if (!empty($this->project->project_info['releases'][$existing_version])) {
-      /** @var Release $this_release */
-      $this_release = $this->project->project_info['releases'][$existing_version];
-
-      return $this_release->getDownloadLink();
+    if ($release = $this->project->getRelease($existing_version)) {
+      return $release->getDownloadLink();
     }
 
     return false;
@@ -87,8 +84,8 @@ class HackedProjectWebFilesDownloader extends HackedProjectWebDownloader {
 
     // Todo: use Symfony's cache objects
     // Check the cache and download the file if needed.
-    $cache_directory = sys_get_temp_dir() . '/hacked-cache';
-    $local = $cache_directory . '/' . basename($parsed_url['path']);
+    $cache_directory = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'hacked-cache';
+    $local = $cache_directory . DIRECTORY_SEPARATOR . basename($parsed_url['path']);
 
     if (!file_exists($cache_directory)) {
       @mkdir($cache_directory, 0775, true);

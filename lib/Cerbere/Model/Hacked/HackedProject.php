@@ -17,9 +17,13 @@ use Cerbere\Model\Project;
  */
 class HackedProject {
   const STATUS_UNCHECKED = 1;
+
   const STATUS_PERMISSION_DENIED = 2;
+
   const STATUS_HACKED = 3;
+
   const STATUS_DELETED = 4;
+
   const STATUS_UNHACKED = 5;
 
   /** @var Project */
@@ -38,6 +42,8 @@ class HackedProject {
   /* @var hackedFileGroup $local_files */
   var $local_files;
 
+  var $local_folder;
+
   var $project_type = '';
   var $existing_version = '';
 
@@ -51,11 +57,24 @@ class HackedProject {
   /**
    * Constructor.
    * @param Project $project
+   * @param string $local_folder
    */
-  public function __construct(Project $project) {
+  public function __construct(Project $project, $local_folder = null) {
+    if (null === $local_folder) {
+      $local_folder = getcwd();
+    }
     $this->project = $project;
+    $this->local_folder = $local_folder;
     $this->name = $project->getProject();
-    $this->remote_files_downloader = new HackedProjectWebFilesDownloader($this);
+    $this->remote_files_downloader = new HackedProjectWebFilesDownloader($project);
+  }
+
+  /**
+   * @return Project
+   */
+  public function getProject()
+  {
+    return $this->project;
   }
 
   /**
@@ -141,18 +160,15 @@ class HackedProject {
     // we need a remote project to do this :(
     $this->hashRemoteProject();
 
-    $path = getcwd();
-    $back_track = '';
+    $project_type = $this->project->getProjectType();
 
-    // If this project is drupal it, we need to handle it specially
-    if ($this->project->getProject() == 'drupal' || $this->project->getProject() == 'scald_galaxy') {
-      $back_track = '/../..';
+    if ($project_type == Project::TYPE_PROJECT_CORE || $project_type == Project::TYPE_PROJECT_DISTRIBUTION) {
+      $folder = dirname(dirname($this->local_folder));
+    } else {
+      $folder = $this->local_folder;
     }
 
-//    echo 'Project: ' . $this->project->getProject() . "\n";
-//    echo '  ' . realpath($path . $back_track) . "\n";
-
-    return realpath($path . $back_track);
+    return realpath($folder);
   }
 
   /**

@@ -112,7 +112,7 @@ class HackedFileGroup {
     ));
 
     foreach ($files as $file) {
-      $filename = str_replace($this->base_path . '/', '', $file->filename);
+      $filename = str_replace($this->base_path . DIRECTORY_SEPARATOR, '', $file->filename);
       $this->files[] = $filename;
     }
   }
@@ -122,7 +122,7 @@ class HackedFileGroup {
    */
   public function computeHashes() {
     foreach ($this->files as $filename) {
-      $this->files_hashes[$filename] = $this->hasher->hash($this->base_path . '/' . $filename);
+      $this->files_hashes[$filename] = $this->hasher->hash($this->base_path . DIRECTORY_SEPARATOR . $filename);
     }
   }
 
@@ -132,7 +132,7 @@ class HackedFileGroup {
    * @return bool
    */
   public function isReadable($file) {
-    return is_readable($this->base_path . '/' . $file);
+    return is_readable($this->base_path . DIRECTORY_SEPARATOR . $file);
   }
 
   /**
@@ -141,7 +141,7 @@ class HackedFileGroup {
    * @return bool
    */
   public function fileExists($file) {
-    return file_exists($this->base_path . '/' . $file);
+    return file_exists($this->base_path . DIRECTORY_SEPARATOR . $file);
   }
 
   /**
@@ -150,7 +150,8 @@ class HackedFileGroup {
    * @return bool
    */
   public function isNotBinary($file) {
-    return is_readable($this->base_path . '/' . $file) && !self::isBinary($this->base_path . '/' . $file);
+    return is_readable($this->base_path . DIRECTORY_SEPARATOR . $file)
+      && !self::isBinary($this->base_path . DIRECTORY_SEPARATOR . $file);
   }
 
   /**
@@ -158,7 +159,7 @@ class HackedFileGroup {
    * @return string
    */
   public function getFileLocation($file) {
-    return $this->base_path . '/' . $file;
+    return $this->base_path . DIRECTORY_SEPARATOR . $file;
   }
 
   /**
@@ -209,13 +210,13 @@ class HackedFileGroup {
     if (is_dir($dir) && $handle = opendir($dir)) {
       while (FALSE !== ($file = readdir($handle))) {
         if (!in_array($file, $nomask)) {
-          if (is_dir("$dir/$file") && $recurse) {
+          if (is_dir($dir . DIRECTORY_SEPARATOR . $file) && $recurse) {
             // Give priority to files in this folder by merging them in after any subdirectory files.
-            $files = array_merge(self::scanDirectory("$dir/$file", $mask, $nomask, $callback, $recurse, $key, $min_depth, $depth + 1), $files);
+            $files = array_merge(self::scanDirectory($dir . DIRECTORY_SEPARATOR . $file, $mask, $nomask, $callback, $recurse, $key, $min_depth, $depth + 1), $files);
           }
           elseif ($depth >= $min_depth && preg_match($mask, $file)) {
             // Always use this match over anything already set in $files with the same $$key.
-            $filename = "$dir/$file";
+            $filename = $dir . DIRECTORY_SEPARATOR . $file;
             $basename = basename($file);
             $name = substr($basename, 0, strrpos($basename, '.'));
             $files[$$key] = new \stdClass();

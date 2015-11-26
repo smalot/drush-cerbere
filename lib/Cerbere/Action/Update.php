@@ -159,6 +159,7 @@ class Update implements ActionInterface
     {
         $report = array(
           'project'      => $project->getProject(),
+          'type'         => $project->getProjectType(),
           'version'      => $project->getVersion(),
           'version_date' => $project->getDatestamp(),
           'recommended'  => null,

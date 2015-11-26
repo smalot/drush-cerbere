@@ -97,12 +97,12 @@ class Hacked implements ActionInterface
 
         /** @var Project $project */
         foreach ($projects as $project) {
+            $release_history->prepare($project);
+
             $event = new CerbereDoActionEvent($this, $project);
             $this->getDispatcher()->dispatch(CerbereEvents::CERBERE_DO_ACTION, $event);
 
             if ($filename = $project->getFilename()) {
-                $release_history->prepare($project);
-
                 $current_dir = getcwd();
                 // Change current directory to the module directory.
                 chdir(dirname($filename));
@@ -112,6 +112,7 @@ class Hacked implements ActionInterface
 
                 $report = array(
                   'project' => $project->getProject(),
+                  'type' => $project->getProjectType(),
                   'version' => $project->getVersion(),
                   'version_date' => $project->getDatestamp(),
                   'status' => $result['status'],

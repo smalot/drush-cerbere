@@ -2,20 +2,22 @@
 
 namespace Cerbere\Model\Hacked;
 
+use Cerbere\Model\Project;
+
 /**
  * Base class for downloading remote versions of projects.
  */
 class HackedProjectWebDownloader {
   /**
-   * @var
+   * @var Project
    */
-  var $project;
+  protected $project;
 
   /**
    * Constructor, pass in the project this downloaded is expected to download.
-   * @param $project
+   * @param Project $project
    */
-  public function __construct($project) {
+  public function __construct(Project $project) {
     $this->project = $project;
   }
 
@@ -31,10 +33,10 @@ class HackedProjectWebDownloader {
       $namespace = get_class($this);
     }
 
-    if (empty($namespace)) {
-      $dir = sys_get_temp_dir() . '/hacked-cache';
-    } else {
-      $dir = sys_get_temp_dir() . '/hacked-cache/' . preg_replace('/[^0-9A-Z\-_]/i', '', $namespace);
+    $dir = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'hacked-cache';
+
+    if (!empty($namespace)) {
+      $dir .= DIRECTORY_SEPARATOR . preg_replace('/[^0-9A-Z\-_]/i', '', $namespace);
     }
 
     @mkdir($dir, 0775, TRUE);
@@ -47,16 +49,16 @@ class HackedProjectWebDownloader {
    * @return string
    */
   protected function getDestination() {
-    $type = $this->project->project_type;
-    $name = $this->project->name;
-    $version = $this->project->existing_version;
+    $type = $this->project->getProjectType();
+    $name = $this->project->getProject();
+    $version = $this->project->getVersion();
 
-    $dir = $this->getTempDirectory() . '/' . $type . '/' . $name;
+    $dir = $this->getTempDirectory() . DIRECTORY_SEPARATOR . $type . DIRECTORY_SEPARATOR . $name;
 
     // Build the destination folder tree if it doesn't already exists.
     @mkdir($dir, 0775, TRUE);
 
-    return $dir . '/' . $version;
+    return $dir . DIRECTORY_SEPARATOR . $version;
   }
 
   /**
@@ -97,7 +99,7 @@ class HackedProjectWebDownloader {
         if ($entry == '.' || $entry == '..') {
           continue;
         }
-        $entry_path = $path . '/' . $entry;
+        $entry_path = $path . DIRECTORY_SEPARATOR . $entry;
         $this->removeDir($entry_path);
       }
 
