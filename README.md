@@ -83,3 +83,8 @@ This report is dedicated to the `hacked` check.
 
 * `--no-progress` : Disable progress bar.
 * `--format` : Output format (`table`, `csv`, `json`) - default : `table`.
+
+
+# Credits
+
+Parts of code has been reused from [Drupal 7.x core](https://www.drupal.org/project/drupal), [Hacked module](https://www.drupal.org/project/hacked).
