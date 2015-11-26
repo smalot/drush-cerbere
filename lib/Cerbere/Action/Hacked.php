@@ -97,8 +97,6 @@ class Hacked implements ActionInterface
 
         /** @var Project $project */
         foreach ($projects as $project) {
-//            if ($project->getProject() != 'scald') continue;
-
             $event = new CerbereDoActionEvent($this, $project);
             $this->getDispatcher()->dispatch(CerbereEvents::CERBERE_DO_ACTION, $event);
 
