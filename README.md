@@ -92,6 +92,7 @@ This report is dedicated to the `hacked` check.
 * Add error handler on hacked plugin
 * Add logging on hacked plugin
 * Add unit tests on hacked plugin
+* Add cache and option in command line to disable it (archives / hash file)
 
 
 # Credits
