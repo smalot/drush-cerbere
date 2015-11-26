@@ -89,17 +89,8 @@ class HackedFileGroup
      */
     public function scanBasePath()
     {
-        $files = self::scanDirectory(
-          $this->base_path,
-          '/.*/',
-          array(
-            '.',
-            '..',
-            'CVS',
-            '.svn',
-            '.git',
-          )
-        );
+        $white_list = array('.', '..', 'CVS', '.svn', '.git',);
+        $files = self::scanDirectory($this->base_path, '/.*/', $white_list);
 
         foreach ($files as $file) {
             $filename = str_replace($this->base_path . DIRECTORY_SEPARATOR, '', $file->filename);
@@ -245,10 +236,10 @@ class HackedFileGroup
     {
         if (file_exists($file)) {
             if (!is_file($file)) {
-                return 0;
+                return false;
             }
             if (!is_readable($file)) {
-                return 1;
+                return true;
             }
 
             $fh = fopen($file, "r");
@@ -261,7 +252,7 @@ class HackedFileGroup
               || substr_count($blk, "\x00") > 0);
         }
 
-        return 0;
+        return false;
     }
 
     /**
