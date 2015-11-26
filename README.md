@@ -4,6 +4,7 @@ Cerbere is a Drush commands set performing action on project' modules stored in 
 
 [![Build Status](https://travis-ci.org/smalot/drush-cerbere.svg)](https://travis-ci.org/smalot/drush-cerbere)
 [![Latest Stable Version](https://poser.pugx.org/smalot/cerbere/v/stable)](https://packagist.org/packages/smalot/cerbere) [![Total Downloads](https://poser.pugx.org/smalot/cerbere/downloads)](https://packagist.org/packages/smalot/cerbere) [![Latest Unstable Version](https://poser.pugx.org/smalot/cerbere/v/unstable)](https://packagist.org/packages/smalot/cerbere) [![License](https://poser.pugx.org/smalot/cerbere/license)](https://packagist.org/packages/smalot/cerbere)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/smalot/drush-cerbere/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/smalot/drush-cerbere/?branch=master)
 
 # Requirements
 
