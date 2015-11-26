@@ -46,15 +46,22 @@ class CerbereReportActionEvent extends CerbereEvent
     protected $report;
 
     /**
+     * @var array
+     */
+    protected $options;
+
+    /**
      * @param ActionInterface $action
      * @param Project $project
      * @param array $report
+     * @param array $options
      */
-    public function __construct(ActionInterface $action, Project $project, $report)
+    public function __construct(ActionInterface $action, Project $project, $report, $options = array())
     {
         $this->action = $action;
         $this->project = $project;
         $this->report = $report;
+        $this->options = $options;
     }
 
     /**
@@ -103,5 +110,21 @@ class CerbereReportActionEvent extends CerbereEvent
     public function setReport($report)
     {
         $this->report = $report;
+    }
+
+    /**
+     * @return array
+     */
+    public function getOptions()
+    {
+        return $this->options;
+    }
+
+    /**
+     * @param array $options
+     */
+    public function setOptions($options)
+    {
+        $this->options = $options;
     }
 }

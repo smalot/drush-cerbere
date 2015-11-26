@@ -27,6 +27,7 @@
 use Cerbere\Action\Hacked;
 use Cerbere\Action\Update;
 use Cerbere\Cerbere;
+use Cerbere\Event\CerbereHackedListener;
 use Cerbere\Event\CerbereProgressBarListener;
 use Cerbere\Model\Job;
 use Cerbere\Parser\Info;
@@ -48,6 +49,7 @@ function cerbere_drush_command()
         'no-cache' => 'Disable cache.',
         'level' => 'Reporting level (all, security, unsupported, update).',
         'no-progress' => 'Disable progress bar.',
+        'hacked' => 'Append hacked reporting',
       ),
       'outputformat' => array(
         'default' => 'table',
@@ -90,6 +92,7 @@ function drush_cerbere_update()
     $level     = drush_get_option('level', 'all');
     $use_cache = !drush_get_option('no-cache', false);
     $progress  = !drush_get_option('no-progress', false);
+    $hacked    = drush_get_option('hacked', false);
 
     $cerbere = new Cerbere();
 
@@ -109,6 +112,12 @@ function drush_cerbere_update()
         $progress_bar = new CerbereProgressBarListener();
         $cerbere->addLoggerListener($progress_bar);
         $action->addLoggerListener($progress_bar);
+    }
+
+    // Hacked reporting.
+    if ($hacked) {
+        $hacked_listener = new \Cerbere\Event\CerbereHackedListener();
+        $action->addLoggerListener($hacked_listener);
     }
 
     // Job.
