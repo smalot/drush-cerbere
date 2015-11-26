@@ -36,7 +36,7 @@ use Cerbere\Versioning\Local;
 use Doctrine\Common\Cache\FilesystemCache;
 
 /**
- * Implementation of hook_drush_help().
+ * Implements hook_drush_help().
  */
 function cerbere_drush_help($section) {
     switch ($section) {
