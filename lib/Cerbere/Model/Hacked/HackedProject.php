@@ -196,7 +196,6 @@ class HackedProject
 
         // Logging.
         if (!$this->remote_hashed) {
-            //throw new \Exception('Could not hash remote project: ' . $this->getTitle());
             echo 'Could not hash remote project: ' . $this->getTitle() . "\n";
         }
     }
