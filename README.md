@@ -63,14 +63,16 @@ drush --include=$HOME/.composer/vendor/smalot/cerbere/commands
 * `--no-cache` : Disable cache mecanism. Otherwise, remote informations are cached for 1800 seconds.
 * `--no-progress` : Disable progress bar.
 * `--level` : Specify analyze verbosity (`all`, `security`, `unsupported`, `update`) - default : `all`.
+* `--hacked` : Append Hacked reporting.
 * `--format` : Output format (`table`, `csv`, `json`) - default : `table`.
 
 Example:
 
 ````sh
-drush cerbere-update sites/all/modules/*.info --level=update
+drush cerbere-update sites/all/modules/*.info --hacked --level=update
 ````
 
 ## Command : cerbere-hacked
 
-Work in progress ...
+* `--no-progress` : Disable progress bar.
+* `--format` : Output format (`table`, `csv`, `json`) - default : `table`.
