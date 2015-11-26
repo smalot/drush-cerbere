@@ -30,7 +30,7 @@ class HackedProjectWebFilesDownloader extends HackedProjectWebDownloader
     }
 
     /**
-     * @return bool|string
+     * @return string|false
      */
     public function downloadFile()
     {
@@ -70,7 +70,7 @@ class HackedProjectWebFilesDownloader extends HackedProjectWebDownloader
      *
      * If the file has already been downloaded, returns the the local path.
      *
-     * @param $url
+     * @param string $url
      *   The URL of the file on the server.
      *
      * @return string

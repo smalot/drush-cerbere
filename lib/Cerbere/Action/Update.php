@@ -184,8 +184,9 @@ class Update implements ActionInterface
             }
 
             foreach ($project->getAlsoAvailable() as $version) {
-                $release = $project->getRelease($version);
-                $report['also_available'][] = $this->getReportFromRelease($release);
+                if ($release = $project->getRelease($version)) {
+                    $report['also_available'][] = $this->getReportFromRelease($release);
+                }
             }
         }
 

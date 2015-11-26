@@ -12,8 +12,10 @@ abstract class HackedFileHasher
 {
     /**
      * Returns a hash of the given filename.
-     *
      * Ignores file line endings
+     *
+     * @param string $filename
+     * @return string|bool
      */
     public function hash($filename)
     {
@@ -46,7 +48,7 @@ abstract class HackedFileHasher
      */
     public function getCache($filename)
     {
-        $cache = false;//cache_get($this->getCacheKey($filename), HACKED_CACHE_TABLE);
+        $cache = false; //cache_get($this->getCacheKey($filename), HACKED_CACHE_TABLE);
 
         if (!empty($cache->data)) {
             return $cache->data;
