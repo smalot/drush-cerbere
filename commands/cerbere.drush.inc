@@ -36,6 +36,18 @@ use Cerbere\Versioning\Local;
 use Doctrine\Common\Cache\FilesystemCache;
 
 /**
+ * Implementation of hook_drush_help().
+ */
+function cerbere_drush_help($section) {
+    switch ($section) {
+        case 'meta:cerbere:title':
+            return dt('Cerbere commands');
+        case 'meta:cerbere:summary':
+            return dt('Examine modules without any database connection.');
+    }
+}
+
+/**
  * Implements hook_drush_command().
  */
 function cerbere_drush_command()
