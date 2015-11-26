@@ -79,7 +79,6 @@ class Info extends Ini
         $project->setDetails($data);
 
         if (!empty($filename)) {
-            var_dump($filename);
             $project->setFilename(realpath($filename));
         }
 

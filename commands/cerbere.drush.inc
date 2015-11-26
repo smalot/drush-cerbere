@@ -156,7 +156,7 @@ function drush_cerbere_hacked()
     if ($progress) {
         $progress_bar = new CerbereProgressBarListener();
         $cerbere->addLoggerListener($progress_bar);
-//        $action->addLoggerListener($progress_bar);
+        $action->addLoggerListener($progress_bar);
     }
 
     // Job.

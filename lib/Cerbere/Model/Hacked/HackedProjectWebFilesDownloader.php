@@ -14,9 +14,15 @@ class HackedProjectWebFilesDownloader extends HackedProjectWebDownloader {
    * @return string|false
    */
   public function getDownloadLink() {
-    if (!empty($this->project->project_info['releases'][$this->project->existing_version])) {
+    $existing_version = $this->project->existing_version;
+
+    if (preg_match('/(\+\d+\-dev)$/', $existing_version)) {
+      $existing_version = preg_replace('/(\+\d+\-dev)$/', '', $existing_version);
+    }
+
+    if (!empty($this->project->project_info['releases'][$existing_version])) {
       /** @var Release $this_release */
-      $this_release = $this->project->project_info['releases'][$this->project->existing_version];
+      $this_release = $this->project->project_info['releases'][$existing_version];
 
       return $this_release->getDownloadLink();
     }
@@ -35,19 +41,14 @@ class HackedProjectWebFilesDownloader extends HackedProjectWebDownloader {
     }
 
     // If our directory already exists, we can just return the path to this cached version
-    if (file_exists($dir) && count(HackedFileGroup::scanDirectory($dir, '/.*/', array(
-        '.',
-        '..',
-        'CVS',
-        '.svn',
-        '.git'
-      )))
+    $whiteList = array('.', '..', 'CVS', '.svn', '.git');
+    if (file_exists($dir) && count(HackedFileGroup::scanDirectory($dir, '/.*/', $whiteList))
     ) {
       return $dir;
     }
 
     // Build the destination folder tree if it doesn't already exists.
-    mkdir($dir, 0775, TRUE);
+    @mkdir($dir, 0775, TRUE);
 
     if (!($local_file = $this->getFile($release_url))) {
       return FALSE;
@@ -57,6 +58,7 @@ class HackedProjectWebFilesDownloader extends HackedProjectWebDownloader {
       $this->extractArchive($local_file, $dir);
     }
     catch (\Exception $e) {
+      echo $e->getMessage() . "\n";
       return FALSE;
     }
 
@@ -89,7 +91,7 @@ class HackedProjectWebFilesDownloader extends HackedProjectWebDownloader {
     $local = $cache_directory . '/' . basename($parsed_url['path']);
 
     if (!file_exists($cache_directory)) {
-      mkdir($cache_directory, 0775, true);
+      @mkdir($cache_directory, 0775, true);
     }
 
     // Todo: use guzzle.
@@ -124,15 +126,15 @@ class HackedProjectWebFilesDownloader extends HackedProjectWebDownloader {
 
     // First entry contains the root folder.
     $project_path = $files[0]->getPath();
-    $extract_location = $directory . '/' . $project_path;
 
-    if (file_exists($extract_location)) {
-      $this->removeDir($extract_location);
+    if (file_exists($directory)) {
+      $this->removeDir($directory);
     }
 
     // Reopen archive to extract all files.
     $archiver->open($file);
-    $archiver->extract($directory);
+    // Strip first folder level.
+    $archiver->extract($directory, $project_path);
 
     return $archiver;
   }

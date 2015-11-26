@@ -21,14 +21,20 @@
 
 namespace Cerbere\Action;
 
+use Cerbere\Event\CerbereDoActionEvent;
+use Cerbere\Event\CerbereDoneActionEvent;
+use Cerbere\Event\CerbereEvents;
+use Cerbere\Event\CerbereReportActionEvent;
 use Cerbere\Model\Hacked\HackedProject;
 use Cerbere\Model\Project;
 use Cerbere\Model\ReleaseHistory;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * Class Hacked
+ *
  * @package Cerbere\Action
  */
 class Hacked implements ActionInterface
@@ -39,6 +45,14 @@ class Hacked implements ActionInterface
     public function getCode()
     {
         return 'hacked';
+    }
+
+    /**
+     * @param EventSubscriberInterface $listener
+     */
+    public function addLoggerListener(EventSubscriberInterface $listener)
+    {
+        $this->getDispatcher()->addSubscriber($listener);
     }
 
     /**
@@ -66,20 +80,7 @@ class Hacked implements ActionInterface
      */
     public function prepare()
     {
-//        $files = array(
-//          'hackedProject.inc',
-//          'hackedFileGroup.inc',
-//          'hackedProjectWebDownloader.inc',
-//          'hackedProjectWebFilesDownloader.inc',
-//          'hackedProjectWebCVSDownloader.inc',
-//          'hackedFileHasher.inc',
-//          'hackedFileIncludeEndingsHasher.inc',
-//          'hackedFileIgnoreEndingsHasher.inc',
-//        );
-//
-//        foreach ($files as $file) {
-//            require_once __DIR__ . '/../../../modules/hacked/includes/' . $file;
-//        }
+
     }
 
     /**
@@ -91,26 +92,50 @@ class Hacked implements ActionInterface
             return array();
         }
 
-        /** @var Project $project */
-        $project = reset($projects);
+        $reports = array();
         $release_history = new ReleaseHistory();
-        $release_history->prepare($project);
 
-        if ($filename = $project->getFilename()) {
-            $current_dir = getcwd();
-            // Change current directory to the module directory.
-            chdir(dirname($filename));
+        /** @var Project $project */
+        foreach ($projects as $project) {
+//            if ($project->getProject() != 'scald') continue;
 
-            $hacked = new HackedProject($project);
-            $result = $hacked->computeReport();
+            $event = new CerbereDoActionEvent($this, $project);
+            $this->getDispatcher()->dispatch(CerbereEvents::CERBERE_DO_ACTION, $event);
 
-            var_dump($result);
-            die('test');
+            if ($filename = $project->getFilename()) {
+                $release_history->prepare($project);
 
-            // Restore current directory.
-            chdir($current_dir);
+                $current_dir = getcwd();
+                // Change current directory to the module directory.
+                chdir(dirname($filename));
+
+                $hacked = new HackedProject($project);
+                $result = $hacked->computeReport();
+
+                $report = array(
+                  'project' => $project->getProject(),
+                  'version' => $project->getVersion(),
+                  'version_date' => $project->getDatestamp(),
+                  'status' => $result['status'],
+                  'status_label' => HackedProject::getStatusLabel($result['status']),
+                  'modified' => $result['counts']['different'],
+                  'deleted' => $result['counts']['missing'],
+                );
+
+                $event = new CerbereReportActionEvent($this, $project, $report);
+                $this->getDispatcher()->dispatch(CerbereEvents::CERBERE_REPORT_ACTION, $event);
+                $report = $event->getReport();
+
+                $reports[] = $report;
+
+                // Restore current directory.
+                chdir($current_dir);
+            }
+
+            $event = new CerbereDoneActionEvent($this, $project);
+            $this->getDispatcher()->dispatch(CerbereEvents::CERBERE_DONE_ACTION, $event);
         }
 
-        die('error');
+        return $reports;
     }
 }

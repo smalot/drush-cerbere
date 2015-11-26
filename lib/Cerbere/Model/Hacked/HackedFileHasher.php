@@ -20,7 +20,6 @@ abstract class HackedFileHasher {
         return $hash;
       }
       else {
-        echo '+';
         $hash = $this->performHash($filename);
         $this->setCache($filename, $hash);
 

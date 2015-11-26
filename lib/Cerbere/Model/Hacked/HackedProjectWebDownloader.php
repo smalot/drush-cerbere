@@ -46,7 +46,7 @@ class HackedProjectWebDownloader {
    * Returns a directory to save the downloaded project into.
    * @return string
    */
-  public function getDestination() {
+  protected function getDestination() {
     $type = $this->project->project_type;
     $name = $this->project->name;
     $version = $this->project->existing_version;
@@ -65,19 +65,8 @@ class HackedProjectWebDownloader {
    */
   public function getFinalDestination() {
     $dir = $this->getDestination();
-    $name = $this->project->name;
-    $version = $this->project->existing_version;
-    $type = $this->project->project_type;
 
-    // More special handling for core:
-    if ($type != 'core') {
-      $module_dir = $dir . '/' . $name;
-    }
-    else {
-      $module_dir = $dir . '/' . $name . '-' . $version;
-    }
-
-    return $module_dir;
+    return $dir;
   }
 
   /**

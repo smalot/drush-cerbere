@@ -16,6 +16,12 @@ use Cerbere\Model\Project;
  * Which is quite nice I think.
  */
 class HackedProject {
+  const STATUS_UNCHECKED = 1;
+  const STATUS_PERMISSION_DENIED = 2;
+  const STATUS_HACKED = 3;
+  const STATUS_DELETED = 4;
+  const STATUS_UNHACKED = 5;
+
   /** @var Project */
   var $project;
 
@@ -116,7 +122,6 @@ class HackedProject {
 
     // Set up the remote file group.
     $base_path = $this->remote_files_downloader->getFinalDestination();
-    var_dump($base_path);
     $this->remote_files = HackedFileGroup::fromDirectory($base_path);
     $this->remote_files->computeHashes();
 
@@ -124,7 +129,8 @@ class HackedProject {
 
     // Logging.
     if (!$this->remote_hashed) {
-      watchdog('hacked', 'Could not hash remote project: @title', array('@title' => $this->getTitle()), WATCHDOG_ERROR);
+      //throw new \Exception('Could not hash remote project: ' . $this->getTitle());
+      echo 'Could not hash remote project: ' . $this->getTitle() . "\n";
     }
   }
 
@@ -135,40 +141,16 @@ class HackedProject {
     // we need a remote project to do this :(
     $this->hashRemoteProject();
 
-    // Do we have at least some modules to check for:
-    if (!is_array($this->project_info['includes']) || !count($this->project_info['includes'])) {
-      return FALSE;
-    }
+    $path = getcwd();
+    $back_track = '';
 
     // If this project is drupal it, we need to handle it specially
-    if ($this->project_type != 'core') {
-      $includes = array_keys($this->project_info['includes']);
-      $include = array_shift($includes);
-      $include_type = $this->project_info['project_type'];
-    }
-    else {
-      // Just use the system module to find where we've installed drupal
-      $include = 'system';
-      $include_type = 'module';
+    if ($this->project->getProject() == 'drupal' || $this->project->getProject() == 'scald_galaxy') {
+      $back_track = '/../..';
     }
 
-    //$include = 'image_captcha';
-
-    // Todo: check folder.
-    $path = getcwd(); //drupal_get_path($include_type, $include);
-
-    // Now we need to find the path of the info file in the downloaded package:
-    $temp = '';
-    foreach ($this->remote_files->getFiles() as $file) {
-      if (preg_match('@(^|.*/)' . $include . '.info$@', $file)) {
-        $temp = $file;
-        break;
-      }
-    }
-
-    // How many '/' were in that path:
-    $slash_count = substr_count($temp, '/');
-    $back_track = str_repeat('/..', $slash_count);
+//    echo 'Project: ' . $this->project->getProject() . "\n";
+//    echo '  ' . realpath($path . $back_track) . "\n";
 
     return realpath($path . $back_track);
   }
@@ -183,11 +165,15 @@ class HackedProject {
     }
 
     $location = $this->locateLocalProject();
-
     $this->local_files = hackedFileGroup::fromList($location, $this->remote_files->getFiles());
     $this->local_files->computeHashes();
-
     $this->local_hashed = count($this->local_files->getFiles()) > 0;
+
+    // Logging.
+    if (!$this->local_hashed) {
+      //throw new \Exception('Could not hash remote project: ' . $this->getTitle());
+      echo 'Could not hash local project: ' . $this->getTitle() . "\n";
+    }
   }
 
   /**
@@ -234,7 +220,7 @@ class HackedProject {
     // Do some counting
     $report = array(
       'project_name' => $this->name,
-      'status' => HACKED_STATUS_UNCHECKED,
+      'status' => self::STATUS_UNCHECKED,
       'counts' => array(
         'same' => count($this->result['same']),
         'different' => count($this->result['different']),
@@ -262,16 +248,16 @@ class HackedProject {
     }
 
     if ($report['counts']['access_denied'] > 0) {
-      $report['status'] = HACKED_STATUS_PERMISSION_DENIED;
+      $report['status'] = self::STATUS_PERMISSION_DENIED;
     }
     elseif ($report['counts']['missing'] > 0) {
-      $report['status'] = HACKED_STATUS_HACKED;
+      $report['status'] = self::STATUS_HACKED;
     }
     elseif ($report['counts']['different'] > 0) {
-      $report['status'] = HACKED_STATUS_HACKED;
+      $report['status'] = self::STATUS_HACKED;
     }
     elseif ($report['counts']['same'] > 0) {
-      $report['status'] = HACKED_STATUS_UNHACKED;
+      $report['status'] = self::STATUS_UNHACKED;
     }
 
     return $report;
@@ -289,10 +275,10 @@ class HackedProject {
 
     // Add extra details about every file.
     $states = array(
-      'access_denied' => HACKED_STATUS_PERMISSION_DENIED,
-      'missing' => HACKED_STATUS_DELETED,
-      'different' => HACKED_STATUS_HACKED,
-      'same' => HACKED_STATUS_UNHACKED,
+      'access_denied' => self::STATUS_PERMISSION_DENIED,
+      'missing' => self::STATUS_DELETED,
+      'different' => self::STATUS_HACKED,
+      'same' => self::STATUS_UNHACKED,
     );
 
     foreach ($states as $state => $status) {
@@ -323,7 +309,7 @@ class HackedProject {
    *
    * @return bool|string
    */
-  public function file_get_location($storage = 'local', $file) {
+  public function getFileLocation($storage = 'local', $file) {
     switch ($storage) {
       case 'remote':
         $this->downloadRemoteProject();
@@ -334,5 +320,25 @@ class HackedProject {
     }
 
     return FALSE;
+  }
+
+  /**
+   * @param string $status
+   * @return string
+   */
+  public static function getStatusLabel($status) {
+    switch ($status) {
+      case self::STATUS_PERMISSION_DENIED:
+        return 'Permission denied';
+      case self::STATUS_HACKED:
+        return 'Hacked';
+      case self::STATUS_DELETED:
+        return 'Deleted';
+      case self::STATUS_UNHACKED:
+        return 'Unhacked';
+      case self::STATUS_UNCHECKED:
+      default:
+        return 'Unchecked';
+    }
   }
 }
