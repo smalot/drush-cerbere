@@ -128,7 +128,6 @@ class Yaml extends Ini
      */
     public function supportedFile($filename)
     {
-var_dump($filename);
         return preg_match('/\.info\.yml$/i', $filename) > 0;
     }
 }
