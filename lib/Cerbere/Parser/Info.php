@@ -97,7 +97,8 @@ class Info extends Ini
 
     /**
      * @parser string $filename
-     * @return integer
+     *
+     * @return bool
      */
     public function supportedFile($filename)
     {

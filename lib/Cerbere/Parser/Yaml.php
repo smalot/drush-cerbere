@@ -105,7 +105,7 @@ class Yaml extends Ini
     }
 
     /**
-     * @return array
+     * @return string[]
      */
     protected function getRequiredKeys()
     {
@@ -124,7 +124,7 @@ class Yaml extends Ini
 
     /**
      * @parser string $filename
-     * @return integer
+     * @return boolean
      */
     public function supportedFile($filename)
     {
