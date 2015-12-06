@@ -98,6 +98,12 @@ function drush_cerbere_update()
 {
     // Get paramaters.
     $patterns = func_get_args();
+    if (empty($patterns)) {
+        $patterns = array(
+          '*.info',
+          '*.info.yml',
+        );
+    }
 
     // Get options.
     $format    = drush_get_option('format', 'table');
@@ -154,6 +160,12 @@ function drush_cerbere_hacked()
 {
     // Get paramaters.
     $patterns = func_get_args();
+    if (empty($patterns)) {
+        $patterns = array(
+          '*.info',
+          '*.info.yml',
+        );
+    }
 
     // Get options.
     $format    = drush_get_option('format', 'table');
