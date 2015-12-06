@@ -89,7 +89,7 @@ This report is dedicated to the `hacked` check.
 # Roadmap
 
 * ~~Add Yaml support (Drupal 8.x)~~
-* Fix notices (mkdir / unlink)
+* ~~Fix notices (mkdir / unlink)~~
 * Add error handler on hacked plugin
 * Add logging on hacked plugin
 * Add unit tests on hacked plugin
