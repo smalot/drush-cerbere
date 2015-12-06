@@ -110,7 +110,7 @@ class Hacked implements ActionInterface
             if ($filename = $project->getFilename()) {
                 $current_dir = getcwd();
                 // Change current directory to the module directory.
-                chdir(dirname($filename));
+                chdir($project->getWorkingDirectory());
 
                 $hacked = new HackedProject($project);
                 $result = $hacked->computeReport();
