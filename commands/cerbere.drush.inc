@@ -32,6 +32,7 @@ use Cerbere\Event\CerbereProgressBarListener;
 use Cerbere\Model\Job;
 use Cerbere\Parser\Info;
 use Cerbere\Parser\Make;
+use Cerbere\Parser\Yaml;
 use Cerbere\Versioning\Local;
 use Doctrine\Common\Cache\FilesystemCache;
 
@@ -111,6 +112,7 @@ function drush_cerbere_update()
     // Parsers.
     $cerbere->addParser(new Make());
     $cerbere->addParser(new Info());
+    $cerbere->addParser(new Yaml());
 
     // Action.
     $action = new Update();
@@ -165,6 +167,7 @@ function drush_cerbere_hacked()
     // Parsers.
     $cerbere->addParser(new Make());
     $cerbere->addParser(new Info());
+    $cerbere->addParser(new Yaml());
 
     // Action.
     $action = new Hacked();
