@@ -230,6 +230,34 @@ class Project
     }
 
     /**
+     * @return string
+     */
+    public function getWorkingDirectory()
+    {
+        if ($this->getProject() == 'drupal' && $this->getCore() == '8.x') {
+            $path = str_replace('\\', '/', dirname($this->getFilename()));
+
+            // Todo: Optimize.
+            if (($position = strpos($path, '/core/modules/')) !== false) {
+                return substr($path, 0, $position);
+            }
+            if (($position = strpos($path, '/core/profiles/')) !== false) {
+                return substr($path, 0, $position);
+            }
+            if (($position = strpos($path, '/core/themes/')) !== false) {
+                return substr($path, 0, $position);
+            }
+            if (($position = strpos($path, '/core/tests/')) !== false) {
+                return substr($path, 0, $position);
+            }
+        } elseif ($this->getProject() == 'drupal' && $this->getCore() == '7.x') {
+            return dirname($this->getFilename()) . '/../..';
+        }
+
+        return dirname($this->getFilename());
+    }
+
+    /**
      *
      */
     protected function init()

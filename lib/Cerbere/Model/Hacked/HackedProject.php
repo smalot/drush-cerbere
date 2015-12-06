@@ -210,13 +210,7 @@ class HackedProject
 
         $project_type = $this->project->getProjectType();
 
-        if ($project_type == Project::TYPE_PROJECT_CORE || $project_type == Project::TYPE_PROJECT_DISTRIBUTION) {
-            $folder = dirname(dirname($this->local_folder));
-        } else {
-            $folder = $this->local_folder;
-        }
-
-        return realpath($folder);
+        return realpath($this->local_folder);
     }
 
     /**

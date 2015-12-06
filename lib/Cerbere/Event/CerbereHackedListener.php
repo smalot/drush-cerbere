@@ -69,7 +69,7 @@ class CerbereHackedListener implements EventSubscriberInterface
     {
         $current_dir = getcwd();
         // Change current directory to the module directory.
-        chdir(dirname($event->getProject()->getFilename()));
+        chdir($event->getProject()->getWorkingDirectory());
 
         $hacked = new HackedProject($event->getProject());
         $result = $hacked->computeReport();
