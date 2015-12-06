@@ -12,7 +12,7 @@ Cerbere is a Drush commands set performing action on project' modules stored in 
 * Drush _([install drush](http://docs.drush.org/en/master/install/))_
 * PHP 5.3+
 
-[Compatible](https://travis-ci.org/smalot/drush-cerbere) with both Drush 7.x and 8.x.
+[Compatible](https://travis-ci.org/smalot/drush-cerbere) with both Drush 7.x and Drupal 8.x.
 
 # Installation
 
@@ -88,6 +88,7 @@ This report is dedicated to the `hacked` check.
 
 # Roadmap
 
+* ~~Add Yaml support (Drupal 8.x)~~
 * Fix notices (mkdir / unlink)
 * Add error handler on hacked plugin
 * Add logging on hacked plugin
