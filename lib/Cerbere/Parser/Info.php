@@ -73,16 +73,19 @@ class Info extends Ini
     public function processContent($content, $filename = null)
     {
         $data = $this->parseContent($content);
-        $data += array('project' => basename($filename, '.info'), 'version' => '');
 
-        $project = new Project($data['project'], $data['core'], $data['version']);
-        $project->setDetails($data);
+        if (!empty($data['project'])) {
+            $data += array('version' => '');
 
-        if (!empty($filename)) {
-            $project->setFilename(realpath($filename));
+            $project = new Project($data['project'], $data['core'], $data['version']);
+            $project->setDetails($data);
+
+            if (!empty($filename)) {
+                $project->setFilename(realpath($filename));
+            }
+
+            $this->project = $project;
         }
-
-        $this->project = $project;
     }
 
     /**

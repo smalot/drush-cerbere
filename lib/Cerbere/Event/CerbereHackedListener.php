@@ -72,7 +72,14 @@ class CerbereHackedListener implements EventSubscriberInterface
         chdir($event->getProject()->getWorkingDirectory());
 
         $hacked = new HackedProject($event->getProject());
-        $result = $hacked->computeReport();
+
+        try {
+            $result = $hacked->computeReport();
+        }
+        catch (\Exception $e) {
+            // Todo: log error.
+            $result['status'] = HackedProject::STATUS_UNCHECKED;
+        }
 
         // Restore previous directory.
         chdir($current_dir);

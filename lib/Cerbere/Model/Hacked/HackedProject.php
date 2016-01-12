@@ -196,7 +196,7 @@ class HackedProject
 
         // Logging.
         if (!$this->remote_hashed) {
-            echo 'Could not hash remote project: ' . $this->getTitle() . "\n";
+            throw new \Exception(dt('Could not hash remote project: @project', array('@project' => $this->getTitle())));
         }
     }
 
@@ -230,8 +230,7 @@ class HackedProject
 
         // Logging.
         if (!$this->local_hashed) {
-            //throw new \Exception('Could not hash remote project: ' . $this->getTitle());
-            echo 'Could not hash local project: ' . $this->getTitle() . "\n";
+            throw new \Exception(dt('Could not hash local project: @project', array('@project' => $this->getTitle())));
         }
     }
 
