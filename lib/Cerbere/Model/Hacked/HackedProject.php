@@ -363,7 +363,7 @@ class HackedProject
      * @param string $storage
      * @param string $file
      *
-     * @return bool|string
+     * @return string|false
      */
     public function getFileLocation($storage = 'local', $file)
     {

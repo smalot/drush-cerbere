@@ -75,8 +75,7 @@ class CerbereHackedListener implements EventSubscriberInterface
 
         try {
             $result = $hacked->computeReport();
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             // Todo: log error.
             $result['status'] = HackedProject::STATUS_UNCHECKED;
         }
