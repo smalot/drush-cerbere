@@ -55,11 +55,17 @@ class Info extends Ini
      */
     public function getProjects()
     {
-        return array($this->getProject());
+        $project = $this->getProject();
+
+        if (null !== $project) {
+            return array($project);
+        }
+
+        return array();
     }
 
     /**
-     * @return Project
+     * @return Project|null
      */
     public function getProject()
     {
