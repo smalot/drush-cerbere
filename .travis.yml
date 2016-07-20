@@ -19,7 +19,7 @@ matrix:
 
 env:
   - DRUSH_VERSION=6.*
-  - DRUSH_VERSION=7.* # Install unable due to 
+#  - DRUSH_VERSION=7.* # Install unable due to dependencies nos available on Travis
   - DRUSH_VERSION=8.*@dev
   - DRUSH_VERSION=dev-master
 
