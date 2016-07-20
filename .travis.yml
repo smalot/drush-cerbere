@@ -19,13 +19,13 @@ matrix:
 
 env:
   - DRUSH_VERSION=6.*
-  - DRUSH_VERSION=7.*
+  - DRUSH_VERSION=7.* # Install unable due to 
   - DRUSH_VERSION=8.*@dev
   - DRUSH_VERSION=dev-master
 
 before_script:
   - composer self-update || true
   - composer --prefer-source install
-  - composer require drush/drush:$DRUSH_VERSION
+  - composer require drush/drush:$DRUSH_VERSION --ignore-platform-reqs
 
 script: ./vendor/atoum/atoum/bin/atoum -d lib/Cerbere/Tests/Units/ -ncc
