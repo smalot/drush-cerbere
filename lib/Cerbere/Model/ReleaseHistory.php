@@ -294,7 +294,7 @@ class ReleaseHistory
                 if (!$project->getDatestamp()) {
                     // We don't have current timestamp info, so we can't know.
                     continue;
-                } elseif ($release->getDate() && ($project->getDatestamp() + 100 > $release->getDate())) {
+                } elseif ($release->getDate() && ($project->getDatestamp() + 100 > $release->getDate()->getTimestamp())) {
                     // We're newer than this, so we can skip it.
                     continue;
                 }

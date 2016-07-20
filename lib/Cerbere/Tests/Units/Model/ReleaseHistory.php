@@ -45,8 +45,6 @@ class ReleaseHistory extends AbstractTest
 
         $this->integer($project->getStatus())->isEqualTo(\Cerbere\Model\ReleaseHistory::UPDATE_NOT_SECURE);
 
-
-
         // 5.10 should be outdated.
         $project = $this->createProjectFromFile('5.10');
 
@@ -57,6 +55,18 @@ class ReleaseHistory extends AbstractTest
         $release_history->compare($project);
 
         $this->integer($project->getStatus())->isEqualTo(\Cerbere\Model\ReleaseHistory::UPDATE_NOT_CURRENT);
+
+        /********************************************************/
+
+        // Test with a DEV release.
+        $release_history = new \Cerbere\Model\ReleaseHistory();
+
+        $project = $this->createProjectSearchAPIFromFile();
+
+        $release_history->prepare($project);
+        $release_history->compare($project);
+
+        $this->integer($project->getStatus())->isEqualTo(\Cerbere\Model\ReleaseHistory::UPDATE_NOT_SECURE);
     }
 
     /**
@@ -81,10 +91,66 @@ test_dependencies[] = oauth
 test_dependencies[] = views
 
 ; Information added by Drupal.org packaging script on 2015-10-05
-version = "7.x-' . $version . '"
+version = "7.x-'.$version.'"
 core = "7.x"
 project = "twitter"
 datestamp = "1444046332"';
+
+        $filename = $this->createFile($data);
+
+        $info = new \Cerbere\Parser\Info();
+        $info->processFile($filename);
+        $project = $info->getProject();
+
+        return $project;
+    }
+
+    protected function createProjectSearchAPIFromFile()
+    {
+        $data = 'name = Search API
+description = "Provides a generic API for modules offering search capabilites."
+dependencies[] = entity
+core = 7.x
+package = Search
+
+files[] = search_api.test
+files[] = includes/callback.inc
+files[] = includes/callback_add_aggregation.inc
+files[] = includes/callback_add_hierarchy.inc
+files[] = includes/callback_add_url.inc
+files[] = includes/callback_add_viewed_entity.inc
+files[] = includes/callback_bundle_filter.inc
+files[] = includes/callback_comment_access.inc
+files[] = includes/callback_language_control.inc
+files[] = includes/callback_node_access.inc
+files[] = includes/callback_node_status.inc
+files[] = includes/callback_role_filter.inc
+files[] = includes/callback_user_status.inc
+files[] = includes/datasource.inc
+files[] = includes/datasource_entity.inc
+files[] = includes/datasource_external.inc
+files[] = includes/datasource_multiple.inc
+files[] = includes/exception.inc
+files[] = includes/index_entity.inc
+files[] = includes/processor.inc
+files[] = includes/processor_highlight.inc
+files[] = includes/processor_html_filter.inc
+files[] = includes/processor_ignore_case.inc
+files[] = includes/processor_stopwords.inc
+files[] = includes/processor_tokenizer.inc
+files[] = includes/processor_transliteration.inc
+files[] = includes/query.inc
+files[] = includes/server_entity.inc
+files[] = includes/service.inc
+
+configure = admin/config/search/search_api
+
+; Information added by Drupal.org packaging script on 2016-02-26
+version = "7.x-1.16+29-dev"
+core = "7.x"
+project = "search_api"
+datestamp = "1456500713"
+';
 
         $filename = $this->createFile($data);
 
