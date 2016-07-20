@@ -16,12 +16,13 @@ matrix:
     - php: 5.3
       env: DRUSH_VERSION=dev-master
     - php: 7
+    - env: DRUSH_VERSION=dev-master
 
 env:
   - DRUSH_VERSION=6.*
 #  - DRUSH_VERSION=7.* # Install unable due to dependencies nos available on Travis
   - DRUSH_VERSION=8.*@dev
-#  - DRUSH_VERSION=dev-master # Install unable due to dependencies nos available on Travis
+  - DRUSH_VERSION=dev-master # Install unable due to dependencies nos available on Travis
 
 before_script:
   - composer self-update || true
