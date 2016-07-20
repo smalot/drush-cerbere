@@ -3,7 +3,7 @@
   "description": "Drush command line that controls the updates of Drupal modules.",
   "keywords": ["drush", "drupal", "module", "command", "update", "check"],
   "license": "GPL-2.0+",
-  "minimum-stability": "stable",
+  "minimum-stability": "dev",
   "prefer-stable": true,
   "authors": [
     { "name": "Sebastien Malot", "email": "sebastien@malot.fr" }
