@@ -42,7 +42,10 @@ class HackedProjectWebDownloader
             $dir .= DIRECTORY_SEPARATOR . preg_replace('/[^0-9A-Z\-_]/i', '', $namespace);
         }
 
-        @mkdir($dir, 0775, true);
+        // Build the destination folder tree if it doesn't already exists.
+        if (!is_dir($dir)) {
+            mkdir($dir, 0775, true);
+        }
 
         return $dir;
     }
@@ -60,7 +63,9 @@ class HackedProjectWebDownloader
         $dir = $this->getTempDirectory() . DIRECTORY_SEPARATOR . $type . DIRECTORY_SEPARATOR . $name;
 
         // Build the destination folder tree if it doesn't already exists.
-        @mkdir($dir, 0775, true);
+        if (!is_dir($dir)) {
+            mkdir($dir, 0775, true);
+        }
 
         return $dir . DIRECTORY_SEPARATOR . $version;
     }

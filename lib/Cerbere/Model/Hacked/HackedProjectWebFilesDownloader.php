@@ -48,7 +48,9 @@ class HackedProjectWebFilesDownloader extends HackedProjectWebDownloader
         }
 
         // Build the destination folder tree if it doesn't already exists.
-        mkdir($destination, 0775, true);
+        if (!is_dir($destination)) {
+            mkdir($destination, 0775, true);
+        }
 
         if (!($local_file = $this->getFile($release_url))) {
             return false;
@@ -92,7 +94,7 @@ class HackedProjectWebFilesDownloader extends HackedProjectWebDownloader
         $local = $cache_directory . DIRECTORY_SEPARATOR . basename($parsed_url['path']);
 
         if (!file_exists($cache_directory)) {
-            mkdir($cache_directory, 0775, true);
+            @mkdir($cache_directory, 0775, true);
         }
 
         // Todo: use guzzle.

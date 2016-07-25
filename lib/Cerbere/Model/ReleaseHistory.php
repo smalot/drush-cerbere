@@ -364,7 +364,7 @@ class ReleaseHistory
                 if (!$project->getDatestamp()) {
                     $project->setStatus(self::UPDATE_NOT_CHECKED);
                     $project->setReason('Unknown release date');
-                } elseif (($project->getDatestamp() + 100 > $latest->getDate())) {
+                } elseif (($project->getDatestamp() + 100 > $latest->getDate()->getTimestamp())) {
                     $project->setStatus(self::UPDATE_CURRENT);
                 } else {
                     $project->setStatus(self::UPDATE_NOT_CURRENT);
