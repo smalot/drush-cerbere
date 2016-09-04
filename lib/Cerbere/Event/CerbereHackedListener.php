@@ -68,6 +68,7 @@ class CerbereHackedListener implements EventSubscriberInterface
     public function onReportAction(CerbereReportActionEvent $event)
     {
         $current_dir = getcwd();
+        
         try {
             // Change current directory to the module directory.
             chdir($event->getProject()->getWorkingDirectory());
