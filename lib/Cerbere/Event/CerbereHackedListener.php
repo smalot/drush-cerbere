@@ -71,10 +71,13 @@ class CerbereHackedListener implements EventSubscriberInterface
         
         try {
             // Change current directory to the module directory.
-            chdir($event->getProject()->getWorkingDirectory());
+            $workingDirectory = $event->getProject()->getWorkingDirectory();
+            if (!is_dir($workingDirectory)) {
+                throw new \Exception('Missing folder');
+            }
+            @chdir($workingDirectory);
 
             $hacked = new HackedProject($event->getProject());
-
             $result = $hacked->computeReport();
         } catch (\Exception $e) {
             // Todo: log error.
