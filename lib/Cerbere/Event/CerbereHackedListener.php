@@ -68,12 +68,12 @@ class CerbereHackedListener implements EventSubscriberInterface
     public function onReportAction(CerbereReportActionEvent $event)
     {
         $current_dir = getcwd();
-        // Change current directory to the module directory.
-        chdir($event->getProject()->getWorkingDirectory());
-
-        $hacked = new HackedProject($event->getProject());
-
         try {
+            // Change current directory to the module directory.
+            chdir($event->getProject()->getWorkingDirectory());
+
+            $hacked = new HackedProject($event->getProject());
+
             $result = $hacked->computeReport();
         } catch (\Exception $e) {
             // Todo: log error.
