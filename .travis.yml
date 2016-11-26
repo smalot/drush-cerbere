@@ -3,7 +3,6 @@ language: php
 sudo: false
 
 php:
-  - 5.3
   - 5.4
   - 5.5
   - 5.6
@@ -12,7 +11,6 @@ php:
 
 matrix:
   allow_failures:
-    - php: 5.3
     - php: 7
     - php: HHVM
     - env: DRUSH_VERSION=dev-master
