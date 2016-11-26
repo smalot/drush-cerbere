@@ -8,18 +8,18 @@ php:
   - 5.5
   - 5.6
   - 7
+  - HHMV
 
 matrix:
   allow_failures:
     - php: 5.3
     - php: 7
+    - php: HHVM
     - env: DRUSH_VERSION=dev-master
 
 env:
-  - DRUSH_VERSION=6.*
-#  - DRUSH_VERSION=7.* # Install unable due to dependencies nos available on Travis
-  - DRUSH_VERSION=8.*@dev
-  - DRUSH_VERSION=dev-master # Install unable due to dependencies nos available on Travis
+  - DRUSH_VERSION=8.*
+  - DRUSH_VERSION=dev-master # 9.x
 
 before_script:
   - composer self-update || true
