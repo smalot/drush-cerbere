@@ -12,7 +12,7 @@ php:
 matrix:
   allow_failures:
     - php: 7
-    - php: HHVM
+    - php: HHMV
     - env: DRUSH_VERSION=dev-master
 
 env:
