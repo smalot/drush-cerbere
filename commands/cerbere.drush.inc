@@ -30,6 +30,7 @@ use Cerbere\Cerbere;
 use Cerbere\Event\CerbereHackedListener;
 use Cerbere\Event\CerbereProgressBarListener;
 use Cerbere\Model\Job;
+use Cerbere\Parser\Composer;
 use Cerbere\Parser\Info;
 use Cerbere\Parser\Make;
 use Cerbere\Parser\Yaml;
@@ -116,8 +117,9 @@ function drush_cerbere_update()
     $cerbere = new Cerbere();
 
     // Parsers.
-    $cerbere->addParser(new Make());
+    $cerbere->addParser(new Composer());
     $cerbere->addParser(new Info());
+    $cerbere->addParser(new Make());
     $cerbere->addParser(new Yaml());
 
     // Action.
