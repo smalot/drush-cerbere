@@ -25,6 +25,7 @@ use Cerbere\Model\Project;
 use Composer\Json\JsonFile;
 use Composer\Package\Locker;
 use Composer\Repository\RepositoryManager;
+use ComposerLockParser\Package;
 
 /**
  * Class Composer
@@ -81,11 +82,16 @@ class Composer extends Ini
         $composerInfo->parse();
 
         $this->projects = array();
+        // Default value if not autodetected.
+        $core = '8.x';
 
+        /** @var Package $package */
         foreach ($composerInfo->getPackages() as $package) {
             if (strpos($package->getName(), 'drupal/') === 0 && $source = $package->getSource()) {
-                $core = substr($source, 0, 1) . '.x';
-                $project = new Project($package->getName(), $core, $source);
+                $name = $this->getName($package);
+                $version = $this->getVersion($package, $core);
+                $core = substr($version, 0, 1) . '.x';
+                $project = new Project($name, $core, $version, $package->getTime());
                 $this->projects[] = $project;
             }
         }
@@ -99,5 +105,46 @@ class Composer extends Ini
     public function supportedFile($filename)
     {
         return preg_match('/\.lock/i', $filename) > 0;
+    }
+
+    /**
+     * @param Package $package
+     *
+     * @return string
+     */
+    protected function getName(Package $package)
+    {
+        if ($package->getName() == 'drupal/core') {
+            return 'drupal';
+        } else {
+            return preg_replace('/^drupal\//', '', $package->getName());
+        }
+    }
+
+    /**
+     * @param Package $package
+     * @param string $core
+     *
+     * @return string
+     */
+    protected function getVersion(Package $package, $core)
+    {
+        $source = $package->getSource();
+
+        if (preg_match('/^[0-9]+\.x\-/', $source['reference'])) {
+            return $source['reference'];
+        } elseif ($this->getName($package) == 'drupal') {
+            return $package->getVersion();
+        } else {
+            $version = 'N/A';
+
+            if (preg_match('/^([0-9]+\.[0-9]+)\.[0-9]+(.*)/', $package->getVersion(), $match)) {
+                $version = $match[1] . $match[2];
+
+                return $core . '-' . $version;
+            }
+
+            return $version;
+        }
     }
 }

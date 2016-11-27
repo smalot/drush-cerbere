@@ -194,13 +194,20 @@ class Project
      * @param string $project
      * @param string $core
      * @param string $version
+     * @param \DateTime|int|null $date
      */
-    public function __construct($project, $core, $version)
+    public function __construct($project, $core, $version, $date = null)
     {
         $this->project = $project;
         $this->name    = $project;
         $this->core    = $core;
         $this->version = $version;
+
+        if ($date instanceof \DateTime) {
+            $this->datestamp = $date->getTimestamp();
+        } elseif (is_int($date)) {
+            $this->datestamp = $date;
+        }
 
         $this->project_type = self::TYPE_UNKNOWN;
 
