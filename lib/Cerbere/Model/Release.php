@@ -45,7 +45,11 @@ class Release
      */
     public function getDate()
     {
-        return new \DateTime('@' . $this->getDatestamp());
+        if ($timestamp = $this->getDatestamp()) {
+            return new \DateTime('@' . $timestamp);
+        }
+
+        return null;
     }
 
     /**
